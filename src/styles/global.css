@@ -168,6 +168,18 @@
 
 /* Scroll reveal: elements get .is-in from an IntersectionObserver in BaseLayout. */
 @media (prefers-reduced-motion: no-preference) {
+  /* Native smooth scroll for anchors and the back-to-top button; the wheel stays native (no scroll hijack). */
+  html { scroll-behavior: smooth; }
+
+  /* Page-to-page transition (cross-document View Transitions; browsers without it just navigate).
+     The header, phone bar and floating buttons hold still while the page content fades up. */
+  @view-transition { navigation: auto; }
+  .site-header { view-transition-name: site-header; }
+  ::view-transition-old(root) { animation: vt-out .18s ease-in both; }
+  ::view-transition-new(root) { animation: vt-in .45s var(--ease-out-expo) .05s both; }
+  @keyframes vt-out { to { opacity: 0; } }
+  @keyframes vt-in { from { opacity: 0; transform: translateY(12px); } }
+
   .js [data-reveal] { opacity: 0; transform: translateY(22px); transition: opacity .8s var(--ease-out-expo), transform .8s var(--ease-out-expo); transition-delay: calc(var(--d, 0) * 70ms); }
   .js [data-reveal].is-in { opacity: 1; transform: none; }
 

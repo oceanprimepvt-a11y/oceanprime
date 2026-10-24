@@ -54,6 +54,7 @@ export const nav = [
 
 // Footer "Company" column: everything a buyer or a search engine expects to find.
 export const companyLinks = [
+  { href: '/', label: 'Home' },
   { href: '/about', label: 'About us' },
   { href: '/process', label: 'Our process' },
   { href: '/faq', label: 'Buyer FAQ' },

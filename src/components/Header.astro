@@ -14,7 +14,7 @@ const thumbs: Record<string, string> = { '/': 'hero', '/products': 'vannamei', '
 const menuLinks = [{ href: '/', label: 'Home' }, ...nav];
 ---
 <!-- Floating glass pill. Outer padding + pill height = 4rem / 4.5rem, the offset sticky bars rely on. -->
-<header class="sticky top-0 z-40 px-2 pt-2 md:px-4 md:pt-3">
+<header class="site-header sticky top-0 z-40 px-2 pt-2 md:px-4 md:pt-3">
   <div class="site-pill mx-auto flex h-14 max-w-[80rem] items-center justify-between gap-4 rounded-full border border-line/80 bg-bg/75 pl-1.5 pr-1.5 backdrop-blur-xl md:h-[3.75rem] md:pl-2 md:pr-2">
     <a href="/" class="flex items-center rounded-full py-1 pl-2 pr-2 md:pl-2.5" aria-label={`${business.name} home`}>
       <Logo />
@@ -22,12 +22,12 @@ const menuLinks = [{ href: '/', label: 'Home' }, ...nav];
 
     <nav aria-label="Main" class="hidden md:block">
       <ul class="flex items-center gap-1">
-        {nav.map((n) => (
+        {menuLinks.map((n) => (
           <li>
             <a
               href={n.href}
               aria-current={isActive(n.href) ? 'page' : undefined}
-              class="rounded-full px-3 py-2 text-[0.95rem] lg:px-4 font-medium text-ink-2 transition-colors hover:text-ink aria-[current=page]:bg-surface-2 aria-[current=page]:text-ink"
+              class="rounded-full px-2.5 py-2 text-[0.95rem] lg:px-4 font-medium text-ink-2 transition-colors hover:text-ink aria-[current=page]:bg-surface-2 aria-[current=page]:text-ink"
             >{n.label}</a>
           </li>
         ))}
@@ -121,26 +121,32 @@ const menuLinks = [{ href: '/', label: 'Home' }, ...nav];
 </header>
 
 <style>
-  .site-pill { box-shadow: 0 10px 30px -18px rgb(11 26 46 / .45); }
+  .site-pill { box-shadow: 0 10px 30px -18px rgb(11 26 46 / .45); transition: background-color .3s, box-shadow .3s; }
   :global([data-theme='dark']) .site-pill { box-shadow: 0 10px 30px -14px rgb(0 0 0 / .7); }
+  /* Once the page scrolls, the pill firms up so it reads over busy photos. */
+  .site-header[data-scrolled] .site-pill { background-color: color-mix(in oklab, var(--c-bg) 92%, transparent); box-shadow: 0 16px 40px -18px rgb(11 26 46 / .55); }
 
   /* Current page: gold number, gold label, gold ring on the thumbnail. */
   .menu a[aria-current='page'] .m-num, .menu a[aria-current='page'] .m-label { color: var(--color-gold); }
   .menu a[aria-current='page'] :global(img) { box-shadow: 0 0 0 2px var(--color-gold); }
 
-  .menu[open] { animation: menu-in .35s var(--ease-out-expo); }
-  @keyframes menu-in { from { opacity: 0; } }
   @media (prefers-reduced-motion: no-preference) {
+    .menu { opacity: 0; transition: opacity .3s var(--ease-out-expo), overlay .3s allow-discrete, display .3s allow-discrete; }
+    .menu[open] { opacity: 1; }
+    @starting-style { .menu[open] { opacity: 0; } }
     .menu[open] .menu-item { animation: menu-rise .6s var(--ease-out-expo) both; animation-delay: calc(var(--i) * 50ms + 80ms); }
     .menu[open] .menu-thumb { animation: thumb-in .7s var(--ease-out-expo) both; animation-delay: inherit; }
     @keyframes menu-rise { from { opacity: 0; transform: translateY(14px); } }
     @keyframes thumb-in { from { opacity: 0; transform: scale(.8) rotate(-4deg); } }
   }
-  @media (prefers-reduced-motion: reduce) { .menu[open] { animation: none; } }
 </style>
 
 <script>
   const root = document.documentElement;
+  const header = document.querySelector<HTMLElement>('.site-header');
+  const onScroll = () => header?.toggleAttribute('data-scrolled', scrollY > 8);
+  addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
   document.querySelector('[data-theme-toggle]')?.addEventListener('click', () => {
     const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
     root.dataset.theme = next;

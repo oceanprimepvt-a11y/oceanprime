@@ -72,7 +72,12 @@ const itemList = {
       if (!e.isIntersecting) return;
       const id = (e.target as HTMLElement).dataset.catSection!;
       links.forEach((a, key) => a.setAttribute('aria-current', String(key === id)));
-      links.get(id)?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+      // Centre the chip by scrolling only its strip; scrollIntoView would also cancel any page scroll in progress.
+      const a = links.get(id), strip = a?.closest('nav');
+      if (a && strip) {
+        const dx = a.getBoundingClientRect().left - strip.getBoundingClientRect().left;
+        strip.scrollTo({ left: strip.scrollLeft + dx - (strip.clientWidth - a.offsetWidth) / 2, behavior: 'smooth' });
+      }
     }),
     { rootMargin: '-45% 0px -50% 0px' },
   );

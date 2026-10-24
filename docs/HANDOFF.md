@@ -1,8 +1,10 @@
 # Ocean Prime: handoff
 
-Last updated: 2026-10-24
+Last updated: 2026-10-25
 
 ## State
+
+- 2026-10-25 motion pass: native smooth scroll, cross-page View Transitions (header holds still), back-to-top button with gold scroll-progress ring (`BackToTop.astro`, steps above the enquiry button), header firms up on scroll (`data-scrolled`), mobile menu fades in and out, FAQ answers slide open. All gated by prefers-reduced-motion. "Home" added to the desktop nav and the footer. Gotcha: never use `scrollIntoView` for the products chip strip; it cancelled page scrolls (now scrolls the strip only).
 - **Site code complete and committed** (local git, first commit eb69cd0; never pushed). Astro **7.4.1** static site + Tailwind v4. Build: 0 errors, 31 pages (home, products, 23 product pages, process, about, faq, privacy, contact, 404). npm audit: 0 vulnerabilities.
 - Design tokens in `src/styles/global.css` (navy #0b1a2e, single gold accent #d6a63a, pills / 16px cards / 10px fields; Bricolage display, Geist body, Cinzel wordmark only). Light/dark via `data-theme` + localStorage `theme`.
 - Data: `src/data/site.ts` (business facts, `tel`, `waLink`, `nav`), `src/data/products.ts` (23 products, 6 categories, glossary). No invented certifications, markets or stats. Client facts + [NEED] list: `CLIENT.md`.
