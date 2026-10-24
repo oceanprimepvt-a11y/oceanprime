@@ -1,0 +1,195 @@
+---
+// Seasonal availability calendar: one 12-month strip per category.
+// Only the east coast fishing ban is drawn as fact (rules in src/data/season.ts). Peak seasons stay
+// [NEED: client season data]; until then every other month reads "Ask for this season".
+import Icon from './Icon.astro';
+import { categories, productsBy } from '../data/products';
+import { MONTHS, BAN, banBand, banRange, sourceKind, monthNote, peakMonths, type SourceKind } from '../data/season';
+import { waLink } from '../data/site';
+
+const kindLabel: Record<SourceKind, string> = { wild: 'Wild-caught', farmed: 'Farmed', mixed: 'Farmed and wild', processed: 'Made from catch' };
+const rows = categories.map((c) => {
+  const kind = sourceKind(productsBy(c.id).map((p) => p.source));
+  return { id: c.id, name: c.name, kind, peak: peakMonths[c.id] ?? [] };
+});
+const band = banBand();
+const pct = (n: number) => `${Math.round((n / 12) * 10000) / 100}%`;
+// No-JS default: the month the ban starts. The script switches to the current month.
+const first = BAN.from[0];
+---
+
+<div class="season rounded-card border border-line bg-surface p-5 md:p-8" data-season data-wa={waLink()}>
+  <ul class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-ink-2" aria-label="Key">
+    <li class="flex items-center gap-2"><span class="ss-key ss-key-ban" aria-hidden="true"></span>{BAN.label}, {banRange} (no new wild catch)</li>
+    <li class="flex items-center gap-2"><span class="ss-key ss-key-mixed" aria-hidden="true"></span>Wild lines only</li>
+    <li class="flex items-center gap-2"><span class="ss-key" aria-hidden="true"></span>Ask for this season</li>
+    <li class="ss-today-key hidden items-center gap-2"><span class="ss-key ss-key-today" aria-hidden="true"></span>Today</li>
+  </ul>
+
+  <div class="ss-grid mt-6">
+    <div class="ss-row ss-head">
+      <span class="ss-label hidden md:block" aria-hidden="true"></span>
+      <div class="ss-months" role="radiogroup" aria-label="Pick a month">
+        {MONTHS.map((m, i) => (
+          <button type="button" role="radio" class="ss-month" data-month={i + 1} aria-checked={i + 1 === first ? 'true' : 'false'} tabindex={i + 1 === first ? 0 : -1} aria-label={m}>
+            <span class="md:hidden" aria-hidden="true">{m[0]}</span><span class="hidden md:inline" aria-hidden="true">{m.slice(0, 3)}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+
+    {rows.map((r) => (
+      <div class="ss-row">
+        <div class="ss-label">
+          <span class="font-semibold">{r.name}</span>
+          <span class="ss-kind">{kindLabel[r.kind]}</span>
+        </div>
+        <div class="ss-track" data-track aria-hidden="true">
+          {MONTHS.map((_, i) => <span class:list={['ss-cell', r.peak.includes(i + 1) && 'is-peak']} data-month={i + 1}></span>)}
+          {r.kind !== 'farmed' && <span class:list={['ss-band', r.kind !== 'wild' && 'is-soft']} style={`left:${pct(band.start)};width:${pct(band.end - band.start)}`}></span>}
+          <span class="ss-sel" style={`left:${pct(first - 1)}`}></span>
+          <span class="ss-now"></span>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <div class="mt-8 border-t border-line pt-6" aria-live="polite">
+    <h3 class="font-display text-2xl font-semibold" data-panel-title>{MONTHS[first - 1]}</h3>
+    <ul class="mt-4 grid gap-3 md:grid-cols-2 md:gap-x-10">
+      {rows.map((r) => (
+        <li class="flex gap-3" data-panel-row={r.id} data-kind={r.kind} data-peak={r.peak.join(',')}>
+          <span class="ss-dot mt-1.5" data-dot aria-hidden="true"></span>
+          <span><span class="font-semibold">{r.name}.</span> <span class="text-ink-2" data-note>{monthNote(r.kind, first)}</span></span>
+        </li>
+      ))}
+    </ul>
+    <div class="mt-6 flex flex-wrap gap-3">
+      <a href={waLink(`Hello Ocean Prime, which species can you supply in ${MONTHS[first - 1]}?`)} target="_blank" rel="noopener" class="btn btn-gold" data-ask>
+        <Icon name="whatsapp" size={18} /><span data-ask-label>Ask about {MONTHS[first - 1]}</span>
+      </a>
+      <a href="/quote" class="btn btn-line">Request a quote<Icon name="arrowRight" size={18} /></a>
+    </div>
+    <p class="mt-5 text-sm text-ink-2">
+      The ban dates are set each year by the Government of India for the east coast (Bay of Bengal). Peak seasons by species are confirmed per enquiry.
+    </p>
+  </div>
+</div>
+
+<style>
+  .ss-grid { display: grid; gap: .9rem; }
+  .ss-row { display: grid; gap: .4rem; }
+  @media (min-width: 768px) {
+    .ss-grid { gap: .55rem; }
+    .ss-row { grid-template-columns: 15rem 1fr; gap: 1.25rem; align-items: center; }
+  }
+  .ss-head { position: sticky; top: 7.5rem; z-index: 2; background: var(--c-surface); padding-block: .35rem; }
+  @media (min-width: 768px) { .ss-head { top: 8.6rem; } }
+  .ss-label { display: flex; flex-wrap: wrap; align-items: baseline; gap: .15rem .6rem; line-height: 1.25; }
+  .ss-kind { font-size: .78rem; color: var(--c-ink-2); }
+  @media (min-width: 768px) { .ss-label { flex-direction: column; gap: .1rem; } }
+
+  .ss-months { display: grid; grid-template-columns: repeat(12, 1fr); }
+  .ss-month {
+    min-height: 2.25rem; border-radius: 8px; font-size: .8rem; font-weight: 600; color: var(--c-ink-2);
+    transition: background-color .2s, color .2s;
+  }
+  .ss-month:hover { color: var(--c-ink); background: var(--c-surface-2); }
+  .ss-month[aria-checked='true'] { background: var(--color-navy); color: #fff; }
+  :global([data-theme='dark']) .ss-month[aria-checked='true'] { background: var(--color-gold); color: var(--color-navy); }
+  .ss-month:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 2px; }
+  .ss-month.is-now:not([aria-checked='true']) { color: var(--c-gold-ink); }
+
+  .ss-track { position: relative; display: grid; grid-template-columns: repeat(12, 1fr); height: 2.25rem; border-radius: 8px; overflow: hidden; cursor: pointer; }
+  .ss-cell { background: var(--c-surface-2); border-inline-end: 1px solid var(--c-surface); }
+  .ss-cell:nth-child(12) { border-inline-end: 0; }
+  .ss-cell.is-peak { background: var(--color-gold); }
+  .ss-band, .ss-key-ban {
+    background: repeating-linear-gradient(-45deg, var(--c-ink) 0 3px, transparent 3px 7px), color-mix(in oklab, var(--c-ink) 22%, transparent);
+  }
+  .ss-band.is-soft, .ss-key-mixed {
+    background: repeating-linear-gradient(-45deg, color-mix(in oklab, var(--c-ink) 55%, transparent) 0 2px, transparent 2px 8px);
+  }
+  .ss-band { position: absolute; inset-block: 0; pointer-events: none; }
+  .ss-sel {
+    position: absolute; inset-block: 0; width: calc(100% / 12); pointer-events: none;
+    box-shadow: inset 0 0 0 2px var(--color-gold); border-radius: 8px;
+    transition: left .35s var(--ease-out-expo);
+  }
+  .ss-now { position: absolute; inset-block: 0; width: 2px; margin-left: -1px; background: var(--color-gold); display: none; pointer-events: none; }
+  .ss-now.is-on { display: block; }
+
+  .ss-key { display: inline-block; width: 1.4rem; height: .9rem; border-radius: 4px; background: var(--c-surface-2); flex-shrink: 0; }
+  .ss-key-ban, .ss-key-mixed { background-color: var(--c-surface-2); }
+  .ss-key-today { width: 2px; background: var(--color-gold); border-radius: 0; }
+  .ss-dot { width: .65rem; height: .65rem; border-radius: 99px; flex-shrink: 0; background: var(--c-surface-2); box-shadow: inset 0 0 0 1px var(--c-line); }
+  .ss-dot.is-ban { background: var(--c-ink); box-shadow: none; }
+  .ss-dot.is-soft { background: color-mix(in oklab, var(--c-ink) 45%, transparent); box-shadow: none; }
+  .ss-dot.is-peak { background: var(--color-gold); box-shadow: none; }
+
+  @media (prefers-reduced-motion: reduce) { .ss-sel, .ss-month { transition: none; } }
+</style>
+
+<script>
+  import { MONTHS, monthNote, monthStatus, stripPos, type SourceKind } from '../data/season';
+
+  document.querySelectorAll<HTMLElement>('[data-season]').forEach((root) => {
+    const radios = [...root.querySelectorAll<HTMLButtonElement>('.ss-month')];
+    const title = root.querySelector<HTMLElement>('[data-panel-title]')!;
+    const ask = root.querySelector<HTMLAnchorElement>('[data-ask]')!;
+    const askLabel = root.querySelector<HTMLElement>('[data-ask-label]')!;
+    const wa = root.dataset.wa!;
+    const now = new Date();
+    const thisMonth = now.getMonth() + 1;
+
+    const select = (m: number, focus = false) => {
+      radios.forEach((b) => {
+        const on = +b.dataset.month! === m;
+        b.setAttribute('aria-checked', String(on));
+        b.tabIndex = on ? 0 : -1;
+        if (on && focus) b.focus();
+      });
+      root.querySelectorAll<HTMLElement>('.ss-sel').forEach((s) => (s.style.left = `${((m - 1) / 12) * 100}%`));
+      // The next time this month comes round, so a buyer in November asking about May means next May.
+      const year = now.getFullYear() + (m < thisMonth ? 1 : 0);
+      title.textContent = `${MONTHS[m - 1]} ${year}`;
+      root.querySelectorAll<HTMLElement>('[data-panel-row]').forEach((li) => {
+        const kind = li.dataset.kind as SourceKind;
+        const peak = (li.dataset.peak || '').split(',').map(Number).includes(m);
+        const st = monthStatus(kind, m);
+        li.querySelector('[data-note]')!.textContent = peak ? 'In season (confirmed by us). Ask for grades and quantities.' : monthNote(kind, m);
+        const dot = li.querySelector('[data-dot]')!;
+        dot.className = 'ss-dot mt-1.5';
+        if (peak) dot.classList.add('is-peak');
+        else if (st !== 'ask') dot.classList.add(kind === 'wild' ? 'is-ban' : 'is-soft');
+      });
+      askLabel.textContent = `Ask about ${MONTHS[m - 1]}`;
+      ask.href = `${wa}?text=${encodeURIComponent(`Hello Ocean Prime, which species can you supply in ${MONTHS[m - 1]} ${year}?`)}`;
+    };
+
+    radios.forEach((b, i) => {
+      b.addEventListener('click', () => select(+b.dataset.month!));
+      b.addEventListener('keydown', (e) => {
+        const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+        const jump = e.key === 'Home' ? 0 : e.key === 'End' ? 11 : null;
+        if (step == null && jump == null) return;
+        e.preventDefault();
+        select((jump ?? (i + step! + 12) % 12) + 1, true);
+      });
+    });
+    // A tap anywhere on a strip picks that month.
+    root.querySelectorAll<HTMLElement>('[data-track]').forEach((t) =>
+      t.addEventListener('click', (e) => {
+        const r = t.getBoundingClientRect();
+        select(Math.min(12, Math.max(1, Math.floor(((e.clientX - r.left) / r.width) * 12) + 1)));
+      }),
+    );
+
+    // Today: gold line on every strip and a gold month label.
+    const pos = `${(stripPos(thisMonth, now.getDate()) / 12) * 100}%`;
+    root.querySelectorAll<HTMLElement>('.ss-now').forEach((n) => { n.style.left = pos; n.classList.add('is-on'); });
+    radios[thisMonth - 1].classList.add('is-now');
+    root.querySelector('.ss-today-key')?.classList.replace('hidden', 'flex');
+    select(thisMonth);
+  });
+</script>

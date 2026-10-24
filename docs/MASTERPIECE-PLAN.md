@@ -15,7 +15,7 @@ What is still missing is a reason for a buyer to bookmark it. A masterpiece here
 2. [x] **Size-grade charts on shrimp/prawn product pages.** DONE 2026-10-25, decisions below. Standard industry count grades (U/10 … 91/110 pieces per lb, and per kg for HOSO). These are industry conventions, not company claims. Interactive: tap a grade → "Add to enquiry with this grade".
 3. [x] **"Where we ship" route map.** DONE 2026-10-25, decisions below. Animated SVG map: Vizag port → markets in `demo.markets`, routes draw on scroll. No transit days or volumes (would be invented). Keep it DEMO-labelled like the markets list.
 4. [x] **Catch-to-container scroll story.** DONE 2026-10-25, decisions below. Home section 06 → pinned scroll sequence (CSS scroll-driven animations, no GSAP): 4 steps with a temperature line falling to -18 °C, photo cross-fades. Reduced motion = current static cards.
-5. **Seasonal availability calendar.** 12-month strip per category. Only the real fact is hard-coded: the east coast fishing ban (15 Apr to 14 Jun). Everything else stays `[NEED: client season data]`, shown as "Ask for this season" until the client confirms.
+5. [x] **Seasonal availability calendar.** DONE 2026-10-25, decisions below. 12-month strip per category. Only the real fact is hard-coded: the east coast fishing ban (15 Apr to 14 Jun). Everything else stays `[NEED: client season data]`, shown as "Ask for this season" until the client confirms.
 6. **Product page upgrade.** Image zoom/gallery, a "spec at a glance" table, "Download spec sheet" (print CSS, no PDF lib), related species rail, sticky "Add to enquiry" bar on mobile.
 7. **Polish + proof pass.** Lighthouse (performance/accessibility/SEO 100 target), CWV, `web-design-guidelines` review, full `audit.mjs`, screenshots 390/1440 light/dark, keyboard walk-through of every new tool. Then the `security-audit` skill (quick profile) before any deploy.
 
@@ -55,3 +55,10 @@ Real content only (DEMO data stays in `site.ts` `demo`, never in JSON-LD); no pr
 - Fallback: reduced motion or no `animation-timeline` support (Firefox today) shows the four static cards, each with its temperature note. Only one version is ever displayed, so screen readers hear the steps once.
 - Phones: icon hidden, bottom padding clears the call bar and back-to-top; under 720 px tall the note line hides.
 - Tested: scratchpad `c2c.mjs` (pinned at every step, only the right step visible, photos loaded, line drawn, no overflow, no console errors) at 390x780, 375x667, 1440x900, light/dark, motion on/off. All pass; `astro check` 0 errors.
+
+## Step 5 decisions (season calendar, 2026-10-25)
+- Files: rules `src/data/season.ts` (pure; tested in scratchpad `season.test.ts` with plain `node`), UI `src/components/SeasonCalendar.astro`, placed on `/products` as section `#season` ("Seasons" chip in the jump bar, a link under the page intro, footer "Season calendar").
+- One strip per category; the ban band (15 Apr to 14 Jun, drawn to the day) shows only where the category has wild catch: solid hatch for wild-only, light hatch for farmed+wild and for products made from catch, none for farmed (freshwater). Category kind is read from the products' `source` lines (`sourceKind`).
+- Pick a month (radio group, arrows/Home/End, or tap a strip): the panel says per category what the ban means that month, never claims stock. "Ask about <Month>" WhatsApp text names the next time that month comes round (Nov asking about May = May next year). Today = gold line, computed in the browser so the static build never goes stale.
+- `peakMonths` in `season.ts` is the [NEED: client season data] slot; filled months turn gold and read "In season (confirmed by us)".
+- Tested: scratchpad `season.mjs` (current month selected, 5 bands, notes per kind, WhatsApp text, keyboard, strip tap, no overflow, no console errors) at 390/1440 light/dark.

@@ -58,6 +58,7 @@ export const companyLinks = [
   { href: '/about', label: 'About us' },
   { href: '/process', label: 'Our process' },
   { href: '/quote', label: 'Spec builder' },
+  { href: '/products#season', label: 'Season calendar' },
   { href: '/faq', label: 'Buyer FAQ' },
   { href: '/contact', label: 'Contact' },
   { href: '/privacy', label: 'Privacy policy' },

@@ -33,4 +33,5 @@ All of it sits in `src/data/site.ts` (the `demo` block plus `legalName`, `street
 8. **Real photos** of the plant, products, packing and cartons (these would replace the AI images).
 9. **MOQ, payment terms (LC/TT/CAD), Incoterms** offered.
 10. **Original vector logo file** (SVG/AI/PDF). The current logo is from a 1024 px JPEG.
+12. **Season data:** peak months per species (`peakMonths` in `src/data/season.ts`); until then the season calendar shows only the fishing ban and "Ask for this season".
 11. Any **real buyer testimonials or certifications** they want shown (none are shown now; we never invent them).

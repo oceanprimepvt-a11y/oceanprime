@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProductCard from '../../components/ProductCard.astro';
 import Icon from '../../components/Icon.astro';
+import SeasonCalendar from '../../components/SeasonCalendar.astro';
 import { categories, products, productsBy } from '../../data/products';
 
 const site = Astro.site!;
@@ -26,6 +27,7 @@ const itemList = {
     <p class="mt-5 max-w-2xl text-lg leading-relaxed text-ink-2">
       A guide to the species we supply from India's east coast. Forms, grades and packing are agreed per order, so if you need something not listed, ask us.
     </p>
+    <a href="#season" class="mt-6 inline-flex items-center gap-2 font-semibold text-gold-ink underline-offset-4 hover:underline"><Icon name="clock" size={18} />Plan by season: see the availability calendar</a>
   </section>
 
   <!-- Category jump bar: sticky under the header, scrolls sideways on phones. -->
@@ -36,6 +38,7 @@ const itemList = {
           {c.short}<span class="ml-1.5 text-xs opacity-70">{productsBy(c.id).length}</span>
         </a>
       ))}
+      <a href="#season" data-cat-link="season" class="chip shrink-0 transition-colors hover:border-ink-2 aria-[current=true]:border-navy aria-[current=true]:bg-navy aria-[current=true]:text-white dark:aria-[current=true]:border-gold dark:aria-[current=true]:bg-gold dark:aria-[current=true]:text-navy">Seasons</a>
     </nav>
   </div>
 
@@ -51,6 +54,14 @@ const itemList = {
         </div>
       </section>
     ))}
+
+    <section id="season" data-cat-section="season" class="scroll-mt-36 pt-14 md:scroll-mt-40 md:pt-20" aria-labelledby="h-season">
+      <div class="flex flex-col gap-2 md:flex-row md:items-baseline md:justify-between" data-reveal>
+        <h2 id="h-season" class="text-3xl font-bold md:text-4xl">Availability by season</h2>
+        <p class="max-w-md text-ink-2 md:text-right">Pick a month to see what changes. Plan orders around the east coast fishing ban.</p>
+      </div>
+      <div class="mt-8" data-reveal><SeasonCalendar /></div>
+    </section>
 
     <aside class="mt-20 flex flex-col items-start gap-5 rounded-card border border-line bg-surface p-6 md:flex-row md:items-center md:justify-between md:p-8" data-reveal>
       <div>
