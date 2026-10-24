@@ -1,0 +1,142 @@
+---
+// "Where we ship": dotted world map, routes from Visakhapatnam to each market in demo.markets (DEMO data).
+// Routes are drawn arcs, not real shipping lanes: no transit days, volumes or ports are claimed.
+// Dots: src/assets/map/world-dots.svg (baked once by a dotted-map script). Pins: src/data/worldMap.ts.
+import dotsUrl from '../assets/map/world-dots.svg?url';
+import Icon from './Icon.astro';
+import { demo } from '../data/site';
+import { pinXY, world } from '../data/worldMap';
+
+// Where each label sits around its pin, so the East Asia cluster does not collide.
+const labelSide: Record<string, 'top' | 'right' | 'bottom' | 'left'> = {
+  'United States': 'top', 'European Union': 'top', 'Middle East': 'left', China: 'top', Japan: 'right', Vietnam: 'bottom',
+};
+
+const [vx, vy] = pinXY.vizag;
+const r1 = (n: number) => Math.round(n * 100) / 100;
+const routes = demo.markets.flatMap((name, i) => {
+  const pin = pinXY[name];
+  if (!pin) return [];
+  const [x, y] = pin;
+  const dist = Math.hypot(x - vx, y - vy);
+  // Quadratic arc bowed north; longer routes bow higher.
+  const cx = (vx + x) / 2;
+  const cy = Math.min(vy, y) - dist * 0.3;
+  return [{ name, i, x, y, d: `M${vx} ${vy}Q${r1(cx)} ${r1(cy)} ${x} ${y}`, side: labelSide[name] ?? 'top' }];
+});
+const pct = (n: number, of: number) => `${r1((n / of) * 100)}%`;
+---
+
+<div class="route-map" data-route-map>
+  <div class="grid gap-8 lg:grid-cols-[1fr_17rem] lg:items-center lg:gap-12">
+    <figure class="relative m-0" aria-labelledby="route-cap">
+      <div class="relative" style={`aspect-ratio:${world.w}/${world.h}`}>
+        <img src={dotsUrl} alt="" width={world.w * 10} height={world.h * 10} loading="lazy" decoding="async" class="absolute inset-0 size-full select-none" draggable="false" />
+        <svg class="absolute inset-0 size-full overflow-visible" viewBox={`0 0 ${world.w} ${world.h}`} aria-hidden="true">
+          {routes.map((r) => (
+            <g class="rm-route" data-market={r.name} style={`--i:${r.i}`}>
+              <path class="rm-line" d={r.d} pathLength="1" />
+              <path class="rm-glint" d={r.d} pathLength="1" />
+              <circle class="rm-pin" cx={r.x} cy={r.y} r=".95" />
+            </g>
+          ))}
+          <circle class="rm-pulse" cx={vx} cy={vy} r="1.3" />
+          <circle class="rm-home" cx={vx} cy={vy} r="1.3" />
+        </svg>
+        <span class="rm-label rm-label-home" style={`left:${pct(vx, world.w)};top:${pct(vy, world.h)}`} aria-hidden="true">
+          <Icon name="anchor" size={13} class="text-gold" />Visakhapatnam
+        </span>
+        {routes.map((r) => (
+          <span class={`rm-label rm-${r.side}`} data-market={r.name} style={`left:${pct(r.x, world.w)};top:${pct(r.y, world.h)};--i:${r.i}`} aria-hidden="true">{r.name}</span>
+        ))}
+      </div>
+      <figcaption id="route-cap" class="sr-only">Map of routes from Visakhapatnam port, India, to {demo.markets.join(', ')}.</figcaption>
+    </figure>
+
+    <div>
+      <ol class="grid grid-cols-2 gap-2 lg:grid-cols-1">
+        {demo.markets.map((m, i) => (
+          <li class="rm-item glass-tile flex items-center gap-3 px-4 py-3" data-market={m}>
+            <span class="font-display text-sm font-semibold tabular-nums text-gold" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            <span class="text-[0.95rem] font-medium leading-tight">{m}</span>
+          </li>
+        ))}
+      </ol>
+      <p class="mt-5 text-sm leading-relaxed text-white/70">FOB Visakhapatnam, or CFR and CIF to your port.</p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .rm-line, .rm-glint { fill: none; stroke-linecap: round; }
+  .rm-line { stroke: var(--color-gold); stroke-width: .32; stroke-opacity: .75; transition: stroke-opacity .25s, stroke-width .25s; }
+  .rm-glint { stroke: #fff; stroke-width: .45; stroke-dasharray: .035 1; stroke-dashoffset: 1.035; opacity: 0; }
+  .rm-pin { fill: var(--color-gold); stroke: var(--color-navy); stroke-width: .35; transform-box: fill-box; transform-origin: center; transition: transform .25s; }
+  .rm-home { fill: var(--color-gold); stroke: #fff; stroke-width: .4; }
+  .rm-pulse { fill: none; stroke: var(--color-gold); stroke-width: .3; opacity: 0; transform-box: fill-box; transform-origin: center; }
+  @media (max-width: 639px) {
+    .rm-line { stroke-width: .55; }
+    .rm-pin { r: 1.3; }
+  }
+
+  .rm-label {
+    position: absolute; display: none; align-items: center; gap: .3rem; white-space: nowrap;
+    padding: .2rem .55rem; border-radius: 999px; font-size: .78rem; font-weight: 600; line-height: 1.2;
+    color: #fff; background: rgb(11 26 46 / .78); border: 1px solid rgb(255 255 255 / .14);
+    backdrop-filter: blur(4px); pointer-events: none; transition: border-color .25s, color .25s;
+  }
+  @media (min-width: 640px) { .rm-label { display: inline-flex; } }
+  .rm-top { transform: translate(-50%, calc(-100% - .55rem)); }
+  .rm-bottom { transform: translate(-50%, .55rem); }
+  .rm-right { transform: translate(.6rem, -50%); }
+  .rm-left { transform: translate(calc(-100% - .6rem), -50%); }
+  .rm-label-home { transform: translate(calc(-100% - .9rem), -10%); border-color: rgb(214 166 58 / .55); }
+
+  /* One market in focus (hover on the list or the map): the others step back. */
+  [data-active] .rm-route:not(.is-on) .rm-line { stroke-opacity: .2; }
+  .rm-route.is-on .rm-line { stroke-opacity: 1; stroke-width: .5; }
+  .rm-route.is-on .rm-pin { transform: scale(1.5); }
+  .rm-label.is-on { border-color: var(--color-gold); color: var(--color-gold); }
+  .rm-item.is-on { background: rgb(255 255 255 / .09); border-color: rgb(214 166 58 / .5); }
+
+  /* Draw on scroll. Without motion (or without JS) the routes simply show, fully drawn. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .rm-line { stroke-dasharray: 1 1; stroke-dashoffset: 1; }
+    :global(.js) .rm-pin, :global(.js) .rm-label:not(.rm-label-home) { opacity: 0; }
+    .is-drawn .rm-line { stroke-dashoffset: 0; transition: stroke-dashoffset 1.6s var(--ease-out-expo) calc(var(--i) * 160ms), stroke-opacity .25s, stroke-width .25s; }
+    .is-drawn .rm-pin, .is-drawn .rm-label:not(.rm-label-home) { opacity: 1; transition: opacity .5s ease-out calc(var(--i) * 160ms + 900ms), transform .25s, border-color .25s, color .25s; }
+    .is-drawn .rm-glint { animation: rm-glint 4.8s linear calc(var(--i) * 160ms + 1.8s) infinite; }
+    .is-drawn .rm-pulse { animation: rm-pulse 2.8s var(--ease-out-expo) 1s infinite; }
+  }
+  @keyframes rm-glint {
+    0% { stroke-dashoffset: 1.035; opacity: 0; }
+    6% { opacity: .9; }
+    55% { stroke-dashoffset: 0; opacity: .9; }
+    60%, 100% { stroke-dashoffset: 0; opacity: 0; }
+  }
+  @keyframes rm-pulse { from { opacity: .9; transform: scale(1); } to { opacity: 0; transform: scale(3.2); } }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-route-map]').forEach((root) => {
+    const parts = (name: string) => root.querySelectorAll<Element>(`[data-market="${CSS.escape(name)}"]`);
+    let current = '';
+    const focus = (name: string) => {
+      if (name === current) return;
+      if (current) parts(current).forEach((el) => el.classList.remove('is-on'));
+      current = name;
+      if (name) { parts(name).forEach((el) => el.classList.add('is-on')); root.setAttribute('data-active', ''); }
+      else root.removeAttribute('data-active');
+    };
+    root.querySelectorAll<Element>('.rm-item, .rm-route').forEach((el) => {
+      el.addEventListener('pointerenter', () => focus(el.getAttribute('data-market') ?? ''));
+      el.addEventListener('pointerleave', () => focus(''));
+    });
+
+    if (!('IntersectionObserver' in window)) { root.classList.add('is-drawn'); return; }
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) { root.classList.add('is-drawn'); io.disconnect(); }
+    }, { threshold: 0.35 });
+    io.observe(root.querySelector('figure') ?? root);
+  });
+</script>

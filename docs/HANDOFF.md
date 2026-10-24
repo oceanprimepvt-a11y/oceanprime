@@ -1,9 +1,10 @@
 # Ocean Prime: handoff
 
-Last updated: 2026-10-25 (masterpiece step 2 done)
+Last updated: 2026-10-25 (masterpiece step 3 done)
 
 ## State
 
+- 2026-10-25 masterpiece step 3 DONE: "Where we ship" route map (`RouteMap.astro`) in home section 05, below a now full-width credentials card. Dotted world map (baked SVG, no runtime library), routes from Vizag to `demo.markets` draw on scroll. Decisions in `docs/MASTERPIECE-PLAN.md`. Build 0 errors, 32 pages; 41-check probe pass at 390/1440 light/dark, motion on/off.
 - 2026-10-25 masterpiece step 2 DONE: size-grade charts (`GradeChart.astro`, helpers `gradeSetsFor`/`gradeInfo` in `spec.ts`) on the vannamei and black tiger pages. Pick a grade, add it to the enquiry list or carry it into `/quote`. Decisions in `docs/MASTERPIECE-PLAN.md`. Build 0 errors, 32 pages; 26-check E2E pass; 390/1440 light/dark checked.
 - 2026-10-25 masterpiece step 1 DONE: spec builder. Rules in `src/data/spec.ts` (pure, no imports; tested with a node script). UI in `src/components/SpecBuilder.astro` (`mode="page"` on new `/quote`, `mode="embed"` replaces home section 03). Every "Request a quote" button now goes to `/quote` (product pages `/quote?species=<slug>`); footer "Spec builder" link. Draft in localStorage `op-spec`; page mode mirrors the order fields in the URL (never name or notes). "Add to enquiry list" fires `op:enquiry-upsert` (listener in `Enquiry.astro`). Print = `#spec-print` + `html[data-print='spec']`. Build 0 errors, 32 pages; 33-check Playwright E2E all pass; screenshots 390/1440 light/dark checked.
 - 2026-10-25 motion pass: native smooth scroll, cross-page View Transitions (header holds still), back-to-top button with gold scroll-progress ring (`BackToTop.astro`, steps above the enquiry button), header firms up on scroll (`data-scrolled`), mobile menu fades in and out, FAQ answers slide open. All gated by prefers-reduced-motion. "Home" added to the desktop nav and the footer. Gotcha: never use `scrollIntoView` for the products chip strip; it cancelled page scrolls (now scrolls the strip only).
