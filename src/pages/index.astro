@@ -4,8 +4,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Icon from '../components/Icon.astro';
 import ProductCard from '../components/ProductCard.astro';
 import HeroMedia from '../components/HeroMedia.astro';
+import SpecBuilder from '../components/SpecBuilder.astro';
 import { photo } from '../data/photos';
-import { categories, products, productsBy, glossary } from '../data/products';
+import { categories, products, productsBy } from '../data/products';
 import { business, demo, tel, waLink } from '../data/site';
 
 const featured = products.filter((p) => p.featured);
@@ -48,7 +49,7 @@ const steps = [
           Shrimp, fish, squid and crab from India's east coast, processed and packed to your specification.
         </p>
         <div class="mt-8 flex flex-wrap gap-3">
-          <a href="/contact" class="btn btn-gold">Request a quote<Icon name="arrowRight" size={18} /></a>
+          <a href="/quote" class="btn btn-gold">Request a quote<Icon name="arrowRight" size={18} /></a>
           <a href="/products" class="btn btn-ghost-light">View products</a>
         </div>
       </div>
@@ -142,25 +143,18 @@ const steps = [
     </div>
   </section>
 
-  <!-- 03 PACKED TO YOUR SPEC (dark band) -->
-  <section class="on-dark deep-water relative py-20 md:py-32">
+  <!-- 03 SPEC BUILDER (dark band): the interactive version of "packed to your spec" -->
+  <section id="spec-builder" class="on-dark deep-water relative py-20 md:py-32">
     <Picture src={photo('cartons')} alt="" widths={[800, 1400, 1920]} sizes="100vw" formats={['avif', 'webp']} class="absolute inset-0 -z-20 size-full object-cover opacity-25" />
     <div class="container-x">
       <div class="grid gap-6 lg:grid-cols-[1.2fr_1fr] lg:items-end" data-reveal>
         <div>
-          <p class="eyebrow"><span>03</span>Your specification</p>
-          <h2 class="h-section mt-5">Packed exactly the way your market buys it.</h2>
+          <p class="eyebrow"><span>03</span>Spec builder</p>
+          <h2 class="h-section mt-5">Build your spec. Send it in one tap.</h2>
         </div>
-        <p class="text-lg leading-relaxed text-white/75">Tell us the cut, the freezing method, the glaze and the carton. Every detail is agreed with you before production starts.</p>
+        <p class="text-lg leading-relaxed text-white/75">Choose the species, cut, size grade, freezing, glaze and carton. Your spec sheet fills in as you go, ready for WhatsApp, email or print. Every detail is agreed with you before production starts.</p>
       </div>
-      <dl class="mt-14 grid grid-cols-2 gap-px overflow-hidden rounded-card border border-white/10 bg-white/10 lg:grid-cols-5">
-        {Object.entries(glossary).map(([term, meaning], i) => (
-          <div class="bg-navy/85 p-4 backdrop-blur-sm md:p-6" data-reveal style={`--d:${i % 5}`}>
-            <dt class="font-display text-2xl font-semibold tracking-tight text-gold">{term}</dt>
-            <dd class="mt-1.5 text-sm leading-relaxed text-white/75">{meaning}</dd>
-          </div>
-        ))}
-      </dl>
+      <div class="mt-12 md:mt-14" data-reveal><SpecBuilder mode="embed" /></div>
     </div>
   </section>
 
@@ -276,7 +270,7 @@ const steps = [
         <h2 class="h-section mt-5">Tell us what you need.</h2>
         <p class="mt-5 max-w-lg text-lg leading-relaxed text-ink-2">Send the species, form, size grade and quantity. We reply with availability and a price for your port.</p>
         <div class="mt-8 flex flex-wrap gap-3">
-          <a href="/contact" class="btn btn-gold">Request a quote<Icon name="arrowRight" size={18} /></a>
+          <a href="/quote" class="btn btn-gold">Request a quote<Icon name="arrowRight" size={18} /></a>
           <a href={waLink('Hello Ocean Prime, I would like a quote.')} target="_blank" rel="noopener" class="btn btn-line"><Icon name="whatsapp" size={20} class="text-[#1f9d55]" />WhatsApp us</a>
         </div>
       </div>

@@ -1,0 +1,624 @@
+---
+// Spec builder: a buyer walks species → form → size grade → freezing → glaze → packing → quantity → port,
+// and a live spec sheet fills in beside them. It sends the spec on WhatsApp or by email, copies it,
+// prints a clean sheet, or adds it to the enquiry list. No prices and no backend.
+// Rules live in src/data/spec.ts; the draft lives in localStorage `op-spec` (wrapped in try/catch).
+// mode "page" (/quote) also mirrors the spec into the URL so a buyer can share or bookmark it.
+import { getImage } from 'astro:assets';
+import Icon from './Icon.astro';
+import { photo } from '../data/photos';
+import { categories, products, glossary } from '../data/products';
+import { STEPS, PORTS, QTY_UNITS, INCOTERMS, LABELS, GLAZES } from '../data/spec';
+import { business } from '../data/site';
+
+interface Props { mode?: 'page' | 'embed' }
+const { mode = 'page' } = Astro.props;
+
+const thumbs = Object.fromEntries(
+  await Promise.all(products.map(async (p) => [p.slug, (await getImage({ src: photo(p.image), width: 320, format: 'webp' })).src] as const)),
+);
+const data = {
+  species: products.map(({ slug, name, scientific, category, forms, freezing, grading }) => ({ slug, name, scientific, category, forms, freezing, grading, thumb: thumbs[slug] })),
+  glossary,
+  business: { name: business.name, tagline: business.tagline, email: business.email, whatsapp: business.whatsapp, phones: business.phones, city: business.city, country: business.country },
+};
+const json = JSON.stringify(data).replace(/</g, '\\u003c');
+
+const questions = [
+  { q: 'Which species?', hint: 'Pick what you want to buy. Only the forms and freezing methods that species really ships come next.' },
+  { q: 'Which form?', hint: 'How the product is cut or cleaned.' },
+  { q: 'Which size grade?', hint: '' },
+  { q: 'How should it be frozen?', hint: '' },
+  { q: 'How much glaze?', hint: 'Glaze is the thin ice coat that protects each frozen piece in cold storage and transit.' },
+  { q: 'How should it be packed?', hint: 'Inner pack, master carton and the label on it.' },
+  { q: 'How much do you need?', hint: 'An estimate is fine. We confirm what fits your container.' },
+  { q: 'Where should it go?', hint: 'Your destination port and the Incoterm you prefer.' },
+  { q: 'Send your spec', hint: 'We reply with availability and a price for this spec.' },
+];
+---
+<div id="spec" data-mode={mode} class="spec grid gap-3 rounded-[24px] bg-bg p-2 text-ink ring-1 ring-line shadow-[0_40px_80px_-40px_rgb(6_14_26/.55)] sm:p-3 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+  <script type="application/json" id="spec-data" set:html={json} />
+  <datalist id="spec-ports">{PORTS.map((p) => <option value={p} />)}</datalist>
+
+  <!-- BUILDER PANEL -->
+  <div class="min-w-0 rounded-[18px] border border-line bg-surface">
+    <div class="border-b border-line px-4 pt-4 md:px-6 md:pt-5">
+      <div class="flex items-baseline justify-between gap-3">
+        <p class="shrink-0 whitespace-nowrap text-sm font-semibold"><span id="spec-step-no">Step 1 of 9</span></p>
+        <p id="spec-live" class="min-w-0 truncate text-right text-sm text-ink-2 lg:hidden" aria-hidden="true"></p>
+      </div>
+      <ol id="spec-rail" class="no-scrollbar -mx-4 mt-3 flex gap-1.5 overflow-x-auto px-4 pb-4 md:-mx-6 md:px-6" aria-label="Spec steps">
+        {STEPS.map((s, i) => (
+          <li class="shrink-0">
+            <button type="button" data-goto={i} class="spec-pill"><span class="spec-pill-n" aria-hidden="true">{i + 1}</span>{s}</button>
+          </li>
+        ))}
+      </ol>
+    </div>
+
+    <form id="spec-form" novalidate class="px-4 py-6 md:px-6 md:py-8">
+      {questions.map((step, i) => (
+        <fieldset data-step={i} hidden={i !== 0} class="spec-step min-w-0">
+          <legend tabindex="-1" class="font-display text-2xl font-semibold tracking-tight outline-none md:text-3xl">{step.q}</legend>
+          <p data-hint class="mt-2 text-ink-2">{step.hint}</p>
+
+          {i === 0 && (
+            <>
+              <div class="no-scrollbar -mx-4 mt-5 flex gap-2 overflow-x-auto px-4 md:mx-0 md:flex-wrap md:px-0" role="group" aria-label="Filter species">
+                <button type="button" data-cat="all" class="spec-filter" aria-pressed="false">All</button>
+                {categories.map((c) => <button type="button" data-cat={c.id} class="spec-filter" aria-pressed="false">{c.short}</button>)}
+              </div>
+              <div class="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+                {products.map((p) => (
+                  <label class="spec-species" data-cat={p.category}>
+                    <input type="radio" name="slug" value={p.slug} class="sr-only" />
+                    <img src={thumbs[p.slug]} alt="" width="320" height="213" loading="lazy" decoding="async" class="aspect-[3/2] w-full rounded-[10px] object-cover" />
+                    <span class="mt-2.5 block px-1 font-semibold leading-snug">{p.name}</span>
+                    <span class="spec-opt-tick" aria-hidden="true"></span>
+                  </label>
+                ))}
+              </div>
+            </>
+          )}
+          {i === 1 && <div data-opts="form" class="mt-5 grid gap-2.5 sm:grid-cols-2"></div>}
+          {i === 2 && (
+            <>
+              <div data-opts="grade" class="mt-5 grid grid-cols-3 gap-2 sm:grid-cols-4"></div>
+              <div class="mt-5 grid gap-2">
+                <label for="spec-grade-other" data-grade-label class="text-sm font-semibold">Other size</label>
+                <input id="spec-grade-other" name="grade-other" class="field" maxlength="80" placeholder="For example: 300 to 500 g per piece" />
+              </div>
+            </>
+          )}
+          {i === 3 && <div data-opts="freezing" class="mt-5 grid gap-2.5 sm:grid-cols-2"></div>}
+          {i === 4 && (
+            <div class="mt-5 grid grid-cols-3 gap-2 sm:grid-cols-4">
+              {GLAZES.map((g) => (
+                <label class="spec-opt spec-opt-sm"><input type="radio" name="glaze" value={g} class="sr-only" /><span class="spec-opt-title">{g}</span><span class="spec-opt-tick" aria-hidden="true"></span></label>
+              ))}
+            </div>
+          )}
+          {i === 5 && (
+            <div class="mt-6 grid gap-7">
+              <div data-pack="bags" class="grid gap-3">
+                <p class="text-sm font-semibold uppercase tracking-[0.12em] text-ink-2" id="spec-inner-h">Inner pack</p>
+                <div data-opts="inner" role="radiogroup" aria-labelledby="spec-inner-h" class="grid grid-cols-2 gap-2 sm:grid-cols-3"></div>
+              </div>
+              <div data-pack="bags" class="grid gap-3">
+                <p class="text-sm font-semibold uppercase tracking-[0.12em] text-ink-2" id="spec-master-h">Master carton</p>
+                <div data-opts="master" role="radiogroup" aria-labelledby="spec-master-h" class="grid gap-2 sm:grid-cols-2"></div>
+              </div>
+              <div class="grid gap-3">
+                <p class="text-sm font-semibold uppercase tracking-[0.12em] text-ink-2" id="spec-label-h">Label</p>
+                <div role="radiogroup" aria-labelledby="spec-label-h" class="grid gap-2 sm:grid-cols-3">
+                  {LABELS.map((l) => (
+                    <label class="spec-opt spec-opt-sm"><input type="radio" name="label" value={l} class="sr-only" /><span class="spec-opt-title">{l}</span><span class="spec-opt-tick" aria-hidden="true"></span></label>
+                  ))}
+                </div>
+              </div>
+              <div class="grid gap-2">
+                <label for="spec-pack-note" data-pack-label class="text-sm font-semibold">Anything else about packing?</label>
+                <textarea id="spec-pack-note" name="packNote" rows="2" maxlength="300" class="field" placeholder="For example: printed bags, labels in Japanese"></textarea>
+              </div>
+            </div>
+          )}
+          {i === 6 && (
+            <div class="mt-6 grid gap-5">
+              <div class="grid gap-2">
+                <label for="spec-qty" class="text-sm font-semibold">Quantity</label>
+                <input id="spec-qty" name="qty" inputmode="decimal" maxlength="20" class="field max-w-[12rem] text-lg tabular-nums" placeholder="For example: 2" />
+              </div>
+              <div class="grid gap-3">
+                <p class="text-sm font-semibold" id="spec-unit-h">Unit</p>
+                <div role="radiogroup" aria-labelledby="spec-unit-h" class="flex flex-wrap gap-2">
+                  {QTY_UNITS.map((u) => (
+                    <label class="spec-opt spec-opt-sm"><input type="radio" name="unit" value={u.id} class="sr-only" /><span class="spec-opt-title">{u.label}</span><span class="spec-opt-tick" aria-hidden="true"></span></label>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+          {i === 7 && (
+            <div class="mt-6 grid gap-6">
+              <div class="grid gap-2">
+                <label for="spec-port" class="text-sm font-semibold">Destination port</label>
+                <input id="spec-port" name="port" list="spec-ports" maxlength="80" class="field" autocomplete="off" placeholder="For example: Jebel Ali, UAE" />
+              </div>
+              <div class="grid gap-3">
+                <p class="text-sm font-semibold" id="spec-inco-h">Incoterm</p>
+                <div role="radiogroup" aria-labelledby="spec-inco-h" class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  {INCOTERMS.map((t) => (
+                    <label class="spec-opt spec-opt-sm"><input type="radio" name="incoterm" value={t} class="sr-only" /><span class="spec-opt-title">{t}</span><span class="spec-opt-tick" aria-hidden="true"></span></label>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+          {i === 8 && (
+            <div class="mt-6 grid gap-5">
+              <dl id="spec-recap" class="divide-y divide-line rounded-card border border-line lg:hidden"></dl>
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div class="grid gap-2">
+                  <label for="spec-name" class="text-sm font-semibold">Your name <span class="text-gold-ink">*</span></label>
+                  <input id="spec-name" name="name" class="field" autocomplete="name" maxlength="80" aria-describedby="spec-error" />
+                </div>
+                <div class="grid gap-2">
+                  <label for="spec-company" class="text-sm font-semibold">Company</label>
+                  <input id="spec-company" name="company" class="field" autocomplete="organization" maxlength="80" />
+                </div>
+              </div>
+              <div class="grid gap-2">
+                <label for="spec-notes" class="text-sm font-semibold">Notes</label>
+                <textarea id="spec-notes" name="notes" rows="3" maxlength="600" class="field" placeholder="Shipment month, certificates your market needs, samples"></textarea>
+              </div>
+              <p id="spec-error" class="hidden rounded-field border border-[#c2412d]/40 bg-[#c2412d]/10 px-4 py-3 text-sm font-medium text-[#a3321f] dark:text-[#ffb4a6]" role="alert"></p>
+              <div class="grid gap-3 sm:grid-cols-2">
+                <button type="submit" value="whatsapp" class="btn btn-gold"><Icon name="whatsapp" size={20} />Send on WhatsApp</button>
+                <button type="submit" value="email" class="btn btn-line"><Icon name="envelope" size={20} />Send by email</button>
+              </div>
+              <div class="flex flex-wrap gap-x-1 gap-y-1 border-t border-line pt-4">
+                <button type="button" data-act="copy" class="spec-link"><Icon name="clipboard" size={18} />Copy spec</button>
+                <button type="button" data-act="print" class="spec-link"><Icon name="pkg" size={18} />Print spec sheet</button>
+                <button type="button" data-act="enquiry" class="spec-link"><span aria-hidden="true" class="text-lg leading-none">+</span>Add to enquiry list</button>
+                {mode === 'page' && <button type="button" data-act="link" class="spec-link"><Icon name="arrowUpRight" size={18} />Copy link to this spec</button>}
+              </div>
+            </div>
+          )}
+        </fieldset>
+      ))}
+
+      <div class="mt-8 flex items-center justify-between gap-3 border-t border-line pt-5">
+        <button type="button" id="spec-back" class="btn btn-line px-4"><Icon name="arrowLeft" size={18} />Back</button>
+        <p id="spec-status" role="status" aria-live="polite" class="min-w-0 flex-1 text-center text-sm font-medium text-gold-ink"></p>
+        <button type="button" id="spec-next" class="btn btn-gold"><span data-label>Next</span><Icon name="arrowRight" size={18} /></button>
+      </div>
+    </form>
+  </div>
+
+  <!-- LIVE SPEC SHEET -->
+  <aside aria-labelledby="spec-card-h" class="on-dark deep-water relative self-start rounded-[18px] p-5 md:p-7 lg:sticky lg:top-24">
+    <div class="flex items-center justify-between gap-3">
+      <p class="eyebrow whitespace-nowrap" id="spec-card-h"><span aria-hidden="true">Live</span>Spec sheet</p>
+      <p id="spec-ref" class="whitespace-nowrap text-sm font-semibold tabular-nums text-white/70"></p>
+    </div>
+    <div id="spec-head" class="mt-6 flex min-h-16 items-center gap-4"></div>
+    <div class="mt-6">
+      <div class="flex items-baseline justify-between text-sm"><span class="text-white/70">Chosen</span><span id="spec-progress" class="font-semibold tabular-nums"></span></div>
+      <div class="mt-2 h-1 overflow-hidden rounded-full bg-white/10"><div id="spec-bar" class="h-full origin-left rounded-full bg-gold transition-transform duration-500 ease-[var(--ease-out-expo)]" style="transform:scaleX(0)"></div></div>
+    </div>
+    <dl id="spec-rows" class="mt-5"></dl>
+    <p class="mt-5 border-t border-white/10 pt-5 text-sm leading-relaxed text-white/60">No prices on this sheet. We quote each order for the season and your market, and agree the final spec with you before production.</p>
+    <div class="mt-5 flex flex-wrap items-center gap-3">
+      <button type="button" data-goto="8" id="spec-review" class="btn btn-gold flex-1">Review and send<Icon name="arrowRight" size={18} /></button>
+      <button type="button" id="spec-reset" class="btn btn-ghost-light px-4">Start again</button>
+    </div>
+  </aside>
+</div>
+
+<style is:global>
+  .spec [hidden] { display: none !important; }
+
+  .spec-pill {
+    display: inline-flex; align-items: center; gap: .45rem; min-height: 2.25rem; padding: 0 .85rem 0 .35rem;
+    border-radius: 999px; border: 1px solid var(--c-line); font-size: .85rem; font-weight: 600; color: var(--c-ink-2);
+    white-space: nowrap; transition: border-color .2s, background-color .2s, color .2s;
+  }
+  .spec-pill-n { display: grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 999px; background: var(--c-surface-2); font-size: .75rem; font-variant-numeric: tabular-nums; }
+  .spec-pill:not(:disabled):hover { border-color: var(--c-ink-2); color: var(--c-ink); }
+  .spec-pill[data-done] { color: var(--c-ink); }
+  .spec-pill[data-done] .spec-pill-n { background: var(--color-gold); color: var(--color-navy); }
+  .spec-pill[aria-current='step'] { border-color: var(--color-gold); color: var(--c-ink); background: rgb(214 166 58 / .12); }
+  .spec-pill:disabled { opacity: .45; cursor: not-allowed; }
+  .spec-pill[data-skip] { text-decoration: line-through; }
+
+  .spec-filter {
+    min-height: 2.5rem; padding: 0 1rem; border-radius: 999px; border: 1px solid var(--c-line); flex-shrink: 0;
+    font-size: .875rem; font-weight: 500; background: var(--c-bg); transition: border-color .2s, background-color .2s, color .2s;
+  }
+  .spec-filter:hover { border-color: var(--c-ink-2); }
+  .spec-filter[aria-pressed='true'] { background: var(--color-gold); color: var(--color-navy); border-color: var(--color-gold); font-weight: 600; }
+
+  /* Choice tiles: a native radio inside a label, so arrows, Space and screen readers just work. */
+  .spec-opt, .spec-species {
+    position: relative; display: flex; flex-direction: column; justify-content: center; gap: .15rem; cursor: pointer;
+    border-radius: var(--radius-field); border: 1px solid var(--c-line); background: var(--c-bg);
+    transition: border-color .2s, background-color .2s, transform .18s var(--ease-out-expo);
+  }
+  .spec-opt { min-height: 3.75rem; padding: .7rem 2.4rem .7rem 1rem; }
+  .spec-opt-sm { min-height: 3rem; padding: .55rem 2.6rem .55rem .9rem; }
+  .spec-species { justify-content: flex-start; padding: .4rem .4rem .75rem; }
+  .spec-opt:hover, .spec-species:hover { border-color: var(--c-ink-2); }
+  .spec-opt:active, .spec-species:active { transform: scale(.98); }
+  .spec-opt:has(:checked), .spec-species:has(:checked) { border-color: var(--color-gold); background: rgb(214 166 58 / .12); box-shadow: inset 0 0 0 1px var(--color-gold); }
+  .spec-opt:has(:focus-visible), .spec-species:has(:focus-visible) { outline: 2px solid var(--color-gold); outline-offset: 2px; }
+  .spec-opt-title { font-weight: 600; line-height: 1.25; }
+  .spec-opt-sub { font-size: .85rem; line-height: 1.35; color: var(--c-ink-2); }
+  .spec-opt-tick {
+    position: absolute; top: 50%; right: .75rem; width: 1.25rem; height: 1.25rem; margin-top: -.625rem; border-radius: 999px;
+    border: 1.5px solid var(--c-line); transition: background-color .2s, border-color .2s;
+  }
+  .spec-species .spec-opt-tick { top: .9rem; right: .9rem; margin: 0; background: rgb(255 255 255 / .85); border-color: rgb(11 26 46 / .25); }
+  :has(:checked) > .spec-opt-tick {
+    border-color: var(--color-gold);
+    background: var(--color-gold) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath fill='%230b1a2e' d='M229.66 77.66l-128 128a8 8 0 0 1-11.32 0l-56-56a8 8 0 0 1 11.32-11.32L96 188.69L218.34 66.34a8 8 0 0 1 11.32 11.32Z'/%3E%3C/svg%3E") center / 70% no-repeat;
+  }
+
+  .spec-link {
+    display: inline-flex; align-items: center; gap: .45rem; min-height: 2.75rem; padding: 0 .75rem; border-radius: 999px;
+    font-size: .9rem; font-weight: 600; color: var(--c-ink); transition: background-color .2s;
+  }
+  .spec-link:hover { background: var(--c-surface-2); }
+  .spec-link svg { color: var(--c-gold-ink); }
+
+  .spec-row { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); gap: .75rem; padding: .7rem 0; border-top: 1px solid rgb(255 255 255 / .1); }
+  .spec-row dt { font-size: .85rem; color: rgb(255 255 255 / .62); }
+  .spec-row dd { font-weight: 500; overflow-wrap: anywhere; }
+  .spec-row dd[data-empty] { font-weight: 400; color: rgb(255 255 255 / .42); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .spec-step[data-enter] { animation: spec-in .45s var(--ease-out-expo) both; }
+    .spec-row[data-fresh] dd { animation: spec-fresh 1.1s var(--ease-out-expo); }
+  }
+  @keyframes spec-in { from { opacity: 0; transform: translateX(14px); } }
+  @keyframes spec-fresh { 0% { color: var(--color-gold); transform: translateX(4px); } 100% { transform: none; } }
+
+  /* Print sheet: only exists for window.print() from the builder; the rest of the page is hidden then. */
+  #spec-print { display: none; }
+  @media print {
+    @page { margin: 16mm; }
+    html[data-print='spec'], html[data-print='spec'] body { background: #fff !important; color: #0b1626 !important; }
+    html[data-print='spec'] body > :not(#spec-print) { display: none !important; }
+    html[data-print='spec'] #spec-print { display: block; font: 11pt/1.45 var(--font-sans); }
+  }
+  .ps-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem; padding-bottom: 5mm; border-bottom: 2pt solid #d6a63a; }
+  .ps-brand { font: 600 22pt/1 var(--font-brand); letter-spacing: .06em; color: #0b1a2e; }
+  .ps-tag { margin-top: 2mm; font-size: 9pt; letter-spacing: .14em; text-transform: uppercase; color: #85600f; }
+  .ps-contact { text-align: right; font-size: 9pt; color: #45546a; }
+  .ps h1 { margin-top: 9mm; font: 700 20pt/1.1 var(--font-display); color: #0b1626; }
+  .ps-meta { margin-top: 2mm; font-size: 9.5pt; color: #45546a; }
+  .ps table { width: 100%; margin-top: 7mm; border-collapse: collapse; }
+  .ps th, .ps td { padding: 3mm 0; border-top: .6pt solid #d3dbe4; text-align: left; vertical-align: top; }
+  .ps th { width: 38mm; font-weight: 600; color: #45546a; }
+  .ps-foot { margin-top: 10mm; padding-top: 4mm; border-top: .6pt solid #d3dbe4; font-size: 8.5pt; color: #45546a; }
+</style>
+
+<script>
+  import {
+    STEPS, emptySpec, tidy, gradesFor, innersFor, masterLabel, stepApplies, answered, rows, message, summary,
+    specRef, toQuery, fromQuery, TBA, type Spec, type Species,
+  } from '../data/spec';
+
+  type Sp = Species & { category: string; thumb: string };
+  type Data = { species: Sp[]; glossary: Record<string, string>; business: { name: string; tagline: string; email: string; whatsapp: string; phones: string[]; city: string; country: string } };
+
+  const root = document.getElementById('spec');
+  if (root) init(root);
+
+  function init(root: HTMLElement) {
+    const data: Data = JSON.parse(document.getElementById('spec-data')!.textContent!);
+    const { glossary, business } = data;
+    const pageMode = root.dataset.mode === 'page';
+    const KEY = 'op-spec';
+    const AUTO = new Set([0, 1, 2, 3, 4]); // single-choice steps that move on after a tap
+    const SEND = STEPS.length - 1;
+
+    const q = <T extends Element>(sel: string) => root.querySelector<T>(sel)!;
+    const qa = <T extends Element>(sel: string) => [...root.querySelectorAll<T>(sel)];
+    const form = q<HTMLFormElement>('#spec-form');
+    const panels = qa<HTMLFieldSetElement>('[data-step]');
+    const pills = qa<HTMLButtonElement>('#spec-rail [data-goto]');
+    const back = q<HTMLButtonElement>('#spec-back');
+    const next = q<HTMLButtonElement>('#spec-next');
+    const status = q<HTMLElement>('#spec-status');
+    const error = q<HTMLElement>('#spec-error');
+    const esc = (v: string) => v.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+    const find = (slug: string) => data.species.find((x) => x.slug === slug);
+    const field = (name: string) => form.elements.namedItem(name) as HTMLInputElement | null;
+
+    // Draft from this browser, then a shared link (page mode) wins over it.
+    let s = emptySpec();
+    try { Object.assign(s, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch { /* blocked or broken: start fresh */ }
+    if (pageMode && location.search) {
+      const shared = fromQuery(location.search);
+      if (shared.slug) s = { ...emptySpec(), name: s.name, company: s.company, ...shared };
+    }
+    s = tidy(s, find(s.slug));
+
+    let step = 0;
+    let lastPointer = 0;
+    let prev: Record<string, string> = {};
+    let statusTimer = 0;
+
+    const say = (msg: string) => {
+      status.textContent = msg;
+      clearTimeout(statusTimer);
+      statusTimer = window.setTimeout(() => (status.textContent = ''), 3200);
+    };
+
+    const opt = (name: string, value: string, title: string, sub = '', cls = 'spec-opt') => `
+      <label class="${cls}"><input type="radio" class="sr-only" name="${name}" value="${esc(value)}"${s[name as keyof Spec] === value ? ' checked' : ''} />
+        <span class="spec-opt-title">${esc(title)}</span>${sub ? `<span class="spec-opt-sub">${esc(sub)}</span>` : ''}<span class="spec-opt-tick" aria-hidden="true"></span></label>`;
+
+    // Option lists that depend on earlier answers. Only rebuilt when those answers change, so typing never loses focus.
+    const renderOptions = () => {
+      const sp = find(s.slug);
+      q('[data-opts="form"]').innerHTML = sp ? sp.forms.map((f) => opt('form', f, f, glossary[f] ?? '')).join('') : '';
+      q('[data-opts="freezing"]').innerHTML = sp ? sp.freezing.map((f) => opt('freezing', f, f, glossary[f] ?? '')).join('') : '';
+
+      const gs = sp && s.form ? gradesFor(sp.slug, s.form) : null;
+      const gradeValues = gs ? gs.grades.map((g) => `${g} ${gs.unit}`) : [];
+      q('[data-opts="grade"]').innerHTML = [
+        ...(gs ? gs.grades.map((g) => opt('grade', `${g} ${gs.unit}`, g, '', 'spec-opt spec-opt-sm tabular-nums')) : []),
+        opt('grade', 'Please advise', 'Advise me', '', 'spec-opt spec-opt-sm col-span-2'),
+      ].join('');
+      panels[2].querySelector('[data-hint]')!.textContent = gs
+        ? `Count grades for ${s.form} ${sp!.name}: pieces ${gs.unit}. U/10 means under 10 pieces.`
+        : sp?.grading ? `${sp.name} is usually sized ${sp.grading.charAt(0).toLowerCase()}${sp.grading.slice(1)}. Tell us the size you need.`
+        : 'Tell us the size or weight per piece you need, or let us advise.';
+      q('[data-grade-label]').textContent = gs ? 'Other size' : 'Size or grade';
+      const other = field('grade-other')!;
+      other.value = s.grade && s.grade !== 'Please advise' && !gradeValues.includes(s.grade) ? s.grade : '';
+
+      panels[3].querySelector('[data-hint]')!.textContent = sp ? `How ${sp.name} ships from our plant.` : '';
+
+      const inners = innersFor(s.freezing);
+      qa<HTMLElement>('[data-pack="bags"]').forEach((el) => (el.hidden = !inners));
+      q('[data-pack-label]').textContent = inners ? 'Anything else about packing?' : 'How should it be packed?';
+      if (inners) {
+        q('[data-opts="inner"]').innerHTML = inners.map((i) => opt('inner', i.label, i.label, '', 'spec-opt spec-opt-sm')).join('');
+        const inner = inners.find((i) => i.label === s.inner);
+        q('[data-opts="master"]').innerHTML = inner
+          ? inner.counts.map((c) => { const m = masterLabel(inner, c); return opt('master', m, `${c} x ${inner.label}`, `${m.match(/\((.+)\)$/)![1]} per carton`, 'spec-opt spec-opt-sm'); }).join('')
+          : '<p class="text-sm text-ink-2 sm:col-span-2">Choose an inner pack first.</p>';
+      }
+      panels[5].querySelector('[data-hint]')!.textContent = inners
+        ? 'Inner pack, master carton and the label on it.'
+        : s.freezing ? `${s.freezing} goods are packed to order. Tell us what your market needs.` : 'Choose how it is frozen first, then the packing options appear.';
+
+      // Static groups and text fields mirror the state.
+      for (const name of ['slug', 'glaze', 'label', 'unit', 'incoterm'] as const) {
+        qa<HTMLInputElement>(`input[name="${name}"]`).forEach((r) => (r.checked = r.value === s[name]));
+      }
+      for (const name of ['packNote', 'qty', 'port', 'name', 'company', 'notes'] as const) {
+        const el = field(name);
+        if (el && el.value !== s[name]) el.value = s[name];
+      }
+    };
+
+    let cat = find(s.slug)?.category ?? 'shrimp';
+    const renderFilter = () => {
+      qa<HTMLButtonElement>('[data-cat]').filter((b) => b.tagName === 'BUTTON').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.cat === cat)));
+      qa<HTMLElement>('.spec-species').forEach((t) => (t.hidden = cat !== 'all' && t.dataset.cat !== cat));
+    };
+
+    const applicable = () => STEPS.map((st) => stepApplies(st, s));
+    const nextFrom = (i: number, dir: 1 | -1) => { const ok = applicable(); let j = i + dir; while (j > 0 && j < SEND && !ok[j]) j += dir; return Math.max(0, Math.min(SEND, j)); };
+
+    // Everything that follows the state: rail, nav buttons, live card, recap, draft and URL.
+    const renderState = () => {
+      const sp = find(s.slug);
+      const ok = applicable();
+      const done = answered(s);
+      pills.forEach((p, i) => {
+        const st = STEPS[i];
+        p.disabled = (!s.slug && i > 0) || !ok[i];
+        p.toggleAttribute('data-done', done[st] && i !== step);
+        p.toggleAttribute('data-skip', !ok[i]);
+        if (i === step) p.setAttribute('aria-current', 'step'); else p.removeAttribute('aria-current');
+        p.setAttribute('aria-label', `Step ${i + 1}, ${st}${!ok[i] ? ', not needed' : done[st] ? ', done' : ''}`);
+      });
+      q('#spec-step-no').textContent = `Step ${step + 1} of ${STEPS.length}`;
+
+      back.hidden = step === 0;
+      next.hidden = step === SEND;
+      const ni = nextFrom(step, 1);
+      next.querySelector('[data-label]')!.textContent = ni === SEND ? 'Review and send' : done[STEPS[step]] || step === 0 ? `Next: ${STEPS[ni]}` : 'Skip for now';
+      next.setAttribute('aria-disabled', String(!s.slug));
+
+      // Live card.
+      const list = rows(s, sp, glossary);
+      const counted = STEPS.filter((_, i) => i < SEND && ok[i]);
+      const n = counted.filter((st) => done[st]).length;
+      q('#spec-progress').textContent = `${n} of ${counted.length}`;
+      q<HTMLElement>('#spec-bar').style.transform = `scaleX(${n / counted.length})`;
+      q('#spec-ref').textContent = sp ? specRef(sp.slug, new Date()) : '';
+      q('#spec-head').innerHTML = sp
+        ? `<img src="${esc(sp.thumb)}" alt="" width="64" height="64" class="size-16 shrink-0 rounded-[12px] object-cover ring-1 ring-white/15" />
+           <div class="min-w-0"><p class="font-display text-2xl font-semibold leading-tight">${esc(sp.name)}</p><p class="mt-0.5 text-sm italic text-white/65">${esc(sp.scientific)}</p></div>`
+        : '<p class="text-white/70">Choose a species and your spec builds here, line by line.</p>';
+      const stepOf: Record<string, number> = { Species: 0, Form: 1, 'Size grade': 2, Freezing: 3, Glaze: 4, Packing: 5, Quantity: 6, Destination: 7 };
+      q('#spec-rows').innerHTML = list.slice(1).map(([k, v]) => `
+        <div class="spec-row"${prev[k] !== undefined && prev[k] !== v && v ? ' data-fresh' : ''}><dt>${k}</dt><dd${v ? '' : ' data-empty'}>${esc(v || 'Not chosen yet')}</dd></div>`).join('');
+      prev = Object.fromEntries(list);
+      q('#spec-recap').innerHTML = list.map(([k, v]) => `
+        <div class="flex items-start justify-between gap-3 px-4 py-3"><div class="min-w-0"><dt class="text-xs font-semibold uppercase tracking-[0.12em] text-ink-2">${k}</dt><dd class="mt-0.5 font-medium${v ? '' : ' text-ink-2'}">${esc(v || TBA)}</dd></div>
+        <button type="button" data-goto="${stepOf[k]}" class="spec-link -mr-2 shrink-0 text-sm" aria-label="Change ${k.toLowerCase()}">Change</button></div>`).join('');
+      q<HTMLElement>('#spec-review').hidden = step === SEND || !s.slug;
+      q<HTMLElement>('#spec-reset').hidden = !s.slug;
+      q('#spec-live').textContent = [sp?.name, s.form, s.grade, s.freezing].filter(Boolean).join(' · ');
+
+      try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* storage blocked: the draft lasts this page only */ }
+      if (pageMode) { const qs = toQuery(s); history.replaceState(history.state, '', qs ? `?${qs}` : location.pathname); }
+    };
+
+    const goto = (i: number, focus = true) => {
+      if (i > 0 && !s.slug) return;
+      if (!applicable()[i]) i = nextFrom(i, i > step ? 1 : -1);
+      const moved = i !== step;
+      step = i;
+      panels.forEach((p, j) => { p.hidden = j !== i; p.toggleAttribute('data-enter', moved && j === i); });
+      renderState();
+      const pill = pills[i];
+      const rail = q<HTMLElement>('#spec-rail');
+      rail.scrollTo({ left: pill.offsetLeft - rail.clientWidth / 2 + pill.clientWidth / 2, behavior: 'smooth' }); // the strip only, never the page
+      if (!focus) return;
+      const top = form.getBoundingClientRect().top;
+      if (top < 80 || top > innerHeight * 0.6) {
+        const smooth = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+        scrollTo({ top: scrollY + root.getBoundingClientRect().top - 88, behavior: smooth ? 'smooth' : 'auto' });
+      }
+      panels[i].querySelector<HTMLElement>('legend')!.focus({ preventScroll: true });
+    };
+
+    // Only a tap on a choice tile counts, so a keyboard change right after tapping Back never jumps ahead.
+    form.addEventListener('pointerdown', (e) => { if ((e.target as Element).closest('.spec-opt, .spec-species')) lastPointer = Date.now(); });
+
+    form.addEventListener('change', (e) => {
+      const el = e.target as HTMLInputElement;
+      if (el.type !== 'radio') return;
+      const k = el.name as keyof Spec;
+      const before = s[k];
+      s[k] = el.value;
+      if (k === 'slug' && before !== el.value) s.grade = '';
+      if (k === 'form' && before !== el.value) s.grade = '';
+      if (k === 'inner' && before !== el.value) s.master = '';
+      if (k === 'grade') field('grade-other')!.value = '';
+      s = tidy(s, find(s.slug));
+      if (['slug', 'form', 'freezing', 'inner'].includes(k)) {
+        renderOptions();
+        // A rebuilt list drops the focused radio; hand focus to its replacement so arrow keys keep working.
+        if (!el.isConnected) form.querySelector<HTMLInputElement>(`input[name="${k}"][value="${CSS.escape(el.value)}"]`)?.focus({ preventScroll: true });
+      }
+      renderState();
+      if (AUTO.has(step) && Date.now() - lastPointer < 900) {
+        const from = step;
+        window.setTimeout(() => { if (step === from) goto(nextFrom(from, 1)); }, 280);
+      }
+    });
+
+    form.addEventListener('input', (e) => {
+      const el = e.target as HTMLInputElement;
+      if (el.type === 'radio') return;
+      if (el.name === 'grade-other') {
+        s.grade = el.value;
+        form.querySelectorAll<HTMLInputElement>('input[name="grade"]').forEach((r) => (r.checked = false));
+      } else if (el.name in s) {
+        (s as unknown as Record<string, string>)[el.name] = el.value;
+      }
+      if (el.name === 'name') { el.removeAttribute('aria-invalid'); error.classList.add('hidden'); }
+      renderState();
+    });
+
+    // Enter in a text field moves on instead of submitting.
+    form.addEventListener('keydown', (e) => {
+      const el = e.target as HTMLElement;
+      if (e.key === 'Enter' && el.tagName === 'INPUT' && step !== SEND) { e.preventDefault(); next.click(); }
+    });
+
+    root.addEventListener('click', (e) => {
+      const t = e.target as Element;
+      const go = t.closest<HTMLElement>('[data-goto]');
+      if (go) { goto(Number(go.dataset.goto)); return; }
+      const f = t.closest<HTMLButtonElement>('button[data-cat]');
+      if (f) { cat = f.dataset.cat!; renderFilter(); return; }
+      const act = t.closest<HTMLButtonElement>('[data-act]')?.dataset.act;
+      if (act) run(act);
+    });
+
+    back.addEventListener('click', () => goto(nextFrom(step, -1)));
+    next.addEventListener('click', () => {
+      if (!s.slug) { say('Choose a species to continue.'); form.querySelector<HTMLInputElement>('.spec-species:not([hidden]) input')?.focus(); return; }
+      goto(nextFrom(step, 1));
+    });
+
+    q('#spec-reset').addEventListener('click', () => {
+      s = { ...emptySpec(), name: s.name, company: s.company };
+      prev = {};
+      renderOptions(); renderFilter();
+      goto(0);
+      say('New spec started.');
+    });
+
+    const text = () => message(s, find(s.slug), glossary, specRef(s.slug, new Date()));
+
+    const copy = async (value: string, done: string) => {
+      try { await navigator.clipboard.writeText(value); say(done); }
+      catch {
+        const ta = Object.assign(document.createElement('textarea'), { value });
+        ta.style.cssText = 'position:fixed;opacity:0';
+        document.body.append(ta); ta.select();
+        const ok = document.execCommand('copy');
+        ta.remove();
+        say(ok ? done : 'Copy is blocked here. Select the spec sheet text instead.');
+      }
+    };
+
+    const printSheet = () => {
+      const sp = find(s.slug);
+      let sheet = document.getElementById('spec-print');
+      if (!sheet) { sheet = Object.assign(document.createElement('div'), { id: 'spec-print' }); document.body.append(sheet); }
+      const date = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+      const buyer = [s.name.trim(), s.company.trim()].filter(Boolean).join(', ');
+      sheet.innerHTML = `<div class="ps">
+        <div class="ps-top"><div><div class="ps-brand">${esc(business.name.toUpperCase())}</div><div class="ps-tag">${esc(business.tagline)}</div></div>
+        <div class="ps-contact">${esc(business.email)}<br />${business.phones.map(esc).join('<br />')}<br />${esc(business.city)}, ${esc(business.country)}</div></div>
+        <h1>Buyer specification</h1>
+        <p class="ps-meta">Ref ${esc(specRef(s.slug, new Date()))} · ${esc(date)}${buyer ? ` · Prepared for ${esc(buyer)}` : ''}</p>
+        <table>${rows(s, sp, glossary).map(([k, v]) => `<tr><th scope="row">${k}</th><td>${esc(v || TBA)}</td></tr>`).join('')}
+        ${s.notes.trim() ? `<tr><th scope="row">Notes</th><td>${esc(s.notes.trim())}</td></tr>` : ''}</table>
+        <p class="ps-foot">Built by the buyer with the spec builder on the ${esc(business.name)} website. This sheet carries no prices: ${esc(business.name)} quotes each order for the season and the destination market, and the final specification is agreed in writing before production.</p>
+      </div>`;
+      document.documentElement.dataset.print = 'spec';
+      addEventListener('afterprint', () => delete document.documentElement.dataset.print, { once: true });
+      print();
+    };
+
+    const run = (act: string) => {
+      const sp = find(s.slug);
+      if (!sp) return;
+      if (act === 'copy') copy(text(), 'Spec copied.');
+      if (act === 'link') copy(location.href, 'Link copied.');
+      if (act === 'print') printSheet();
+      if (act === 'enquiry') {
+        document.dispatchEvent(new CustomEvent('op:enquiry-upsert', { detail: { slug: sp.slug, name: sp.name, qty: summary(s) } }));
+        say(`${sp.name} added to your enquiry list.`);
+      }
+    };
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const via = (e.submitter as HTMLButtonElement | null)?.value;
+      const sp = find(s.slug);
+      if (!sp || (via !== 'whatsapp' && via !== 'email')) return;
+      const nameField = field('name')!;
+      if (!s.name.trim()) {
+        nameField.setAttribute('aria-invalid', 'true');
+        error.textContent = 'Please add your name so we know who to reply to.';
+        error.classList.remove('hidden');
+        nameField.focus();
+        return;
+      }
+      const ref = specRef(sp.slug, new Date());
+      if (via === 'email') location.href = `mailto:${business.email}?subject=${encodeURIComponent(`Spec request ${ref}: ${sp.name}`)}&body=${encodeURIComponent(text())}`;
+      else window.open(`https://wa.me/${business.whatsapp}?text=${encodeURIComponent(text())}`, '_blank', 'noopener');
+    });
+
+    renderOptions();
+    renderFilter();
+    // Pick up where the buyer left off: the first open step after the species.
+    const done = answered(s);
+    const ok = applicable();
+    const first = s.slug ? STEPS.findIndex((st, i) => i > 0 && ok[i] && !done[st]) : 0;
+    goto(first < 0 ? SEND : first, false);
+  }
+</script>

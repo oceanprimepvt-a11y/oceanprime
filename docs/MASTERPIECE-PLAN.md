@@ -8,7 +8,7 @@ Ours is already above that: cinematic hero, editorial sections, enquiry list, da
 What is still missing is a reason for a buyer to bookmark it. A masterpiece here = the most useful exporter site a buyer has seen, not the flashiest.
 
 ## Steps (each = one chat, Opus High)
-1. **Spec builder (signature feature).** `/quote` flow, also embedded on the home page (replaces section 03's static grid as its interactive version):
+1. [x] **Spec builder (signature feature).** DONE 2026-10-25, decisions below. `/quote` flow, also embedded on the home page (replaces section 03's static grid as its interactive version):
    species → form (HOSO/HLSO/PD/PDTO…) → size grade → freezing (IQF/semi-IQF/block) → glaze % → pack (inner + master carton) → quantity → port.
    Live "spec card" preview builds as you choose. Output: WhatsApp / email message + "Copy spec" + print-ready spec sheet (print CSS).
    Options come from `products.ts` per species (only forms that species really ships). No prices.
@@ -21,3 +21,13 @@ What is still missing is a reason for a buyer to bookmark it. A masterpiece here
 
 ## Rules that stay
 Real content only (DEMO data stays in `site.ts` `demo`, never in JSON-LD); no prices, transit times, volumes or stats unless the client gives them; no em/en dashes; CTA labels fixed; everything gated by prefers-reduced-motion; no new paid images/video unless a step truly needs it (ask first per the budget rules).
+
+## Step 1 decisions (spec builder, 2026-10-25)
+- Files: rules `src/data/spec.ts` (pure, testable), UI `src/components/SpecBuilder.astro` (`page` on `/quote`, `embed` in home 03, replacing the glossary grid; glossary meanings now sit in the option tiles).
+- 9 steps: Species, Form, Size grade, Freezing, Glaze, Packing, Quantity, Port, Send. Glaze only for IQF / semi-IQF (skipped and struck through on the rail otherwise). Any step can be skipped; empty lines read "To be agreed".
+- Count-grade chips only where `products.ts` states a range (vannamei HOSO per kg 20/30 to 100/120, HLSO per lb 16/20 to 91/110; black tiger HLSO U/8 to 41/50). Everything else is free text with the species' grading as a hint. Step 2 will reuse `gradesFor` / `LB_GRADES`.
+- Packing: block frozen = 2 kg / 1.8 kg / 4 lb blocks; IQF = 250 g to 5 kg bags; master carton counts per inner; label (Ocean Prime / private / plain); free note. Live, chilled and dry goods: free text only.
+- Incoterm choice (FOB Visakhapatnam, CFR, CIF, Not sure yet) is the buyer's preference, not a company claim. Ports = typing suggestions only.
+- A tap on a single-choice tile auto-advances after 280 ms; keyboard arrows never do. Focus moves to the step question on navigation.
+- Outputs: WhatsApp, email (name required), copy spec, print sheet, add to enquiry list, copy share link (page mode). Ref `OP-yymmdd-XXX` (first 3 letters of the slug).
+- No prices, no lead times, nothing sent anywhere until the buyer presses send.

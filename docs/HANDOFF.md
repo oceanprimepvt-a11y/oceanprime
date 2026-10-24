@@ -1,11 +1,12 @@
 # Ocean Prime: handoff
 
-Last updated: 2026-10-25
+Last updated: 2026-10-25 (masterpiece step 1 done)
 
 ## State
 
+- 2026-10-25 masterpiece step 1 DONE: spec builder. Rules in `src/data/spec.ts` (pure, no imports; tested with a node script). UI in `src/components/SpecBuilder.astro` (`mode="page"` on new `/quote`, `mode="embed"` replaces home section 03). Every "Request a quote" button now goes to `/quote` (product pages `/quote?species=<slug>`); footer "Spec builder" link. Draft in localStorage `op-spec`; page mode mirrors the order fields in the URL (never name or notes). "Add to enquiry list" fires `op:enquiry-upsert` (listener in `Enquiry.astro`). Print = `#spec-print` + `html[data-print='spec']`. Build 0 errors, 32 pages; 33-check Playwright E2E all pass; screenshots 390/1440 light/dark checked.
 - 2026-10-25 motion pass: native smooth scroll, cross-page View Transitions (header holds still), back-to-top button with gold scroll-progress ring (`BackToTop.astro`, steps above the enquiry button), header firms up on scroll (`data-scrolled`), mobile menu fades in and out, FAQ answers slide open. All gated by prefers-reduced-motion. "Home" added to the desktop nav and the footer. Gotcha: never use `scrollIntoView` for the products chip strip; it cancelled page scrolls (now scrolls the strip only).
-- **Site code complete and committed** (local git, first commit eb69cd0; never pushed). Astro **7.4.1** static site + Tailwind v4. Build: 0 errors, 31 pages (home, products, 23 product pages, process, about, faq, privacy, contact, 404). npm audit: 0 vulnerabilities.
+- **Site code complete and committed** (local git, first commit eb69cd0; never pushed). Astro **7.4.1** static site + Tailwind v4. Build: 0 errors, 32 pages (home, quote, products, 23 product pages, process, about, faq, privacy, contact, 404). npm audit: 0 vulnerabilities.
 - Design tokens in `src/styles/global.css` (navy #0b1a2e, single gold accent #d6a63a, pills / 16px cards / 10px fields; Bricolage display, Geist body, Cinzel wordmark only). Light/dark via `data-theme` + localStorage `theme`.
 - Data: `src/data/site.ts` (business facts, `tel`, `waLink`, `nav`), `src/data/products.ts` (23 products, 6 categories, glossary). No invented certifications, markets or stats. Client facts + [NEED] list: `CLIENT.md`.
 - Contact form (`src/pages/contact.astro`): no backend; validates, then opens wa.me or mailto with the message. `?product=<slug>` preselects.

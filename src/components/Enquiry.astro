@@ -153,6 +153,14 @@ import Icon from './Icon.astro';
     }
   });
 
+  // The spec builder adds a species with its full spec as the quantity line (replacing an earlier one).
+  document.addEventListener('op:enquiry-upsert', (e) => {
+    const { slug, name, qty } = (e as CustomEvent<Item>).detail;
+    const it = items.find((x) => x.slug === slug);
+    if (it) it.qty = qty; else items.push({ slug, name, qty });
+    save(); render();
+  });
+
   list.addEventListener('input', (e) => {
     const input = e.target as HTMLInputElement;
     const it = items.find((x) => x.slug === input.dataset.enqQty);
