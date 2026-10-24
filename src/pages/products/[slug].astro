@@ -198,7 +198,7 @@ const description = [
         <div><div class="ps-brand">{business.name.toUpperCase()}</div><div class="ps-tag">{business.tagline}</div></div>
         <div class="ps-contact">{business.email}<br />{business.phones[0]}<br />{business.city}, {business.country}</div>
       </div>
-      <h1>{p.name}</h1>
+      <p class="ps-title">{p.name}</p>
       <p class="ps-meta"><em>{p.scientific}</em> · Product spec sheet<span data-sheet-date></span></p>
       <img src={sheetImg.src} alt="" width={sheetImg.attributes.width} height={sheetImg.attributes.height} class="ps-img" loading="lazy" decoding="async" />
       <table>
