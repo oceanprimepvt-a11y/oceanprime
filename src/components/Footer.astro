@@ -35,7 +35,7 @@ const year = new Date().getFullYear();
           <li><a href={tel(p)} class="inline-flex items-center gap-3 py-1.5 transition-colors hover:text-gold"><Icon name="phone" size={18} class="text-gold" />{p}</a></li>
         ))}
         <li><a href={`mailto:${business.email}`} class="inline-flex items-center gap-3 py-1.5 break-all transition-colors hover:text-gold"><Icon name="envelope" size={18} class="shrink-0 text-gold" />{business.email}</a></li>
-        <li class="inline-flex items-center gap-3 py-1.5"><Icon name="mapPin" size={18} class="shrink-0 text-gold" />{business.city}, {business.region}, {business.country}</li>
+        <li class="inline-flex items-start gap-3 py-1.5"><Icon name="mapPin" size={18} class="mt-0.5 shrink-0 text-gold" /><span>{business.street}, {business.city} {business.postalCode}, {business.region}, {business.country}</span></li>
       </ul>
     </div>
   </div>

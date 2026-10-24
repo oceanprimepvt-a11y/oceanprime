@@ -89,6 +89,7 @@
     transition: transform .18s var(--ease-out-expo), background-color .2s, color .2s, border-color .2s, box-shadow .2s;
   }
   .btn:active { transform: scale(.97); }
+  .btn svg { flex-shrink: 0; }
   .btn-gold { background: var(--color-gold); color: var(--color-navy); box-shadow: 0 8px 24px -10px rgb(214 166 58 / .7); }
   .btn-gold:hover { background: #e4b850; }
   .btn-ghost-light { border: 1px solid rgb(255 255 255 / .38); color: #fff; background: rgb(11 26 46 / .25); }
@@ -121,6 +122,9 @@
   .field::placeholder { color: var(--c-ink-2); opacity: .8; }
   .field:focus { outline: none; border-color: var(--color-gold); box-shadow: 0 0 0 3px rgb(214 166 58 / .25); }
   .field[aria-invalid='true'] { border-color: #c2412d; }
+  /* Enquiry toggle: "+" when off, a tick when the product is on the list. */
+  .enq-add .enq-tick, .enq-add[aria-pressed='true'] .enq-plus { display: none; }
+  .enq-add[aria-pressed='true'] .enq-tick { display: inline-block; }
 }
 
 /* Scroll reveal: elements get .is-in from an IntersectionObserver in BaseLayout. */

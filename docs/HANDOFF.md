@@ -11,6 +11,8 @@ Last updated: 2026-10-24
 - Logo: `src/components/Logo.astro` = untouched emblem tile (`../_scripts/logo_tiles.py`) + live Cinzel wordmark. Never key the JPEG.
 - Photos: 28 ChatGPT images ("DREAM TEAM SERVICES"; prompts `docs/image-prompts.md`), originals in gitignored `assets-raw/`, imported with `python ../_scripts/import_photos.py .` (hero 1920x1080, others 1536x1024). All QC'd on contact sheets.
 - Hero video: `public/video/hero.mp4` (Flow, "dtc kai", Veo 3.1 Fast, start frame = `assets-raw/hero.png`, 20 credits, 1 take). Cropped to remove the Veo mark, muted, 16 s forward+reverse loop, 1280x720 CRF 30, 3.0 MB. Plays only at >= 1024 px, no reduced motion, no save-data; mobile keeps the photo.
+- DEMO data (user: "create with dummy data"): `demo` block in `src/data/site.ts` feeds the home registrations/markets/buyer-quotes sections and the contact trade-terms card; list in `CLIENT.md`. Never put it in JSON-LD.
+- Enquiry list (`src/components/Enquiry.astro`, in BaseLayout): B2B answer to the reference site's cart (fish-king.netlify.app). "Add to enquiry" on product cards and product pages (`data-enq-add`), floating counter, `<dialog>` sheet (bottom on phones, right drawer md+), qty per item, sends via wa.me or mailto. localStorage `op-enquiry`, try/catch. Tested in Playwright (add, toggle, validation, message text, Esc) at 390/1440 light/dark.
 - User rule 2026-10-24: do NOT ask anything; images = ChatGPT in "DREAM TEAM SERVICES", video = Flow in "dtc kai" (x1, budget <= 100 credits). Deliver the final website.
 
 ## Next steps
@@ -27,3 +29,4 @@ Last updated: 2026-10-24
 - Port 4392 may be taken by an old server; check which port `astro preview` printed before screenshotting. `shots.mjs` forces reduced motion, so the hero video never shows in it; `vidcheck.mjs` (scratchpad) checks the video.
 - Bash sandbox sometimes denies `head`, `tail` and `ls`; use Read/Grep.
 - Screenshots: scratchpad `shots.mjs <base> <out> [pages] [widths] [themes]` with `PW_PATH="$(npm root -g)/playwright"` (off-screen, reduced motion, reports overflow and console errors).
+- Test scripts (scratchpad, may be gone): `enq.mjs` drives the enquiry flow; with `noopener` the popup URL reads blank, so stub `window.open` to read the WhatsApp text.

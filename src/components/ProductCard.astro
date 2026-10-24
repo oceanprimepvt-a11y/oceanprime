@@ -30,8 +30,15 @@ const { product: p, class: cls = '', headingLevel: H = 'h3', ...rest } = Astro.p
       ))}
       {p.forms.length > 4 && <li class="rounded-full px-1.5 py-1 text-xs font-medium text-ink-2">+{p.forms.length - 4} more</li>}
     </ul>
-    <span class="mt-auto inline-flex items-center gap-1.5 pt-5 text-sm font-semibold text-gold-ink" aria-hidden="true">
-      View details<Icon name="arrowRight" size={16} class="transition-transform duration-300 group-hover:translate-x-1" />
-    </span>
+    <div class="mt-auto flex items-center justify-between gap-3 pt-5">
+      <span class="inline-flex items-center gap-1.5 text-sm font-semibold text-gold-ink" aria-hidden="true">
+        View details<Icon name="arrowRight" size={16} class="transition-transform duration-300 group-hover:translate-x-1" />
+      </span>
+      <!-- Sits above the card's stretched link so it adds to the enquiry list instead of navigating. -->
+      <button type="button" data-enq-add data-slug={p.slug} data-name={p.name} aria-pressed="false" aria-label={`Add ${p.name} to enquiry list`}
+        class="enq-add relative z-10 inline-flex min-h-10 items-center gap-1.5 rounded-full border border-line bg-bg px-3.5 text-sm font-semibold transition-colors hover:border-ink-2 aria-pressed:border-gold aria-pressed:bg-gold aria-pressed:text-navy">
+        <span class="enq-plus" aria-hidden="true">+</span><Icon name="check" size={16} class="enq-tick" /><span data-label>Add to enquiry</span>
+      </button>
+    </div>
   </div>
 </article>

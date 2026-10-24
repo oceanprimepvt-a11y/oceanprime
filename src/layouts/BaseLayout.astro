@@ -3,6 +3,7 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import MobileBar from '../components/MobileBar.astro';
+import Enquiry from '../components/Enquiry.astro';
 import { business } from '../data/site';
 
 interface Crumb { name: string; href: string; }
@@ -93,6 +94,7 @@ const ld = [org, website, ...(breadcrumb ? [breadcrumb] : []), ...jsonLd];
     </main>
     <Footer />
     <MobileBar />
+    <Enquiry />
 
     <script>
       // Reveal on scroll. Elements are visible by default; .js hides them only when motion is allowed.
