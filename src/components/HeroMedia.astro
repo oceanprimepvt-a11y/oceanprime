@@ -2,11 +2,13 @@
 // Hero background: the photo is the LCP image everywhere; an ambient video (if present) plays over it
 // on wide screens only, and never for people who prefer reduced motion or are saving data.
 import fs from 'node:fs';
+import path from 'node:path';
 import { Picture, getImage } from 'astro:assets';
 import { photo } from '../data/photos';
 
 const hero = photo('hero');
-const hasVideo = fs.existsSync(new URL('../../public/video/hero.mp4', import.meta.url));
+// Resolve from the project root: at build time import.meta.url points into the bundle, not src/.
+const hasVideo = fs.existsSync(path.join(process.cwd(), 'public/video/hero.mp4'));
 const poster = hasVideo ? await getImage({ src: hero, width: 1920, format: 'webp' }) : null;
 ---
 <Picture

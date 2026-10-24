@@ -3,18 +3,27 @@
 Last updated: 2026-10-24
 
 ## State
-- Astro 5 static site + Tailwind v4, mobile-first B2B seafood-export site (Vizag). Design tokens in `src/styles/global.css` (navy #0b1a2e, single gold accent #d6a63a, pills / 16px cards / 10px fields; Bricolage display, Geist body, Cinzel wordmark only).
-- Data: `src/data/site.ts` (business facts, `tel`, `waLink`, `nav`), `src/data/products.ts` (23 products, 6 categories, glossary). Forms/grades are "typical, agreed per order"; no invented certifications, markets or stats.
-- Logo: `src/components/Logo.astro` = untouched emblem tile (`_scripts/logo_tiles.py`) + live Cinzel wordmark. Never key the JPEG (it punched holes in the globe).
-- Photos: `src/assets/photos/*.jpg` are placeholders until ChatGPT images land in `assets-raw/` (prompts: `docs/image-prompts.md`), then convert with `_scripts/import_photos.py`.
+- **Site code complete and committed** (local git, first commit eb69cd0; never pushed). Astro **7.4.1** static site + Tailwind v4. Build: 0 errors, 28 pages (home, products, 23 product pages, process, contact, 404). npm audit: 0 vulnerabilities.
+- Design tokens in `src/styles/global.css` (navy #0b1a2e, single gold accent #d6a63a, pills / 16px cards / 10px fields; Bricolage display, Geist body, Cinzel wordmark only). Light/dark via `data-theme` + localStorage `theme`.
+- Data: `src/data/site.ts` (business facts, `tel`, `waLink`, `nav`), `src/data/products.ts` (23 products, 6 categories, glossary). No invented certifications, markets or stats. Client facts + [NEED] list: `CLIENT.md`.
+- Contact form (`src/pages/contact.astro`): no backend; validates, then opens wa.me or mailto with the message. `?product=<slug>` preselects.
+- Security: static only; `public/_headers` (nosniff, frame DENY, referrer, permissions, HSTS, immutable `/_astro/*`). All `_blank` links have `rel="noopener"`.
+- Logo: `src/components/Logo.astro` = untouched emblem tile (`../_scripts/logo_tiles.py`) + live Cinzel wordmark. Never key the JPEG.
+- Photos: 28 ChatGPT images ("DREAM TEAM SERVICES"; prompts `docs/image-prompts.md`), originals in gitignored `assets-raw/`, imported with `python ../_scripts/import_photos.py .` (hero 1920x1080, others 1536x1024). All QC'd on contact sheets.
+- Hero video: `public/video/hero.mp4` (Flow, "dtc kai", Veo 3.1 Fast, start frame = `assets-raw/hero.png`, 20 credits, 1 take). Cropped to remove the Veo mark, muted, 16 s forward+reverse loop, 1280x720 CRF 30, 3.0 MB. Plays only at >= 1024 px, no reduced motion, no save-data; mobile keeps the photo.
 - User rule 2026-10-24: do NOT ask anything; images = ChatGPT in "DREAM TEAM SERVICES", video = Flow in "dtc kai" (x1, budget <= 100 credits). Deliver the final website.
 
 ## Next steps
-1. Layout + components (BaseLayout SEO/JSON-LD, Header, MobileBar, Footer, Icon, ProductCard) and pages (index, products, products/[slug], process, contact, 404).
-2. Import real images, QC each.
-3. Hero video from Flow (one ambient clip, muted loop, poster = hero.jpg, desktop only).
-4. Build, screenshots 390/1440 light/dark, fix; security-audit; CLIENT.md [NEED] list; git commit.
+1. Client review of the site. Before going live: domain → `SITE_URL`, then the client's [NEED] items in `CLIENT.md` (real product list, certifications, address, WhatsApp number).
+2. When real photos arrive, drop them into `assets-raw/<same name>.jpg` and re-run the import script.
+3. Deploy only when the user asks (static host; `public/_headers` is Netlify/Cloudflare Pages format).
 
 ## Gotchas
-- Bash sandbox denies `head`, `tail` and `ls` into node_modules; use node or Glob.
-- Off-screen Playwright: global `playwright` via `npm root -g` (scratchpad `shot.mjs`).
+- Astro pinned to 7.4.1: 7.4.2 needs Node >= 22.23.4 (this PC has 22.23.1).
+- While the dev server runs, edit src files with the Edit tool, not `sed -i` (its temp files cause ENOENT errors and a stale Vite overlay).
+- `@tailwindcss/vite` is typed against a newer Vite; `astro.config.mjs` casts it to `any` so `astro check` passes.
+- `HeroMedia.astro` finds the video via `process.cwd()`; `import.meta.url` points into the build bundle and silently hid the video.
+- Run `python` without `-I` for PIL (user site-packages). Don't `rm` relative globs after `cd` (blocked); copy into a fresh folder instead.
+- Port 4392 may be taken by an old server; check which port `astro preview` printed before screenshotting. `shots.mjs` forces reduced motion, so the hero video never shows in it; `vidcheck.mjs` (scratchpad) checks the video.
+- Bash sandbox sometimes denies `head`, `tail` and `ls`; use Read/Grep.
+- Screenshots: scratchpad `shots.mjs <base> <out> [pages] [widths] [themes]` with `PW_PATH="$(npm root -g)/playwright"` (off-screen, reduced motion, reports overflow and console errors).
