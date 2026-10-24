@@ -1,0 +1,15 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+---
+<BaseLayout title="Page not found" description="This page could not be found." noindex>
+  <section class="container-x grid min-h-[60dvh] place-content-center py-24 text-center">
+    <p class="font-display text-8xl font-bold text-gold">404</p>
+    <h1 class="mt-4 text-4xl font-bold md:text-5xl">This page swam away.</h1>
+    <p class="mx-auto mt-4 max-w-md text-lg text-ink-2">The link may be old or mistyped. Try the products list, or head back home.</p>
+    <div class="mt-8 flex flex-wrap justify-center gap-3">
+      <a href="/products" class="btn btn-gold">View products<Icon name="arrowRight" size={18} /></a>
+      <a href="/" class="btn btn-line"><Icon name="arrowLeft" size={18} />Home</a>
+    </div>
+  </section>
+</BaseLayout>

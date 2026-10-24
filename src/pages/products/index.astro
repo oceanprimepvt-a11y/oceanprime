@@ -1,0 +1,80 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import Icon from '../../components/Icon.astro';
+import { categories, products, productsBy } from '../../data/products';
+
+const site = Astro.site!;
+const itemList = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'Ocean Prime seafood products',
+  itemListElement: products.map((p, i) => ({
+    '@type': 'ListItem', position: i + 1, name: p.name, url: new URL(`/products/${p.slug}`, site).href,
+  })),
+};
+---
+<BaseLayout
+  title="Seafood Products"
+  description="Frozen seafood for export from Visakhapatnam: vannamei and black tiger shrimp, squid, cuttlefish, octopus, ribbonfish, mackerel, seer fish, pomfret, tuna, crab, lobster, rohu, surimi and dried fish."
+  crumbs={[{ name: 'Products', href: '/products' }]}
+  jsonLd={[itemList]}
+>
+  <section class="container-x pb-6 pt-12 md:pt-20">
+    <nav aria-label="Breadcrumb" class="text-sm text-ink-2"><a href="/" class="hover:text-ink">Home</a><span class="mx-2" aria-hidden="true">/</span><span aria-current="page">Products</span></nav>
+    <h1 class="mt-4 max-w-3xl text-5xl font-bold leading-[1] md:text-7xl">Seafood we export.</h1>
+    <p class="mt-5 max-w-2xl text-lg leading-relaxed text-ink-2">
+      A guide to the species we supply from India's east coast. Forms, grades and packing are agreed per order, so if you need something not listed, ask us.
+    </p>
+  </section>
+
+  <!-- Category jump bar: sticky under the header, scrolls sideways on phones. -->
+  <div class="sticky top-16 z-20 border-y border-line bg-bg/90 backdrop-blur-md md:top-[4.5rem]">
+    <nav aria-label="Product categories" class="no-scrollbar container-x flex gap-2 overflow-x-auto py-3">
+      {categories.map((c) => (
+        <a href={`#${c.id}`} data-cat-link={c.id} class="chip shrink-0 transition-colors hover:border-ink-2 aria-[current=true]:border-navy aria-[current=true]:bg-navy aria-[current=true]:text-white dark:aria-[current=true]:border-gold dark:aria-[current=true]:bg-gold dark:aria-[current=true]:text-navy">
+          {c.short}<span class="ml-1.5 text-xs opacity-70">{productsBy(c.id).length}</span>
+        </a>
+      ))}
+    </nav>
+  </div>
+
+  <div class="container-x pb-20 md:pb-28">
+    {categories.map((c) => (
+      <section id={c.id} data-cat-section={c.id} class="scroll-mt-36 pt-14 md:scroll-mt-40 md:pt-20" aria-labelledby={`h-${c.id}`}>
+        <div class="flex flex-col gap-2 md:flex-row md:items-baseline md:justify-between" data-reveal>
+          <h2 id={`h-${c.id}`} class="text-3xl font-bold md:text-4xl">{c.name}</h2>
+          <p class="max-w-md text-ink-2 md:text-right">{c.blurb}</p>
+        </div>
+        <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {productsBy(c.id).map((p, i) => <ProductCard product={p} data-reveal style={`--d:${i % 3}`} />)}
+        </div>
+      </section>
+    ))}
+
+    <aside class="mt-20 flex flex-col items-start gap-5 rounded-card border border-line bg-surface p-6 md:flex-row md:items-center md:justify-between md:p-8" data-reveal>
+      <div>
+        <h2 class="text-2xl font-bold">Looking for a species not listed here?</h2>
+        <p class="mt-1 text-ink-2">Tell us what you need and we will check availability for you.</p>
+      </div>
+      <a href="/contact" class="btn btn-gold">Request a quote<Icon name="arrowRight" size={18} /></a>
+    </aside>
+  </div>
+</BaseLayout>
+
+<script>
+  // Highlight the category chip whose section is in view.
+  const links = new Map(
+    [...document.querySelectorAll<HTMLAnchorElement>('[data-cat-link]')].map((a) => [a.dataset.catLink!, a]),
+  );
+  const io = new IntersectionObserver(
+    (entries) => entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      const id = (e.target as HTMLElement).dataset.catSection!;
+      links.forEach((a, key) => a.setAttribute('aria-current', String(key === id)));
+      links.get(id)?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+    }),
+    { rootMargin: '-45% 0px -50% 0px' },
+  );
+  document.querySelectorAll('[data-cat-section]').forEach((s) => io.observe(s));
+</script>

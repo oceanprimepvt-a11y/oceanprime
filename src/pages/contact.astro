@@ -1,0 +1,152 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { business, tel, waLink } from '../data/site';
+import { categories, productsBy } from '../data/products';
+---
+<BaseLayout
+  title="Request a Quote"
+  description={`Request a quote for frozen seafood from ${business.name}, Visakhapatnam. Call ${business.phones[0]}, WhatsApp us or email ${business.email}.`}
+  crumbs={[{ name: 'Contact', href: '/contact' }]}
+>
+  <section class="container-x grid gap-12 pb-20 pt-12 md:pb-28 md:pt-20 lg:grid-cols-[1.25fr_1fr] lg:gap-16">
+    <div>
+      <nav aria-label="Breadcrumb" class="text-sm text-ink-2"><a href="/" class="hover:text-ink">Home</a><span class="mx-2" aria-hidden="true">/</span><span aria-current="page">Contact</span></nav>
+      <h1 class="mt-4 text-5xl font-bold leading-[1] md:text-7xl">Request a quote.</h1>
+      <p class="mt-5 max-w-xl text-lg leading-relaxed text-ink-2">Tell us what you need. Your message opens in WhatsApp or your email app, ready to send, so it reaches us directly.</p>
+
+      <form id="quote" class="mt-10 grid gap-5 sm:grid-cols-2" novalidate>
+        <div class="grid gap-2">
+          <label for="name" class="text-sm font-semibold">Your name <span class="text-gold-ink">*</span></label>
+          <input id="name" name="name" class="field" autocomplete="name" required />
+        </div>
+        <div class="grid gap-2">
+          <label for="company" class="text-sm font-semibold">Company</label>
+          <input id="company" name="company" class="field" autocomplete="organization" />
+        </div>
+        <div class="grid gap-2">
+          <label for="email" class="text-sm font-semibold">Email</label>
+          <input id="email" name="email" type="email" class="field" autocomplete="email" inputmode="email" />
+        </div>
+        <div class="grid gap-2">
+          <label for="phone" class="text-sm font-semibold">Phone or WhatsApp</label>
+          <input id="phone" name="phone" type="tel" class="field" autocomplete="tel" inputmode="tel" />
+        </div>
+        <div class="grid gap-2">
+          <label for="country" class="text-sm font-semibold">Country</label>
+          <input id="country" name="country" class="field" autocomplete="country-name" />
+        </div>
+        <div class="grid gap-2">
+          <label for="product" class="text-sm font-semibold">Product <span class="text-gold-ink">*</span></label>
+          <select id="product" name="product" class="field" required>
+            <option value="">Choose a product</option>
+            {categories.map((c) => (
+              <optgroup label={c.name}>
+                {productsBy(c.id).map((p) => <option value={p.slug}>{p.name}</option>)}
+              </optgroup>
+            ))}
+            <option value="other">Other or several products</option>
+          </select>
+        </div>
+        <div class="grid gap-2 sm:col-span-2">
+          <label for="quantity" class="text-sm font-semibold">Quantity and destination port</label>
+          <input id="quantity" name="quantity" class="field" placeholder="For example: one 40 ft reefer to Jebel Ali" />
+        </div>
+        <div class="grid gap-2 sm:col-span-2">
+          <label for="message" class="text-sm font-semibold">Specification or message</label>
+          <textarea id="message" name="message" rows="4" class="field resize-y" placeholder="Form, size grade, freezing, packing"></textarea>
+        </div>
+        <p id="form-error" class="hidden rounded-field border border-[#c2412d]/40 bg-[#c2412d]/10 px-4 py-3 text-sm font-medium text-[#a3321f] sm:col-span-2 dark:text-[#ffb4a6]" role="alert"></p>
+        <div class="flex flex-col gap-3 sm:col-span-2 sm:flex-row">
+          <button type="submit" name="via" value="whatsapp" class="btn btn-gold"><Icon name="whatsapp" size={20} />Send on WhatsApp</button>
+          <button type="submit" name="via" value="email" class="btn btn-line"><Icon name="envelope" size={20} />Send by email</button>
+        </div>
+      </form>
+    </div>
+
+    <aside class="grid content-start gap-4 lg:pt-28">
+      <div class="on-dark rounded-card bg-navy p-6 text-white md:p-8">
+        <h2 class="font-display text-2xl font-semibold">Talk to us directly</h2>
+        <p class="mt-2 text-white/75">Calls and WhatsApp in English, Telugu and Hindi.</p>
+        <ul class="mt-6 grid gap-2">
+          {business.phones.map((p) => (
+            <li>
+              <a href={tel(p)} class="flex items-center justify-between rounded-[12px] bg-white/5 px-4 py-3.5 transition-colors hover:bg-white/10">
+                <span class="flex items-center gap-3 font-medium"><Icon name="phone" size={20} class="text-gold" />{p}</span>
+                <Icon name="arrowUpRight" size={18} class="text-white/60" />
+              </a>
+            </li>
+          ))}
+          <li>
+            <a href={waLink()} target="_blank" rel="noopener" class="flex items-center justify-between rounded-[12px] bg-white/5 px-4 py-3.5 transition-colors hover:bg-white/10">
+              <span class="flex items-center gap-3 font-medium"><Icon name="whatsapp" size={20} class="text-gold" />WhatsApp us</span>
+              <Icon name="arrowUpRight" size={18} class="text-white/60" />
+            </a>
+          </li>
+          <li>
+            <a href={`mailto:${business.email}`} class="flex items-center justify-between gap-3 rounded-[12px] bg-white/5 px-4 py-3.5 transition-colors hover:bg-white/10">
+              <span class="flex min-w-0 items-center gap-3 font-medium"><Icon name="envelope" size={20} class="shrink-0 text-gold" /><span class="break-all">{business.email}</span></span>
+              <Icon name="arrowUpRight" size={18} class="shrink-0 text-white/60" />
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div class="rounded-card border border-line bg-surface p-6 md:p-8">
+        <h2 class="flex items-center gap-2 font-display text-xl font-semibold"><Icon name="mapPin" size={20} class="text-gold-ink" />Where we are</h2>
+        <p class="mt-2 text-ink-2">{business.city}, {business.region}, {business.country}</p>
+        <a href="https://www.google.com/maps/search/?api=1&query=Visakhapatnam%2C%20Andhra%20Pradesh" target="_blank" rel="noopener" class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-gold-ink hover:underline">Open in Google Maps<Icon name="arrowUpRight" size={16} /></a>
+      </div>
+    </aside>
+  </section>
+</BaseLayout>
+
+<script>
+  import { business } from '../data/site';
+
+  const form = document.getElementById('quote') as HTMLFormElement;
+  const error = document.getElementById('form-error')!;
+  const product = form.elements.namedItem('product') as HTMLSelectElement;
+
+  // Preselect the product when arriving from a product page (?product=slug).
+  const pre = new URLSearchParams(location.search).get('product');
+  if (pre && [...product.options].some((o) => o.value === pre)) product.value = pre;
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const via = (e.submitter as HTMLButtonElement | null)?.value ?? 'whatsapp';
+    const v = (n: string) => ((form.elements.namedItem(n) as HTMLInputElement).value || '').trim();
+
+    const problems: string[] = [];
+    form.querySelectorAll('[aria-invalid]').forEach((el) => el.removeAttribute('aria-invalid'));
+    const flag = (n: string, msg: string) => { (form.elements.namedItem(n) as HTMLElement).setAttribute('aria-invalid', 'true'); problems.push(msg); };
+    if (!v('name')) flag('name', 'your name');
+    if (!v('product')) flag('product', 'a product');
+    if (v('email') && !/^\S+@\S+\.\S+$/.test(v('email'))) flag('email', 'a valid email');
+    if (problems.length) {
+      error.textContent = `Please add ${problems.join(', ')}.`;
+      error.classList.remove('hidden');
+      (form.querySelector('[aria-invalid]') as HTMLElement | null)?.focus();
+      return;
+    }
+    error.classList.add('hidden');
+
+    const productName = product.value === 'other' ? 'Other or several products' : product.selectedOptions[0].text;
+    const lines = [
+      'Quote request from the Ocean Prime website',
+      `Name: ${v('name')}`,
+      v('company') && `Company: ${v('company')}`,
+      v('country') && `Country: ${v('country')}`,
+      v('email') && `Email: ${v('email')}`,
+      v('phone') && `Phone: ${v('phone')}`,
+      `Product: ${productName}`,
+      v('quantity') && `Quantity / port: ${v('quantity')}`,
+      v('message') && `Details: ${v('message')}`,
+    ].filter(Boolean).join('\n');
+
+    if (via === 'email') {
+      location.href = `mailto:${business.email}?subject=${encodeURIComponent(`Quote request: ${productName}`)}&body=${encodeURIComponent(lines)}`;
+    } else {
+      window.open(`https://wa.me/${business.whatsapp}?text=${encodeURIComponent(lines)}`, '_blank', 'noopener');
+    }
+  });
+</script>

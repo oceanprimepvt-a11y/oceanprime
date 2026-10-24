@@ -1,0 +1,116 @@
+---
+import { Picture } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon, { type IconName } from '../components/Icon.astro';
+import { photo } from '../data/photos';
+
+const steps: { icon: IconName; title: string; text: string; image: string; alt: string }[] = [
+  {
+    icon: 'boat', title: 'Sourcing', image: 'harbour', alt: 'Fishing trawlers at Visakhapatnam harbour at dawn',
+    text: 'Wild catch is bought at the Visakhapatnam fishing harbour as the boats land. Farmed shrimp, scampi and rohu come from aquaculture farms across Andhra Pradesh. Everything goes on ice straight away.',
+  },
+  {
+    icon: 'factory', title: 'Receiving and processing', image: 'processing', alt: 'Workers in white coats grading shrimp on ice in a processing hall',
+    text: 'At the plant the raw material is checked, washed and graded by size. It is then headed, peeled, deveined, cleaned or cut into the form your order asks for, on chilled lines.',
+  },
+  {
+    icon: 'snowflake', title: 'Freezing and glazing', image: 'vannamei', alt: 'Raw vannamei shrimp on crushed ice',
+    text: 'Product is frozen individually (IQF), in loose layers (semi-IQF) or in solid blocks, then glazed with a thin layer of ice that protects it from drying out in storage.',
+  },
+  {
+    icon: 'pkg', title: 'Packing and labelling', image: 'cartons', alt: 'White export master cartons in a cold store',
+    text: 'Inner packs and master cartons are filled to the agreed net weight and labelled to your market’s requirements, then held in cold storage until loading.',
+  },
+  {
+    icon: 'globe', title: 'Cold-chain shipping', image: 'cold-chain', alt: 'A refrigerated container being lifted at a container port',
+    text: 'Cartons are loaded into pre-cooled reefer containers that hold the product deep frozen all the way to your port. Export documents for your market travel with the shipment.',
+  },
+];
+
+const agreed = [
+  'Species and origin', 'Form and cut', 'Size grade and count', 'Freezing method', 'Glaze percentage',
+  'Net weight and packing', 'Labels and language', 'Port and Incoterms', 'Documents for your market',
+];
+---
+<BaseLayout
+  title="Process: From Catch to Container"
+  description="How Ocean Prime sources, processes, freezes, packs and ships seafood from Visakhapatnam with an unbroken cold chain."
+  crumbs={[{ name: 'Process', href: '/process' }]}
+>
+  <section class="container-x pb-10 pt-12 md:pt-20">
+    <nav aria-label="Breadcrumb" class="text-sm text-ink-2"><a href="/" class="hover:text-ink">Home</a><span class="mx-2" aria-hidden="true">/</span><span aria-current="page">Process</span></nav>
+    <h1 class="mt-4 max-w-4xl text-5xl font-bold leading-[1] md:text-7xl">From catch to container.</h1>
+    <p class="mt-5 max-w-2xl text-lg leading-relaxed text-ink-2">Five steps between the Bay of Bengal and your cold store. The aim of every one is the same: keep the seafood cold, clean and exactly to spec.</p>
+  </section>
+
+  <!-- Sticky image on desktop swaps with the step in view; on phones each step carries its own photo. -->
+  <section class="container-x grid gap-12 pb-20 md:pb-28 lg:grid-cols-2 lg:gap-16">
+    <div class="sticky top-28 hidden h-[calc(100dvh-9rem)] max-h-[44rem] self-start overflow-hidden rounded-card bg-navy lg:block" aria-hidden="true">
+      {steps.map((s, i) => (
+        <Picture
+          src={photo(s.image)}
+          alt=""
+          widths={[700, 1100]}
+          sizes="640px"
+          formats={['avif', 'webp']}
+          data-step-img={i}
+          class:list={['absolute inset-0 size-full object-cover transition-opacity duration-700', i === 0 ? 'opacity-100' : 'opacity-0']}
+        />
+      ))}
+      <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy/85 to-transparent p-6">
+        <p class="font-display text-2xl font-semibold text-white" data-step-caption>{steps[0].title}</p>
+      </div>
+    </div>
+
+    <ol class="relative">
+      <span class="absolute left-[1.375rem] top-3 bottom-3 w-px bg-line" aria-hidden="true"></span>
+      {steps.map((s, i) => (
+        <li class="relative flex gap-5 pb-14 last:pb-0 lg:min-h-[45vh] lg:last:min-h-0" data-step={i} data-reveal>
+          <span class="relative grid size-11 shrink-0 place-items-center rounded-full border border-gold/30 bg-navy text-gold ring-4 ring-bg"><Icon name={s.icon} size={20} /></span>
+          <div class="pt-1">
+            <p class="text-sm font-semibold text-gold-ink">Step {i + 1}</p>
+            <h2 class="mt-1 text-3xl font-bold">{s.title}</h2>
+            <p class="mt-3 max-w-lg text-lg leading-relaxed text-ink-2">{s.text}</p>
+            <Picture src={photo(s.image)} alt={s.alt} widths={[480, 800]} sizes="90vw" formats={['avif', 'webp']} class="mt-6 aspect-[3/2] w-full rounded-card object-cover lg:hidden" />
+          </div>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="border-t border-line bg-surface py-20 md:py-28">
+    <div class="container-x grid gap-10 lg:grid-cols-[1fr_1.4fr] lg:gap-16">
+      <div data-reveal>
+        <h2 class="text-4xl font-bold leading-[1.05] md:text-5xl">What we agree before every order.</h2>
+        <p class="mt-4 text-lg leading-relaxed text-ink-2">No surprises at the destination port. These points are confirmed with you in the order specification.</p>
+        <a href="/contact" class="btn btn-gold mt-8">Request a quote<Icon name="arrowRight" size={18} /></a>
+      </div>
+      <ul class="grid gap-3 sm:grid-cols-2">
+        {agreed.map((a, i) => (
+          <li class="flex items-center gap-3 rounded-[14px] border border-line bg-bg px-4 py-4 font-medium" data-reveal style={`--d:${i % 4}`}>
+            <span class="grid size-8 shrink-0 place-items-center rounded-full bg-gold/15 text-gold-ink"><Icon name="check" size={16} /></span>{a}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const imgs = document.querySelectorAll<HTMLElement>('[data-step-img]');
+  const caption = document.querySelector<HTMLElement>('[data-step-caption]');
+  const titles = [...document.querySelectorAll<HTMLElement>('[data-step] h2')].map((h) => h.textContent ?? '');
+  if (imgs.length) {
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        const n = Number((e.target as HTMLElement).dataset.step);
+        imgs.forEach((img) => img.classList.toggle('opacity-0', Number(img.dataset.stepImg) !== n));
+        imgs.forEach((img) => img.classList.toggle('opacity-100', Number(img.dataset.stepImg) === n));
+        if (caption) caption.textContent = titles[n];
+      }),
+      { rootMargin: '-45% 0px -50% 0px' },
+    );
+    document.querySelectorAll('[data-step]').forEach((s) => io.observe(s));
+  }
+</script>

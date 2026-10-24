@@ -1,0 +1,111 @@
+---
+import { Picture } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import Icon from '../../components/Icon.astro';
+import { photo } from '../../data/photos';
+import { products, productsBy, categoryOf, glossary, type Product } from '../../data/products';
+import { waLink } from '../../data/site';
+
+export function getStaticPaths() {
+  return products.map((p) => ({ params: { slug: p.slug }, props: { product: p } }));
+}
+
+const { product: p } = Astro.props as { product: Product };
+const cat = categoryOf(p.category);
+const related = [...productsBy(p.category), ...products.filter((x) => x.featured)]
+  .filter((x, i, all) => x.slug !== p.slug && all.findIndex((y) => y.slug === x.slug) === i)
+  .slice(0, 3);
+const img = photo(p.image);
+
+const specs: { label: string; values: string[] }[] = [
+  { label: 'Forms', values: p.forms },
+  { label: 'Freezing', values: p.freezing },
+];
+---
+<BaseLayout
+  title={`${p.name} Exporter`}
+  description={`${p.name} (${p.scientific}) for export from Visakhapatnam, India. ${p.summary} Available as ${p.forms.slice(0, 4).join(', ')}.`}
+  crumbs={[{ name: 'Products', href: '/products' }, { name: p.name, href: `/products/${p.slug}` }]}
+>
+  <article class="container-x pb-20 pt-8 md:pb-28 md:pt-12">
+    <nav aria-label="Breadcrumb" class="text-sm text-ink-2">
+      <a href="/" class="hover:text-ink">Home</a><span class="mx-2" aria-hidden="true">/</span>
+      <a href="/products" class="hover:text-ink">Products</a><span class="mx-2" aria-hidden="true">/</span>
+      <span aria-current="page">{p.name}</span>
+    </nav>
+
+    <div class="mt-6 grid gap-8 lg:grid-cols-[1.15fr_1fr] lg:gap-14">
+      <div class="lg:sticky lg:top-28 lg:self-start">
+        <div class="overflow-hidden rounded-card bg-navy">
+          <Picture
+            src={img}
+            alt={`${p.name} (${p.scientific})`}
+            widths={[480, 800, 1200]}
+            sizes="(min-width: 1024px) 680px, 100vw"
+            formats={['avif', 'webp']}
+            loading="eager"
+            fetchpriority="high"
+            class="aspect-[3/2] w-full object-cover"
+          />
+        </div>
+      </div>
+
+      <div>
+        <a href={`/products#${cat.id}`} class="text-sm font-semibold text-gold-ink hover:underline">{cat.name}</a>
+        <h1 class="mt-2 text-4xl font-bold leading-[1.02] md:text-6xl">{p.name}</h1>
+        <p class="mt-2 text-lg italic text-ink-2">{p.scientific}</p>
+        <p class="mt-5 inline-flex items-center gap-2 rounded-full bg-surface-2 px-3.5 py-1.5 text-sm font-medium">
+          <Icon name="mapPin" size={16} class="text-gold-ink" />{p.source}
+        </p>
+        <p class="mt-6 text-lg leading-relaxed">{p.summary}</p>
+        <p class="mt-3 leading-relaxed text-ink-2">{p.description}</p>
+
+        <dl class="mt-8 divide-y divide-line border-y border-line">
+          {specs.map((s) => (
+            <div class="grid gap-3 py-5 sm:grid-cols-[8rem_1fr]">
+              <dt class="font-semibold">{s.label}</dt>
+              <dd>
+                <ul class="flex flex-wrap gap-2">
+                  {s.values.map((v) => (
+                    <li class="rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-medium">
+                      {v}{glossary[v] && <span class="font-normal text-ink-2">: {glossary[v]}</span>}
+                    </li>
+                  ))}
+                </ul>
+              </dd>
+            </div>
+          ))}
+          {p.grading && (
+            <div class="grid gap-1 py-5 sm:grid-cols-[8rem_1fr]">
+              <dt class="font-semibold">Grading</dt>
+              <dd class="text-ink-2">{p.grading}</dd>
+            </div>
+          )}
+          <div class="grid gap-1 py-5 sm:grid-cols-[8rem_1fr]">
+            <dt class="font-semibold">Packing</dt>
+            <dd class="text-ink-2">Glaze, inner packs, master cartons and labels to your specification.</dd>
+          </div>
+        </dl>
+        <p class="mt-4 text-sm text-ink-2">Typical export specifications. Final forms, grades and packing are confirmed for each order.</p>
+
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={`/contact?product=${p.slug}`} class="btn btn-gold">Request a quote<Icon name="arrowRight" size={18} /></a>
+          <a href={waLink(`Hello Ocean Prime, I would like a quote for ${p.name}.`)} target="_blank" rel="noopener" class="btn btn-line">
+            <Icon name="whatsapp" size={20} class="text-[#1f9d55]" />WhatsApp us
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <section class="mt-24" aria-labelledby="related">
+      <div class="flex items-end justify-between gap-4">
+        <h2 id="related" class="text-3xl font-bold md:text-4xl">You may also need</h2>
+        <a href="/products" class="hidden text-sm font-semibold text-gold-ink hover:underline sm:inline">View products</a>
+      </div>
+      <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {related.map((r, i) => <ProductCard product={r} data-reveal style={`--d:${i}`} />)}
+      </div>
+    </section>
+  </article>
+</BaseLayout>

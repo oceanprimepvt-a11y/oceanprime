@@ -1,0 +1,46 @@
+---
+// Hero background: the photo is the LCP image everywhere; an ambient video (if present) plays over it
+// on wide screens only, and never for people who prefer reduced motion or are saving data.
+import fs from 'node:fs';
+import { Picture, getImage } from 'astro:assets';
+import { photo } from '../data/photos';
+
+const hero = photo('hero');
+const hasVideo = fs.existsSync(new URL('../../public/video/hero.mp4', import.meta.url));
+const poster = hasVideo ? await getImage({ src: hero, width: 1920, format: 'webp' }) : null;
+---
+<Picture
+  src={hero}
+  alt="Fresh black tiger prawns, pomfret, seer fish, squid and mud crab on crushed ice"
+  widths={[640, 960, 1280, 1920]}
+  sizes="100vw"
+  formats={['avif', 'webp']}
+  loading="eager"
+  fetchpriority="high"
+  class="hero-img absolute inset-0 -z-20 size-full object-cover object-[72%_50%] md:object-center"
+/>
+{hasVideo && (
+  <video
+    data-hero-video
+    class="absolute inset-0 -z-20 hidden size-full object-cover opacity-0 transition-opacity duration-1000"
+    muted
+    loop
+    playsinline
+    preload="none"
+    poster={poster!.src}
+    aria-hidden="true"
+  >
+    <source src="/video/hero.mp4" type="video/mp4" />
+  </video>
+)}
+
+<script>
+  const v = document.querySelector<HTMLVideoElement>('[data-hero-video]');
+  const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+  if (v && !saveData && matchMedia('(min-width: 1024px) and (prefers-reduced-motion: no-preference)').matches) {
+    v.classList.remove('hidden');
+    v.preload = 'auto';
+    v.addEventListener('playing', () => v.classList.replace('opacity-0', 'opacity-100'), { once: true });
+    v.play().catch(() => v.classList.add('hidden'));
+  }
+</script>

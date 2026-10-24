@@ -1,0 +1,146 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/bricolage-grotesque/wght.css';
+@import '@fontsource-variable/geist/wght.css';
+@import '@fontsource/cinzel/latin-700.css';
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* Radius rule: buttons and chips are pills, cards and media 16px, inputs 10px. */
+@theme {
+  --font-display: 'Bricolage Grotesque Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  /* Wordmark only: Cinzel's lowercase are small caps, matching the logo's tall O and P. */
+  --font-brand: 'Cinzel', ui-serif, Georgia, serif;
+
+  --color-bg: var(--c-bg);
+  --color-surface: var(--c-surface);
+  --color-surface-2: var(--c-surface-2);
+  --color-ink: var(--c-ink);
+  --color-ink-2: var(--c-ink-2);
+  --color-line: var(--c-line);
+  --color-gold: #d6a63a;
+  --color-gold-ink: var(--c-gold-ink);
+  --color-navy: #0b1a2e;
+  --color-navy-2: #11264a;
+  --color-mist: #e9eff5;
+
+  --radius-card: 16px;
+  --radius-field: 10px;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root {
+  --c-bg: #f3f5f7;
+  --c-surface: #ffffff;
+  --c-surface-2: #e8edf2;
+  --c-ink: #0b1626;
+  --c-ink-2: #45546a;
+  --c-line: #d3dbe4;
+  --c-gold-ink: #85600f;
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --c-bg: #07111f;
+  --c-surface: #0d1a2c;
+  --c-surface-2: #13253d;
+  --c-ink: #eaf0f6;
+  --c-ink-2: #a5b4c5;
+  --c-line: #1f3452;
+  --c-gold-ink: #e3b54f;
+  color-scheme: dark;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 5rem;
+  }
+  body {
+    background: var(--c-bg);
+    color: var(--c-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+  p { text-wrap: pretty; }
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  ::selection { background: var(--color-gold); color: var(--color-navy); }
+}
+
+@layer components {
+  .container-x { width: 100%; max-width: 80rem; margin-inline: auto; padding-inline: 1rem; }
+  @media (min-width: 768px) { .container-x { padding-inline: 2rem; } }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .55rem;
+    min-height: 3rem; padding: 0 1.4rem; border-radius: 999px;
+    font-weight: 600; font-size: .95rem; white-space: nowrap;
+    transition: transform .18s var(--ease-out-expo), background-color .2s, color .2s, border-color .2s, box-shadow .2s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-gold { background: var(--color-gold); color: var(--color-navy); box-shadow: 0 8px 24px -10px rgb(214 166 58 / .7); }
+  .btn-gold:hover { background: #e4b850; }
+  .btn-ghost-light { border: 1px solid rgb(255 255 255 / .38); color: #fff; background: rgb(11 26 46 / .25); }
+  .btn-ghost-light:hover { background: rgb(255 255 255 / .12); border-color: rgb(255 255 255 / .6); }
+  .btn-line { border: 1px solid var(--c-line); color: var(--c-ink); background: var(--c-surface); }
+  .btn-line:hover { border-color: var(--c-ink-2); }
+
+  .chip {
+    display: inline-flex; align-items: center; min-height: 2.25rem; padding: 0 .95rem;
+    border-radius: 999px; border: 1px solid var(--c-line); font-size: .875rem; font-weight: 500;
+    color: var(--c-ink); background: var(--c-surface);
+  }
+
+  /* Wordmark: gold gradient like the logo, darker on light backgrounds so it stays legible. */
+  .wm-gold {
+    background: linear-gradient(180deg, #c18d29 0%, #8a6113 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  [data-theme='dark'] .wm-gold, .on-dark .wm-gold {
+    background-image: linear-gradient(180deg, #f6d57a 0%, #d6a63a 55%, #b9862a 100%);
+  }
+  .wm-ink { color: var(--c-ink); }
+  .on-dark .wm-ink { color: #fff; }
+
+  .field {
+    width: 100%; min-height: 3rem; padding: .7rem .9rem; border-radius: var(--radius-field);
+    background: var(--c-surface); color: var(--c-ink); border: 1px solid var(--c-line);
+    font-size: 1rem; transition: border-color .2s, box-shadow .2s;
+  }
+  .field::placeholder { color: var(--c-ink-2); opacity: .8; }
+  .field:focus { outline: none; border-color: var(--color-gold); box-shadow: 0 0 0 3px rgb(214 166 58 / .25); }
+  .field[aria-invalid='true'] { border-color: #c2412d; }
+}
+
+/* Scroll reveal: elements get .is-in from an IntersectionObserver in BaseLayout. */
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal] { opacity: 0; transform: translateY(22px); transition: opacity .8s var(--ease-out-expo), transform .8s var(--ease-out-expo); transition-delay: calc(var(--d, 0) * 70ms); }
+  .js [data-reveal].is-in { opacity: 1; transform: none; }
+
+  .hero-img { animation: hero-settle 2.2s var(--ease-out-expo) both; }
+  @keyframes hero-settle { from { transform: scale(1.08); } to { transform: scale(1); } }
+
+  .hero-rise > * { animation: rise .9s var(--ease-out-expo) both; }
+  .hero-rise > *:nth-child(2) { animation-delay: .08s; }
+  .hero-rise > *:nth-child(3) { animation-delay: .16s; }
+  .hero-rise > *:nth-child(4) { animation-delay: .24s; }
+  @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+  .marquee-track { animation: marquee 48s linear infinite; }
+  .marquee:hover .marquee-track { animation-play-state: paused; }
+  @keyframes marquee { to { transform: translateX(-50%); } }
+}
+
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }

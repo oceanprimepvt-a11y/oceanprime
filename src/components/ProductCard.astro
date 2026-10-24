@@ -1,0 +1,37 @@
+---
+import { Picture } from 'astro:assets';
+import Icon from './Icon.astro';
+import { photo } from '../data/photos';
+import type { Product } from '../data/products';
+
+interface Props { product: Product; class?: string; headingLevel?: 'h2' | 'h3'; [attr: string]: unknown; }
+const { product: p, class: cls = '', headingLevel: H = 'h3', ...rest } = Astro.props;
+---
+<article {...rest} class:list={['group relative flex flex-col overflow-hidden rounded-card border border-line bg-surface transition-[border-color,box-shadow,transform] duration-300 hover:-translate-y-0.5 hover:border-gold/50 hover:shadow-[0_18px_40px_-24px_rgb(11_26_46/.45)]', cls]}>
+  <div class="relative aspect-[3/2] overflow-hidden bg-navy">
+    <Picture
+      src={photo(p.image)}
+      alt={`${p.name} (${p.scientific})`}
+      widths={[360, 560, 760]}
+      sizes="(min-width: 1024px) 380px, (min-width: 640px) 45vw, 85vw"
+      formats={['avif', 'webp']}
+      class="size-full object-cover transition-transform duration-700 ease-[var(--ease-out-expo)] group-hover:scale-[1.04]"
+    />
+  </div>
+  <div class="flex flex-1 flex-col p-5">
+    <H class="font-display text-xl font-semibold leading-tight">
+      <a href={`/products/${p.slug}`} class="after:absolute after:inset-0 after:content-['']">{p.name}</a>
+    </H>
+    <p class="mt-1 text-sm italic text-ink-2">{p.scientific}</p>
+    <p class="mt-3 text-[0.95rem] leading-relaxed text-ink-2">{p.summary}</p>
+    <ul class="mt-4 flex flex-wrap gap-1.5" aria-label="Available forms">
+      {p.forms.slice(0, 4).map((f) => (
+        <li class="rounded-full bg-surface-2 px-2.5 py-1 text-xs font-medium text-ink">{f}</li>
+      ))}
+      {p.forms.length > 4 && <li class="rounded-full px-1.5 py-1 text-xs font-medium text-ink-2">+{p.forms.length - 4} more</li>}
+    </ul>
+    <span class="mt-auto inline-flex items-center gap-1.5 pt-5 text-sm font-semibold text-gold-ink" aria-hidden="true">
+      View details<Icon name="arrowRight" size={16} class="transition-transform duration-300 group-hover:translate-x-1" />
+    </span>
+  </div>
+</article>

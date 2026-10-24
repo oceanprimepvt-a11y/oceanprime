@@ -1,0 +1,39 @@
+---
+// Inlines a Phosphor SVG (regular weight; WhatsApp uses the filled glyph so it reads at small sizes).
+import whatsapp from '@phosphor-icons/core/assets/fill/whatsapp-logo-fill.svg?raw';
+import phone from '@phosphor-icons/core/assets/regular/phone.svg?raw';
+import envelope from '@phosphor-icons/core/assets/regular/envelope-simple.svg?raw';
+import mapPin from '@phosphor-icons/core/assets/regular/map-pin.svg?raw';
+import arrowRight from '@phosphor-icons/core/assets/regular/arrow-right.svg?raw';
+import arrowUpRight from '@phosphor-icons/core/assets/regular/arrow-up-right.svg?raw';
+import arrowLeft from '@phosphor-icons/core/assets/regular/arrow-left.svg?raw';
+import list from '@phosphor-icons/core/assets/regular/list.svg?raw';
+import x from '@phosphor-icons/core/assets/regular/x.svg?raw';
+import sun from '@phosphor-icons/core/assets/regular/sun.svg?raw';
+import moon from '@phosphor-icons/core/assets/regular/moon.svg?raw';
+import snowflake from '@phosphor-icons/core/assets/regular/snowflake.svg?raw';
+import anchor from '@phosphor-icons/core/assets/regular/anchor.svg?raw';
+import boat from '@phosphor-icons/core/assets/regular/boat.svg?raw';
+import fish from '@phosphor-icons/core/assets/regular/fish.svg?raw';
+import pkg from '@phosphor-icons/core/assets/regular/package.svg?raw';
+import thermometer from '@phosphor-icons/core/assets/regular/thermometer-cold.svg?raw';
+import globe from '@phosphor-icons/core/assets/regular/globe-hemisphere-east.svg?raw';
+import check from '@phosphor-icons/core/assets/regular/check.svg?raw';
+import factory from '@phosphor-icons/core/assets/regular/factory.svg?raw';
+import clipboard from '@phosphor-icons/core/assets/regular/clipboard-text.svg?raw';
+import scales from '@phosphor-icons/core/assets/regular/scales.svg?raw';
+import plane from '@phosphor-icons/core/assets/regular/paper-plane-tilt.svg?raw';
+import plant from '@phosphor-icons/core/assets/regular/plant.svg?raw';
+import waves from '@phosphor-icons/core/assets/regular/waves.svg?raw';
+
+const icons = {
+  whatsapp, phone, envelope, mapPin, arrowRight, arrowUpRight, arrowLeft, list, x, sun, moon, snowflake,
+  anchor, boat, fish, pkg, thermometer, globe, check, factory, clipboard, scales, plane, plant, waves,
+};
+export type IconName = keyof typeof icons;
+
+interface Props { name: IconName; size?: number; class?: string; }
+const { name, size = 20, class: cls = '' } = Astro.props;
+const svg = icons[name].replace('<svg ', `<svg width="${size}" height="${size}" aria-hidden="true" focusable="false" class="${cls}" `);
+---
+<Fragment set:html={svg} />

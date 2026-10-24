@@ -1,0 +1,13 @@
+---
+// Phone-only quick contact bar: the two actions trade buyers use most on mobile.
+import Icon from './Icon.astro';
+import { business, tel, waLink } from '../data/site';
+---
+<div class="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/95 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 backdrop-blur-md md:hidden">
+  <div class="grid grid-cols-2 gap-3">
+    <a href={waLink('Hello Ocean Prime, I would like a quote.')} target="_blank" rel="noopener" class="btn btn-gold">
+      <Icon name="whatsapp" size={20} />WhatsApp us
+    </a>
+    <a href={tel(business.phones[0])} class="btn btn-line"><Icon name="phone" size={20} />Call</a>
+  </div>
+</div>

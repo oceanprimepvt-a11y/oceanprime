@@ -1,0 +1,229 @@
+---
+import { Picture } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import ProductCard from '../components/ProductCard.astro';
+import HeroMedia from '../components/HeroMedia.astro';
+import { photo } from '../data/photos';
+import { categories, products, productsBy, glossary } from '../data/products';
+import { business, tel, waLink } from '../data/site';
+
+const featured = products.filter((p) => p.featured);
+const species = products.map((p) => p.name.replace(/ \(.*\)$/, ''));
+
+// Bento: first tile is the hero tile; spans are tuned for a 6-column desktop grid.
+const bento = [
+  { id: 'shrimp', cls: 'col-span-2 row-span-2 lg:col-span-3' },
+  { id: 'fish', cls: 'col-span-2 lg:col-span-3' },
+  { id: 'cephalopods', cls: 'lg:col-span-3' },
+  { id: 'crab-lobster', cls: 'lg:col-span-2' },
+  { id: 'freshwater', cls: 'lg:col-span-2' },
+  { id: 'value-added', cls: 'lg:col-span-2' },
+] as const;
+
+const steps = [
+  { icon: 'boat', title: 'Sourced fresh', text: 'Landed at the Visakhapatnam fishing harbour or harvested from Andhra farms, and iced at once.' },
+  { icon: 'factory', title: 'Processed to spec', text: 'Graded, cleaned, peeled or cut exactly as your order states.' },
+  { icon: 'snowflake', title: 'Frozen hard', text: 'IQF, semi-IQF or block frozen, then glazed to protect quality.' },
+  { icon: 'globe', title: 'Shipped cold', text: 'Packed in master cartons and loaded into reefer containers at Vizag port.' },
+] as const;
+---
+<BaseLayout
+  title={business.name}
+  description="Ocean Prime is a seafood exporter in Visakhapatnam, India: vannamei and black tiger shrimp, squid, cuttlefish, ribbonfish, pomfret, seer fish, crab and more, frozen to your specification."
+>
+  <!-- HERO -->
+  <section class="on-dark relative isolate flex min-h-[calc(100svh-8.5rem)] items-end overflow-hidden bg-navy text-white md:min-h-[calc(100dvh-4.5rem)] md:items-center">
+    <HeroMedia />
+    <div class="absolute inset-0 -z-10 bg-gradient-to-t from-navy via-navy/75 to-navy/10 md:bg-gradient-to-r md:from-navy md:via-navy/70 md:to-transparent"></div>
+    <div class="container-x py-12 md:py-24">
+      <div class="hero-rise max-w-2xl">
+        <p class="inline-flex items-center gap-2 text-sm font-medium text-white/80">
+          <Icon name="mapPin" size={16} class="text-gold" />Seafood exporter, Visakhapatnam, India
+        </p>
+        <h1 class="mt-4 text-[2.6rem] font-bold leading-[1.02] tracking-[-0.035em] sm:text-6xl lg:text-7xl">
+          Seafood from the Bay of Bengal, <span class="text-gold">frozen for the world.</span>
+        </h1>
+        <p class="mt-5 max-w-lg text-lg leading-relaxed text-white/80">
+          Shrimp, fish, squid and crab from India's east coast, processed and packed to your specification.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="/contact" class="btn btn-gold">Request a quote<Icon name="arrowRight" size={18} /></a>
+          <a href="/products" class="btn btn-ghost-light">View products</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROOF STRIP + SPECIES MARQUEE -->
+  <section aria-label="What we export" class="border-b border-line bg-surface">
+    <ul class="container-x grid gap-x-8 gap-y-4 py-7 sm:grid-cols-3">
+      <li class="flex items-center gap-3"><span class="grid size-10 shrink-0 place-items-center rounded-full bg-surface-2 text-gold-ink"><Icon name="plant" size={20} /></span><span class="text-[0.95rem] font-medium">Farmed and wild catch from the Andhra coast</span></li>
+      <li class="flex items-center gap-3"><span class="grid size-10 shrink-0 place-items-center rounded-full bg-surface-2 text-gold-ink"><Icon name="snowflake" size={20} /></span><span class="text-[0.95rem] font-medium">IQF, semi-IQF or block frozen</span></li>
+      <li class="flex items-center gap-3"><span class="grid size-10 shrink-0 place-items-center rounded-full bg-surface-2 text-gold-ink"><Icon name="anchor" size={20} /></span><span class="text-[0.95rem] font-medium">Shipped from Visakhapatnam port</span></li>
+    </ul>
+    <div class="marquee overflow-hidden border-t border-line py-5" aria-hidden="true">
+      <div class="marquee-track flex w-max">
+        {[0, 1].map(() => (
+          <ul class="flex shrink-0 items-center">
+            {species.map((s) => (
+              <li class="flex items-center gap-6 pr-6 font-display text-2xl font-semibold tracking-tight text-ink-2 md:text-3xl">
+                {s}<Icon name="snowflake" size={18} class="text-gold" />
+              </li>
+            ))}
+          </ul>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CATEGORY BENTO -->
+  <section class="container-x py-20 md:py-28">
+    <div class="flex flex-col gap-5 md:flex-row md:items-end md:justify-between" data-reveal>
+      <div class="max-w-2xl">
+        <h2 class="text-4xl font-bold leading-[1.05] md:text-5xl">Everything the east coast lands, in one supplier.</h2>
+        <p class="mt-4 max-w-xl text-lg leading-relaxed text-ink-2">Six product groups, from farmed shrimp to surimi. Choose the species, the form and the size grade you need.</p>
+      </div>
+      <a href="/products" class="btn btn-line self-start md:self-auto">View products<Icon name="arrowRight" size={18} /></a>
+    </div>
+
+    <div class="mt-10 grid auto-rows-[11.5rem] grid-cols-2 gap-3 md:auto-rows-[14rem] md:gap-4 lg:grid-cols-6">
+      {bento.map((b, i) => {
+        const c = categories.find((x) => x.id === b.id)!;
+        const n = productsBy(c.id).length;
+        return (
+          <a href={`/products#${c.id}`} class:list={['group on-dark relative isolate overflow-hidden rounded-card bg-navy text-white', b.cls]} data-reveal style={`--d:${i}`}>
+            <Picture
+              src={photo(c.image)}
+              alt=""
+              widths={[400, 700, 1000]}
+              sizes={i === 0 ? '(min-width: 1024px) 640px, 100vw' : '(min-width: 1024px) 420px, 50vw'}
+              formats={['avif', 'webp']}
+              class="absolute inset-0 -z-10 size-full object-cover transition-transform duration-700 ease-[var(--ease-out-expo)] group-hover:scale-[1.05]"
+            />
+            <div class="absolute inset-0 -z-10 bg-gradient-to-t from-navy/95 via-navy/35 to-transparent"></div>
+            <div class="flex h-full flex-col justify-end p-4 md:p-6">
+              <h3 class:list={['font-display font-semibold leading-tight', i === 0 ? 'text-2xl md:text-4xl' : 'text-lg md:text-2xl']}>{c.name}</h3>
+              {i < 2 && <p class="mt-2 hidden max-w-sm text-sm leading-relaxed text-white/80 sm:block">{c.blurb}</p>}
+              <span class="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-gold">
+                {n} {n === 1 ? 'product' : 'products'}<Icon name="arrowUpRight" size={16} class="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              </span>
+            </div>
+          </a>
+        );
+      })}
+    </div>
+  </section>
+
+  <!-- SIGNATURE SPECIES RAIL -->
+  <section class="border-y border-line bg-surface py-20 md:py-28">
+    <div class="container-x" data-reveal>
+      <h2 class="text-4xl font-bold leading-[1.05] md:text-5xl">India's most exported species.</h2>
+      <p class="mt-4 max-w-xl text-lg leading-relaxed text-ink-2">Frozen shrimp leads India's seafood exports, followed by fish and squid. These are the species buyers ask us for most.</p>
+    </div>
+    <div class="no-scrollbar mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-4 px-4 pb-2 md:scroll-px-8 md:px-8 lg:mx-auto lg:grid lg:max-w-[80rem] lg:grid-cols-3 lg:overflow-visible lg:px-8">
+      {featured.map((p, i) => (
+        <ProductCard product={p} class="w-[82%] shrink-0 snap-start sm:w-[46%] lg:w-auto" data-reveal style={`--d:${i % 3}`} />
+      ))}
+    </div>
+  </section>
+
+  <!-- WHY VIZAG -->
+  <section class="container-x grid items-center gap-10 py-20 md:py-28 lg:grid-cols-2 lg:gap-16">
+    <div class="relative overflow-hidden rounded-card" data-reveal>
+      <Picture src={photo('harbour')} alt="Fishing trawlers moored at Visakhapatnam fishing harbour at dawn" widths={[480, 800, 1200]} sizes="(min-width: 1024px) 600px, 100vw" formats={['avif', 'webp']} class="aspect-[4/3] w-full object-cover" />
+    </div>
+    <div data-reveal style="--d:1">
+      <h2 class="text-4xl font-bold leading-[1.05] md:text-5xl">Rooted on the Vizag coast.</h2>
+      <p class="mt-5 text-lg leading-relaxed text-ink-2">
+        Visakhapatnam is one of the busiest seafood hubs on India's east coast. We work where the catch comes in, which keeps the time from water to freezer short.
+      </p>
+      <dl class="mt-8 grid gap-6">
+        <div class="flex gap-4">
+          <dt class="grid size-11 shrink-0 place-items-center rounded-full border border-line text-gold-ink"><Icon name="plant" size={22} /><span class="sr-only">Close to the farms</span></dt>
+          <dd><strong class="block font-semibold">Close to the farms</strong><span class="text-ink-2">Andhra Pradesh is India's largest shrimp-farming state, from the Godavari delta to Nellore.</span></dd>
+        </div>
+        <div class="flex gap-4">
+          <dt class="grid size-11 shrink-0 place-items-center rounded-full border border-line text-gold-ink"><Icon name="waves" size={22} /><span class="sr-only">Bay of Bengal catch</span></dt>
+          <dd><strong class="block font-semibold">Bay of Bengal catch</strong><span class="text-ink-2">Ribbonfish, squid, pomfret and seer landed daily at the Vizag fishing harbour.</span></dd>
+        </div>
+        <div class="flex gap-4">
+          <dt class="grid size-11 shrink-0 place-items-center rounded-full border border-line text-gold-ink"><Icon name="anchor" size={22} /><span class="sr-only">A deep-water port</span></dt>
+          <dd><strong class="block font-semibold">A deep-water port</strong><span class="text-ink-2">Reefer containers sail from Visakhapatnam port to Asia, the Middle East, Europe and the Americas.</span></dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- CATCH TO CONTAINER -->
+  <section class="border-y border-line bg-surface py-20 md:py-28">
+    <div class="container-x">
+      <div class="flex flex-col gap-5 md:flex-row md:items-end md:justify-between" data-reveal>
+        <h2 class="max-w-xl text-4xl font-bold leading-[1.05] md:text-5xl">From catch to container, without breaking the cold chain.</h2>
+        <a href="/process" class="btn btn-line self-start md:self-auto">See the process<Icon name="arrowRight" size={18} /></a>
+      </div>
+      <ol class="relative mt-12 grid gap-8 md:grid-cols-4 md:gap-6">
+        <span class="absolute left-[1.375rem] top-2 bottom-2 w-px bg-line md:left-0 md:right-0 md:top-[1.375rem] md:bottom-auto md:h-px md:w-auto" aria-hidden="true"></span>
+        {steps.map((s, i) => (
+          <li class="relative flex gap-5 md:flex-col md:gap-0" data-reveal style={`--d:${i}`}>
+            <span class="relative grid size-11 shrink-0 place-items-center rounded-full border border-gold/30 bg-navy text-gold ring-4 ring-surface"><Icon name={s.icon} size={20} /></span>
+            <div class="md:mt-6">
+              <p class="text-sm font-semibold text-gold-ink">Step {i + 1}</p>
+              <h3 class="mt-1 text-xl font-semibold">{s.title}</h3>
+              <p class="mt-2 leading-relaxed text-ink-2">{s.text}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- PACKED TO YOUR SPEC -->
+  <section class="on-dark relative isolate overflow-hidden bg-navy py-20 text-white md:py-28">
+    <Picture src={photo('cartons')} alt="" widths={[800, 1400, 1920]} sizes="100vw" formats={['avif', 'webp']} class="absolute inset-0 -z-10 size-full object-cover opacity-30" />
+    <div class="absolute inset-0 -z-10 bg-gradient-to-b from-navy via-navy/85 to-navy"></div>
+    <div class="container-x">
+      <div class="max-w-2xl" data-reveal>
+        <h2 class="text-4xl font-bold leading-[1.05] md:text-5xl">Packed to your specification.</h2>
+        <p class="mt-4 text-lg leading-relaxed text-white/75">Tell us the cut, the freezing method, the glaze and the carton. Every detail is agreed with you before production starts.</p>
+      </div>
+      <dl class="mt-12 grid grid-cols-2 gap-px overflow-hidden rounded-card border border-white/10 bg-white/10 lg:grid-cols-5">
+        {Object.entries(glossary).map(([term, meaning], i) => (
+          <div class="bg-navy/90 p-4 md:p-5" data-reveal style={`--d:${i % 5}`}>
+            <dt class="font-display text-xl font-semibold text-gold">{term}</dt>
+            <dd class="mt-1 text-sm leading-relaxed text-white/75">{meaning}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="container-x py-20 md:py-28">
+    <div class="grid gap-10 rounded-[24px] border border-line bg-surface p-6 sm:p-10 lg:grid-cols-[1.2fr_1fr] lg:items-center lg:p-14" data-reveal>
+      <div>
+        <h2 class="text-4xl font-bold leading-[1.05] md:text-5xl">Tell us what you need.</h2>
+        <p class="mt-4 max-w-lg text-lg leading-relaxed text-ink-2">Send the species, form, size grade and quantity. We reply with availability and a price for your port.</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="/contact" class="btn btn-gold">Request a quote<Icon name="arrowRight" size={18} /></a>
+          <a href={waLink('Hello Ocean Prime, I would like a quote.')} target="_blank" rel="noopener" class="btn btn-line"><Icon name="whatsapp" size={20} class="text-[#1f9d55]" />WhatsApp us</a>
+        </div>
+      </div>
+      <ul class="grid gap-2">
+        {business.phones.map((p) => (
+          <li>
+            <a href={tel(p)} class="flex items-center justify-between gap-4 rounded-[14px] border border-line px-5 py-4 transition-colors hover:border-gold/60">
+              <span class="flex items-center gap-3 font-medium"><Icon name="phone" size={20} class="text-gold-ink" />{p}</span>
+              <span class="text-sm font-semibold text-gold-ink">Call</span>
+            </a>
+          </li>
+        ))}
+        <li>
+          <a href={`mailto:${business.email}`} class="flex items-center gap-3 rounded-[14px] border border-line px-5 py-4 font-medium break-all transition-colors hover:border-gold/60">
+            <Icon name="envelope" size={20} class="shrink-0 text-gold-ink" />{business.email}
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+</BaseLayout>

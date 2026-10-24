@@ -1,0 +1,51 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import { business, nav, tel, waLink } from '../data/site';
+import { categories } from '../data/products';
+
+const year = new Date().getFullYear();
+---
+<footer class="on-dark bg-navy text-white/75">
+  <div class="container-x grid gap-12 py-16 md:grid-cols-12 md:py-20">
+    <div class="md:col-span-5">
+      <Logo tone="dark" size="lg" tagline />
+      <p class="mt-6 max-w-sm leading-relaxed">
+        Seafood exporter based in {business.city}, {business.region}. Shrimp, fish, squid, crab and more, processed and frozen to each buyer's specification.
+      </p>
+      <div class="mt-7 flex flex-wrap gap-3">
+        <a href="/contact" class="btn btn-gold">Request a quote</a>
+        <a href={waLink()} target="_blank" rel="noopener" class="btn btn-ghost-light"><Icon name="whatsapp" size={20} />WhatsApp us</a>
+      </div>
+    </div>
+
+    <nav aria-label="Products" class="md:col-span-3">
+      <h2 class="font-sans text-sm font-semibold uppercase tracking-[0.14em] text-white">Products</h2>
+      <ul class="mt-4 grid gap-1">
+        {categories.map((c) => (
+          <li><a href={`/products#${c.id}`} class="inline-block py-1.5 transition-colors hover:text-gold">{c.name}</a></li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="md:col-span-4">
+      <h2 class="font-sans text-sm font-semibold uppercase tracking-[0.14em] text-white">Contact</h2>
+      <ul class="mt-4 grid gap-1">
+        {business.phones.map((p) => (
+          <li><a href={tel(p)} class="inline-flex items-center gap-3 py-1.5 transition-colors hover:text-gold"><Icon name="phone" size={18} class="text-gold" />{p}</a></li>
+        ))}
+        <li><a href={`mailto:${business.email}`} class="inline-flex items-center gap-3 py-1.5 break-all transition-colors hover:text-gold"><Icon name="envelope" size={18} class="shrink-0 text-gold" />{business.email}</a></li>
+        <li class="inline-flex items-center gap-3 py-1.5"><Icon name="mapPin" size={18} class="shrink-0 text-gold" />{business.city}, {business.region}, {business.country}</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="border-t border-white/10">
+    <div class="container-x flex flex-col gap-3 py-6 text-sm text-white/60 md:flex-row md:items-center md:justify-between">
+      <p>&copy; {year} {business.legalName}. All rights reserved.</p>
+      <ul class="flex gap-5">
+        {nav.map((n) => <li><a href={n.href} class="transition-colors hover:text-white">{n.label}</a></li>)}
+      </ul>
+    </div>
+  </div>
+</footer>

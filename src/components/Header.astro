@@ -1,0 +1,107 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import { nav, business, tel, waLink } from '../data/site';
+
+const path = Astro.url.pathname.replace(/\/$/, '');
+const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
+---
+<header class="sticky top-0 z-40 border-b border-line/70 bg-bg/85 backdrop-blur-md supports-[backdrop-filter]:bg-bg/75">
+  <div class="container-x flex h-16 items-center justify-between gap-4 md:h-[4.5rem]">
+    <a href="/" class="-m-1 rounded-[14px] p-1" aria-label={`${business.name} home`}>
+      <Logo />
+    </a>
+
+    <nav aria-label="Main" class="hidden md:block">
+      <ul class="flex items-center gap-1">
+        {nav.map((n) => (
+          <li>
+            <a
+              href={n.href}
+              aria-current={isActive(n.href) ? 'page' : undefined}
+              class="rounded-full px-4 py-2 text-[0.95rem] font-medium text-ink-2 transition-colors hover:text-ink aria-[current=page]:text-ink aria-[current=page]:bg-surface-2"
+            >{n.label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="flex items-center gap-2">
+      <button type="button" data-theme-toggle class="grid size-11 place-items-center rounded-full text-ink-2 transition-colors hover:bg-surface-2 hover:text-ink" aria-label="Switch colour theme">
+        <Icon name="moon" size={20} class="dark:hidden" />
+        <Icon name="sun" size={20} class="hidden dark:block" />
+      </button>
+      <a href="/contact" class="btn btn-gold hidden md:inline-flex">Request a quote</a>
+      <button
+        type="button"
+        data-menu-open
+        class="grid size-11 place-items-center rounded-full text-ink md:hidden"
+        aria-label="Open menu"
+        aria-controls="mobile-menu"
+        aria-expanded="false"
+      >
+        <Icon name="list" size={24} />
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile menu: a native dialog gives focus trapping, Esc to close and an inert page for free. -->
+  <dialog id="mobile-menu" class="m-0 h-dvh max-h-none w-full max-w-none bg-navy p-0 text-white backdrop:bg-transparent md:hidden" aria-label="Menu">
+    <div class="on-dark flex h-full flex-col">
+      <div class="container-x flex h-16 items-center justify-between">
+        <Logo tone="dark" />
+        <button type="button" data-menu-close class="grid size-11 place-items-center rounded-full text-white" aria-label="Close menu">
+          <Icon name="x" size={24} />
+        </button>
+      </div>
+      <nav aria-label="Mobile" class="container-x mt-6 flex-1">
+        <ul class="divide-y divide-white/10 border-y border-white/10">
+          {[{ href: '/', label: 'Home' }, ...nav].map((n, i) => (
+            <li class="menu-item" style={`--i:${i}`}>
+              <a href={n.href} class="flex items-center justify-between py-5 font-display text-3xl font-semibold tracking-tight">
+                {n.label}<Icon name="arrowRight" size={22} class="text-gold" />
+              </a>
+            </li>
+          ))}
+        </ul>
+        <div class="mt-8 grid gap-3 text-white/80">
+          {business.phones.map((p) => (
+            <a href={tel(p)} class="flex items-center gap-3 py-1 text-lg"><Icon name="phone" size={20} class="text-gold" />{p}</a>
+          ))}
+          <a href={`mailto:${business.email}`} class="flex items-center gap-3 py-1 text-lg break-all"><Icon name="envelope" size={20} class="text-gold" />{business.email}</a>
+        </div>
+      </nav>
+      <div class="container-x grid grid-cols-2 gap-3 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-6">
+        <a href="/contact" class="btn btn-gold">Request a quote</a>
+        <a href={waLink()} class="btn btn-ghost-light" target="_blank" rel="noopener"><Icon name="whatsapp" size={20} />WhatsApp us</a>
+      </div>
+    </div>
+  </dialog>
+</header>
+
+<style>
+  dialog[open] { animation: menu-in .35s var(--ease-out-expo); }
+  @keyframes menu-in { from { opacity: 0; } }
+  @media (prefers-reduced-motion: no-preference) {
+    dialog[open] .menu-item { animation: menu-rise .5s var(--ease-out-expo) both; animation-delay: calc(var(--i) * 45ms + 60ms); }
+    @keyframes menu-rise { from { opacity: 0; transform: translateY(12px); } }
+  }
+  @media (prefers-reduced-motion: reduce) { dialog[open] { animation: none; } }
+</style>
+
+<script>
+  const root = document.documentElement;
+  document.querySelector('[data-theme-toggle]')?.addEventListener('click', () => {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    root.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch {}
+  });
+
+  const menu = document.getElementById('mobile-menu') as HTMLDialogElement | null;
+  const opener = document.querySelector<HTMLButtonElement>('[data-menu-open]');
+  opener?.addEventListener('click', () => { menu?.showModal(); opener.setAttribute('aria-expanded', 'true'); });
+  menu?.addEventListener('close', () => opener?.setAttribute('aria-expanded', 'false'));
+  menu?.querySelector('[data-menu-close]')?.addEventListener('click', () => menu.close());
+  menu?.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => menu.close()));
+  matchMedia('(min-width: 768px)').addEventListener('change', (e) => { if (e.matches) menu?.close(); });
+</script>
