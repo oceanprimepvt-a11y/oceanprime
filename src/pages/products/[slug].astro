@@ -1,13 +1,15 @@
 ---
-import { Picture } from 'astro:assets';
+import { getImage } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProductCard from '../../components/ProductCard.astro';
 import Icon from '../../components/Icon.astro';
 import GradeChart from '../../components/GradeChart.astro';
+import ProductGallery from '../../components/ProductGallery.astro';
 import { gradeSetsFor } from '../../data/spec';
+import { MONTHS, banBand, banRange, sourceKind } from '../../data/season';
 import { photo } from '../../data/photos';
 import { products, productsBy, categoryOf, glossary, type Product } from '../../data/products';
-import { waLink } from '../../data/site';
+import { business, waLink } from '../../data/site';
 
 export function getStaticPaths() {
   return products.map((p) => ({ params: { slug: p.slug }, props: { product: p } }));
@@ -17,14 +19,45 @@ const { product: p } = Astro.props as { product: Product };
 const cat = categoryOf(p.category);
 const related = [...productsBy(p.category), ...products.filter((x) => x.featured)]
   .filter((x, i, all) => x.slug !== p.slug && all.findIndex((y) => y.slug === x.slug) === i)
-  .slice(0, 3);
-const img = photo(p.image);
-const hasChart = gradeSetsFor(p.slug, p.forms).length > 0;
+  .slice(0, 8);
+const gradeSets = gradeSetsFor(p.slug, p.forms);
+const hasChart = gradeSets.length > 0;
 
 const specs: { label: string; values: string[] }[] = [
   { label: 'Forms', values: p.forms },
   { label: 'Freezing', values: p.freezing },
 ];
+const packing = 'Glaze, inner packs, master cartons and labels to your specification.';
+const port = `${business.city}, ${business.country}`;
+
+// Season: only the east coast fishing ban is a fact; farmed lines are not affected by it.
+const kind = sourceKind([p.source]);
+const band = banBand();
+const pct = (n: number) => `${Math.round((n / 12) * 10000) / 100}%`;
+const seasonNote =
+  kind === 'farmed'
+    ? `Farmed, so the east coast fishing ban (${banRange}) does not apply. Ask for this season.`
+    : kind === 'mixed'
+      ? `Wild catch pauses during the east coast fishing ban, ${banRange}. Farmed lots are not affected. Ask for this season.`
+      : kind === 'processed'
+        ? `No fresh raw catch during the east coast fishing ban, ${banRange}. Ask about stock.`
+        : `No new wild catch during the east coast fishing ban, ${banRange}. Ask about frozen stock.`;
+
+// The same facts feed the printed spec sheet.
+const withMeaning = (v: string) => (glossary[v] ? `${v} (${glossary[v]})` : v);
+const sheetRows: [string, string][] = [
+  ['Species', `${p.name} (${p.scientific})`],
+  ['Category', cat.name],
+  ['Source', p.source],
+  ['Forms', p.forms.map(withMeaning).join('; ')],
+  ['Freezing', p.freezing.map(withMeaning).join('; ')],
+  ...(p.grading ? [['Grading', p.grading] as [string, string]] : []),
+  ...gradeSets.map((g) => [`${g.form} grades`, `${g.grades.join(', ')} (pieces ${g.unit})`] as [string, string]),
+  ['Packing', packing],
+  ['Season', seasonNote],
+  ['Port of loading', port],
+];
+const sheetImg = await getImage({ src: photo(p.image), width: 800, format: 'webp' });
 
 // Search results cut descriptions at about 160 characters, so use the richest version that fits.
 const description = [
@@ -48,18 +81,7 @@ const description = [
 
     <div class="mt-6 grid gap-8 lg:grid-cols-[1.15fr_1fr] lg:gap-14">
       <div class="lg:sticky lg:top-28 lg:self-start">
-        <div class="overflow-hidden rounded-card bg-navy">
-          <Picture
-            src={img}
-            alt={`${p.name} (${p.scientific})`}
-            widths={[480, 800, 1200]}
-            sizes="(min-width: 1024px) 680px, 100vw"
-            formats={['avif', 'webp']}
-            loading="eager"
-            fetchpriority="high"
-            class="aspect-[3/2] w-full object-cover"
-          />
-        </div>
+        <ProductGallery image={p.image} alt={`${p.name} (${p.scientific})`} />
       </div>
 
       <div>
@@ -72,7 +94,24 @@ const description = [
         <p class="mt-6 text-lg leading-relaxed">{p.summary}</p>
         <p class="mt-3 leading-relaxed text-ink-2">{p.description}</p>
 
-        <dl class="mt-8 divide-y divide-line border-y border-line">
+        <div class="mt-8 flex flex-wrap gap-3" data-cta-row>
+          <a href={`/quote?species=${p.slug}`} class="btn btn-gold">Request a quote<Icon name="arrowRight" size={18} /></a>
+          <a href={waLink(`Hello Ocean Prime, I would like a quote for ${p.name}.`)} target="_blank" rel="noopener" class="btn btn-line">
+            <Icon name="whatsapp" size={20} class="text-[#1f9d55]" />WhatsApp us
+          </a>
+          <button type="button" data-enq-add data-slug={p.slug} data-name={p.name} data-label-off="Add to enquiry list" aria-pressed="false"
+            class="enq-add btn btn-line aria-pressed:border-gold aria-pressed:bg-gold aria-pressed:text-navy">
+            <span class="enq-plus text-lg leading-none" aria-hidden="true">+</span><Icon name="check" size={18} class="enq-tick" /><span data-label>Add to enquiry list</span>
+          </button>
+        </div>
+
+        <div class="mt-12 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+          <h2 class="text-2xl font-bold">Spec at a glance</h2>
+          <button type="button" data-print-product class="inline-flex items-center gap-2 py-2 text-sm font-semibold text-gold-ink hover:underline">
+            <Icon name="download" size={18} />Download spec sheet
+          </button>
+        </div>
+        <dl class="mt-4 divide-y divide-line border-y border-line">
           {specs.map((s) => (
             <div class="grid gap-3 py-5 sm:grid-cols-[8rem_1fr]">
               <dt class="font-semibold">{s.label}</dt>
@@ -98,34 +137,161 @@ const description = [
           )}
           <div class="grid gap-1 py-5 sm:grid-cols-[8rem_1fr]">
             <dt class="font-semibold">Packing</dt>
-            <dd class="text-ink-2">Glaze, inner packs, master cartons and labels to your specification.</dd>
+            <dd class="text-ink-2">{packing}</dd>
+          </div>
+          <div class="grid gap-2 py-5 sm:grid-cols-[8rem_1fr]">
+            <dt class="font-semibold">Season</dt>
+            <dd>
+              <div class="pd-strip" aria-hidden="true">
+                {MONTHS.map((m) => <span>{m[0]}</span>)}
+                {kind !== 'farmed' && <i class:list={['pd-band', kind !== 'wild' && 'is-soft']} style={`left:${pct(band.start)};width:${pct(band.end - band.start)}`}></i>}
+              </div>
+              <p class="mt-2 text-ink-2">{seasonNote}</p>
+              <a href="/products#season" class="mt-1 block w-fit py-1 font-semibold text-gold-ink hover:underline">See the season calendar</a>
+            </dd>
+          </div>
+          <div class="grid gap-1 py-5 sm:grid-cols-[8rem_1fr]">
+            <dt class="font-semibold">Port</dt>
+            <dd class="text-ink-2">{port}</dd>
           </div>
         </dl>
         <p class="mt-4 text-sm text-ink-2">Typical export specifications. Final forms, grades and packing are confirmed for each order.</p>
-
-        <div class="mt-8 flex flex-wrap gap-3">
-          <a href={`/quote?species=${p.slug}`} class="btn btn-gold">Request a quote<Icon name="arrowRight" size={18} /></a>
-          <a href={waLink(`Hello Ocean Prime, I would like a quote for ${p.name}.`)} target="_blank" rel="noopener" class="btn btn-line">
-            <Icon name="whatsapp" size={20} class="text-[#1f9d55]" />WhatsApp us
-          </a>
-          <button type="button" data-enq-add data-slug={p.slug} data-name={p.name} data-label-off="Add to enquiry list" aria-pressed="false"
-            class="enq-add btn btn-line aria-pressed:border-gold aria-pressed:bg-gold aria-pressed:text-navy">
-            <span class="enq-plus text-lg leading-none" aria-hidden="true">+</span><Icon name="check" size={18} class="enq-tick" /><span data-label>Add to enquiry list</span>
-          </button>
-        </div>
       </div>
     </div>
 
     <GradeChart product={p} />
 
-    <section class="mt-24" aria-labelledby="related">
-      <div class="flex items-end justify-between gap-4">
-        <h2 id="related" class="text-3xl font-bold md:text-4xl">You may also need</h2>
-        <a href="/products" class="hidden py-2 text-sm font-semibold text-gold-ink hover:underline sm:inline-block">View products</a>
-      </div>
-      <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {related.map((r, i) => <ProductCard product={r} data-reveal style={`--d:${i}`} />)}
-      </div>
-    </section>
+    {related.length > 0 && (
+      <section class="mt-24" aria-labelledby="related" data-rail>
+        <div class="flex items-end justify-between gap-4">
+          <h2 id="related" class="text-3xl font-bold md:text-4xl">You may also need</h2>
+          <div class="flex items-center gap-2">
+            <a href="/products" class="hidden py-2 pr-2 text-sm font-semibold text-gold-ink hover:underline sm:inline-block">View products</a>
+            <button type="button" class="rail-btn" data-rail-prev aria-label="Previous species" disabled><Icon name="caretLeft" size={20} /></button>
+            <button type="button" class="rail-btn" data-rail-next aria-label="Next species"><Icon name="caretRight" size={20} /></button>
+          </div>
+        </div>
+        <ul class="rail mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-3" data-rail-track>
+          {related.map((r) => (
+            <li class="flex w-[82%] shrink-0 snap-start sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)]"><ProductCard product={r} class="w-full" /></li>
+          ))}
+        </ul>
+      </section>
+    )}
   </article>
+
+  <!-- Phones: once the main buttons scroll away, keep "Add to enquiry" within reach, just above the call bar. -->
+  <div class="pbar md:hidden" data-pbar inert>
+    <div class="container-x flex items-center gap-3 py-2">
+      <p class="min-w-0 flex-1 truncate font-display text-lg font-semibold">{p.name}</p>
+      <button type="button" data-enq-add data-slug={p.slug} data-name={p.name} data-label-off="Add to enquiry" aria-pressed="false"
+        class="enq-add btn btn-line shrink-0 aria-pressed:border-gold aria-pressed:bg-gold aria-pressed:text-navy">
+        <span class="enq-plus text-lg leading-none" aria-hidden="true">+</span><Icon name="check" size={18} class="enq-tick" /><span data-label>Add to enquiry</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Printed by "Download spec sheet" (or Ctrl+P). The script moves it to the end of <body>. -->
+  <div id="product-print" class="print-sheet" data-product-sheet>
+    <div class="ps">
+      <div class="ps-top">
+        <div><div class="ps-brand">{business.name.toUpperCase()}</div><div class="ps-tag">{business.tagline}</div></div>
+        <div class="ps-contact">{business.email}<br />{business.phones[0]}<br />{business.city}, {business.country}</div>
+      </div>
+      <h1>{p.name}</h1>
+      <p class="ps-meta"><em>{p.scientific}</em> · Product spec sheet<span data-sheet-date></span></p>
+      <img src={sheetImg.src} alt="" width={sheetImg.attributes.width} height={sheetImg.attributes.height} class="ps-img" loading="lazy" decoding="async" />
+      <table>
+        {sheetRows.map(([k, v]) => <tr><th scope="row">{k}</th><td>{v}</td></tr>)}
+      </table>
+      <p class="ps-foot">Typical export specifications from the {business.name} website. No prices: forms, grades, glaze and packing are agreed for each order and confirmed in writing before production.</p>
+    </div>
+  </div>
 </BaseLayout>
+
+<style>
+  .pd-strip { position: relative; display: grid; grid-template-columns: repeat(12, 1fr); max-width: 26rem; padding-bottom: .55rem; }
+  .pd-strip span { display: grid; place-items: center; height: 1.6rem; font-size: .7rem; font-weight: 600; color: var(--c-ink-2); background: var(--c-surface-2); border-inline-end: 1px solid var(--c-bg); }
+  .pd-strip span:first-child { border-radius: 6px 0 0 6px; }
+  .pd-strip span:nth-child(12) { border-inline-end: 0; border-radius: 0 6px 6px 0; }
+  .pd-band { position: absolute; bottom: 0; height: .35rem; border-radius: 99px; background: var(--c-ink); }
+  .pd-band.is-soft { background: repeating-linear-gradient(-45deg, var(--c-ink) 0 2px, transparent 2px 5px); box-shadow: inset 0 0 0 1px var(--c-ink); }
+
+  .rail { overscroll-behavior-x: contain; scrollbar-width: thin; }
+  .rail-btn {
+    display: none; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: 999px;
+    border: 1px solid var(--c-line); background: var(--c-surface); color: var(--c-ink); transition: border-color .2s, opacity .2s;
+  }
+  .rail-btn:hover:not(:disabled) { border-color: var(--c-ink-2); }
+  .rail-btn:disabled { opacity: .35; cursor: default; }
+  .rail-btn:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 2px; }
+  @media (min-width: 768px) { .rail-btn { display: grid; } }
+
+  .pbar {
+    position: fixed; inset-inline: 0; z-index: 29; bottom: calc(4.5rem + 1px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--c-line); background: var(--c-surface);
+    translate: 0 110%; visibility: hidden;
+  }
+  .pbar[data-show] { translate: none; visibility: visible; }
+  @media (prefers-reduced-motion: no-preference) {
+    .pbar { transition: translate .35s var(--ease-out-expo), visibility .35s; }
+  }
+  /* While the bar shows, lift the floating enquiry and back-to-top buttons (and the toast) above it. */
+  @media (max-width: 767.98px) {
+    :global(html:has(.pbar[data-show]) #enq-fab) { bottom: calc(9.25rem + env(safe-area-inset-bottom)); }
+    :global(html:has(.pbar[data-show]) .to-top) { bottom: calc(9.25rem + env(safe-area-inset-bottom)); }
+    :global(html:has(.pbar[data-show]) body:has(#enq-fab:not([hidden])) .to-top) { bottom: calc(13rem + env(safe-area-inset-bottom)); }
+    :global(html:has(.pbar[data-show]) #enq-toast) { bottom: calc(16.75rem + env(safe-area-inset-bottom)); }
+  }
+  :global(.ps-img) { width: 70mm; margin-top: 5mm; border-radius: 3mm; }
+</style>
+
+<script>
+  // Spec sheet: at the end of <body> so the print CSS can hide everything else, for the button and for Ctrl+P.
+  const sheet = document.querySelector<HTMLElement>('[data-product-sheet]');
+  if (sheet) {
+    document.body.append(sheet);
+    document.documentElement.dataset.print = 'product';
+    const date = sheet.querySelector('[data-sheet-date]');
+    if (date) date.textContent = ` · ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+    document.querySelector('[data-print-product]')?.addEventListener('click', () => print());
+  }
+
+  // Related species rail: the buttons scroll one card and disable at either end.
+  document.querySelectorAll<HTMLElement>('[data-rail]').forEach((rail) => {
+    const track = rail.querySelector<HTMLElement>('[data-rail-track]')!;
+    const prev = rail.querySelector<HTMLButtonElement>('[data-rail-prev]')!;
+    const next = rail.querySelector<HTMLButtonElement>('[data-rail-next]')!;
+    const behavior: ScrollBehavior = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth';
+    const step = () => (track.firstElementChild as HTMLElement).offsetWidth + 16;
+    const sync = () => {
+      prev.disabled = track.scrollLeft < 4;
+      next.disabled = track.scrollLeft + track.clientWidth > track.scrollWidth - 4;
+    };
+    prev.addEventListener('click', () => track.scrollBy({ left: -step(), behavior }));
+    next.addEventListener('click', () => track.scrollBy({ left: step(), behavior }));
+    track.addEventListener('scroll', sync, { passive: true });
+    // Also re-checks after printing, when the track was hidden and measured 0 wide.
+    new ResizeObserver(sync).observe(track);
+  });
+
+  // Sticky add bar (phones): shows once the main buttons are above the screen. It steps aside over the grade
+  // chart once a grade is picked, because the picked-grade panel sticks to the same spot.
+  const bar = document.querySelector<HTMLElement>('[data-pbar]');
+  const cta = document.querySelector('[data-cta-row]');
+  if (bar && cta) {
+    let past = false;
+    let overGrades = false;
+    const update = () => {
+      const show = past && !(overGrades && document.querySelector('.grade-panel[data-picked]'));
+      bar.toggleAttribute('data-show', show);
+      bar.inert = !show;
+    };
+    new IntersectionObserver(([e]) => { past = !e.isIntersecting && e.boundingClientRect.top < 0; update(); }).observe(cta);
+    const grades = document.getElementById('grades');
+    if (grades) {
+      new IntersectionObserver(([e]) => { overGrades = e.isIntersecting; update(); }).observe(grades);
+      grades.addEventListener('change', () => requestAnimationFrame(update));
+    }
+  }
+</script>

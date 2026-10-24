@@ -16,7 +16,7 @@ What is still missing is a reason for a buyer to bookmark it. A masterpiece here
 3. [x] **"Where we ship" route map.** DONE 2026-10-25, decisions below. Animated SVG map: Vizag port → markets in `demo.markets`, routes draw on scroll. No transit days or volumes (would be invented). Keep it DEMO-labelled like the markets list.
 4. [x] **Catch-to-container scroll story.** DONE 2026-10-25, decisions below. Home section 06 → pinned scroll sequence (CSS scroll-driven animations, no GSAP): 4 steps with a temperature line falling to -18 °C, photo cross-fades. Reduced motion = current static cards.
 5. [x] **Seasonal availability calendar.** DONE 2026-10-25, decisions below. 12-month strip per category. Only the real fact is hard-coded: the east coast fishing ban (15 Apr to 14 Jun). Everything else stays `[NEED: client season data]`, shown as "Ask for this season" until the client confirms.
-6. **Product page upgrade.** Image zoom/gallery, a "spec at a glance" table, "Download spec sheet" (print CSS, no PDF lib), related species rail, sticky "Add to enquiry" bar on mobile.
+6. [x] **Product page upgrade.** DONE 2026-10-25, decisions below. Image zoom/gallery, a "spec at a glance" table, "Download spec sheet" (print CSS, no PDF lib), related species rail, sticky "Add to enquiry" bar on mobile.
 7. **Polish + proof pass.** Lighthouse (performance/accessibility/SEO 100 target), CWV, `web-design-guidelines` review, full `audit.mjs`, screenshots 390/1440 light/dark, keyboard walk-through of every new tool. Then the `security-audit` skill (quick profile) before any deploy.
 
 ## Rules that stay
@@ -62,3 +62,12 @@ Real content only (DEMO data stays in `site.ts` `demo`, never in JSON-LD); no pr
 - Pick a month (radio group, arrows/Home/End, or tap a strip): the panel says per category what the ban means that month, never claims stock. "Ask about <Month>" WhatsApp text names the next time that month comes round (Nov asking about May = May next year). Today = gold line, computed in the browser so the static build never goes stale.
 - `peakMonths` in `season.ts` is the [NEED: client season data] slot; filled months turn gold and read "In season (confirmed by us)".
 - Tested: scratchpad `season.mjs` (current month selected, 5 bands, notes per kind, WhatsApp text, keyboard, strip tap, no overflow, no console errors) at 390/1440 light/dark.
+
+## Step 6 decisions (product page, 2026-10-25)
+- Files: `src/components/ProductGallery.astro` (photo + full-screen zoom dialog), `photosFor` in `src/data/photos.ts`, page `src/pages/products/[slug].astro`. Generic print CSS (`.print-sheet`, `.ps-*`) moved to `global.css`; the spec builder and the product page both use it.
+- Gallery: tap the photo opens a dark dialog; tap the photo to zoom 250% (180% desktop) at that point, drag to pan, tap the dark area or Esc to close, focus returns, page scroll locked. Extra client photos named `<image>-2`, `<image>-3` in `src/assets/photos` turn on thumbnails automatically (none yet).
+- Order on the right: intro, then the buttons (moved up so they show without scrolling), then "Spec at a glance": Forms, Freezing, Grading, Packing, Season (12-month mini strip with the ban bar under the letters: solid for wild, hatched for farmed+wild or made from catch, none for farmed; links to `/products#season`), Port.
+- "Download spec sheet" = `print()` of a server-rendered A4 sheet (brand, contact, photo, every glance row plus count grades, dated in the browser, no prices). The sheet sits at the end of body with `html[data-print=product]`, so Ctrl+P prints it too.
+- Related rail: up to 8 (same category first, then featured), scroll-snap, 82% cards on phones (next one peeks), 2 on tablet, 3 on desktop with prev/next buttons that disable at the ends (ResizeObserver, so they recover after printing).
+- Phones: sticky "Add to enquiry" bar slides up above the call bar once the main buttons scroll away; fab, back-to-top and toast lift above it. It steps aside over the grade chart only once a grade is picked (that panel uses the same spot). Both add buttons stay in sync.
+- Tested: scratchpad `product.mjs` (vannamei + ribbonfish at 390/1440 light/dark: zoom, print media shows only the sheet, rail, bar show/hide/offsets, enquiry sync, no overflow, no console errors), spec builder print rechecked.

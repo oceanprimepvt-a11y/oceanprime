@@ -205,3 +205,24 @@
 
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
+
+@layer components {
+  /* Print sheets (spec builder, product pages): with html[data-print] set, only the sheet prints. */
+  .print-sheet { display: none; }
+  @media print {
+    @page { margin: 16mm; }
+    html[data-print], html[data-print] body { background: #fff !important; color: #0b1626 !important; }
+    html[data-print] body > :not(.print-sheet) { display: none !important; }
+    html[data-print] .print-sheet { display: block; font: 11pt/1.45 var(--font-sans); }
+  }
+  .ps-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem; padding-bottom: 5mm; border-bottom: 2pt solid #d6a63a; }
+  .ps-brand { font: 600 22pt/1 var(--font-brand); letter-spacing: .06em; color: #0b1a2e; }
+  .ps-tag { margin-top: 2mm; font-size: 9pt; letter-spacing: .14em; text-transform: uppercase; color: #85600f; }
+  .ps-contact { text-align: right; font-size: 9pt; color: #45546a; }
+  .ps h1 { margin-top: 9mm; font: 700 20pt/1.1 var(--font-display); color: #0b1626; }
+  .ps-meta { margin-top: 2mm; font-size: 9.5pt; color: #45546a; }
+  .ps table { width: 100%; margin-top: 7mm; border-collapse: collapse; }
+  .ps th, .ps td { padding: 3mm 0; border-top: .6pt solid #d3dbe4; text-align: left; vertical-align: top; }
+  .ps th { width: 38mm; font-weight: 600; color: #45546a; }
+  .ps-foot { margin-top: 10mm; padding-top: 4mm; border-top: .6pt solid #d3dbe4; font-size: 8.5pt; color: #45546a; }
+}
