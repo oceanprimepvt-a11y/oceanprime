@@ -1,14 +1,14 @@
 ---
 import Logo from './Logo.astro';
 import Icon from './Icon.astro';
-import { business, nav, tel, waLink } from '../data/site';
+import { business, companyLinks, tel, waLink } from '../data/site';
 import { categories } from '../data/products';
 
 const year = new Date().getFullYear();
 ---
 <footer class="on-dark deep-water relative text-white/75">
-  <div class="container-x grid gap-12 py-16 md:grid-cols-12 md:py-20">
-    <div class="md:col-span-5">
+  <div class="container-x grid gap-x-8 gap-y-12 py-16 md:grid-cols-12 md:py-20">
+    <div class="md:col-span-12 lg:col-span-4">
       <Logo tone="dark" size="lg" tagline />
       <p class="mt-6 max-w-sm leading-relaxed">
         Seafood exporter based in {business.city}, {business.region}. Shrimp, fish, squid, crab and more, processed and frozen to each buyer's specification.
@@ -19,7 +19,7 @@ const year = new Date().getFullYear();
       </div>
     </div>
 
-    <nav aria-label="Products" class="md:col-span-3">
+    <nav aria-label="Products" class="md:col-span-4 lg:col-span-3">
       <h2 class="font-sans text-sm font-semibold uppercase tracking-[0.14em] text-white">Products</h2>
       <ul class="mt-4 grid gap-1">
         {categories.map((c) => (
@@ -28,7 +28,16 @@ const year = new Date().getFullYear();
       </ul>
     </nav>
 
-    <div class="md:col-span-4">
+    <nav aria-label="Company" class="md:col-span-3 lg:col-span-2">
+      <h2 class="font-sans text-sm font-semibold uppercase tracking-[0.14em] text-white">Company</h2>
+      <ul class="mt-4 grid gap-1">
+        {companyLinks.map((l) => (
+          <li><a href={l.href} class="inline-block py-1.5 transition-colors hover:text-gold">{l.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="md:col-span-5 lg:col-span-3">
       <h2 class="font-sans text-sm font-semibold uppercase tracking-[0.14em] text-white">Contact</h2>
       <ul class="mt-4 grid gap-1">
         {business.phones.map((p) => (
@@ -49,7 +58,8 @@ const year = new Date().getFullYear();
     <div class="container-x flex flex-col gap-3 py-6 text-sm text-white/60 md:flex-row md:items-center md:justify-between">
       <p>&copy; {year} {business.legalName}. All rights reserved.</p>
       <ul class="flex gap-5">
-        {nav.map((n) => <li><a href={n.href} class="transition-colors hover:text-white">{n.label}</a></li>)}
+        <li><a href="/privacy" class="inline-block py-2 transition-colors hover:text-white">Privacy</a></li>
+        <li><a href="/faq" class="inline-block py-2 transition-colors hover:text-white">FAQ</a></li>
       </ul>
     </div>
   </div>

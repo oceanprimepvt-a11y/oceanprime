@@ -22,10 +22,18 @@ const specs: { label: string; values: string[] }[] = [
   { label: 'Forms', values: p.forms },
   { label: 'Freezing', values: p.freezing },
 ];
+
+// Search results cut descriptions at about 160 characters, so use the richest version that fits.
+const description = [
+  `${p.name} (${p.scientific}) for export from Visakhapatnam, India. ${p.summary} Available as ${p.forms.slice(0, 4).join(', ')}.`,
+  `${p.name} (${p.scientific}) for export from Visakhapatnam, India. ${p.summary}`,
+  `${p.name} for export from Visakhapatnam, India. ${p.summary}`,
+  `${p.name} (${p.scientific}) exported from Visakhapatnam, India, frozen and packed to each buyer's specification.`,
+].find((d) => d.length <= 160)!;
 ---
 <BaseLayout
   title={`${p.name} Exporter`}
-  description={`${p.name} (${p.scientific}) for export from Visakhapatnam, India. ${p.summary} Available as ${p.forms.slice(0, 4).join(', ')}.`}
+  description={description}
   crumbs={[{ name: 'Products', href: '/products' }, { name: p.name, href: `/products/${p.slug}` }]}
 >
   <article class="container-x pb-20 pt-8 md:pb-28 md:pt-12">
@@ -52,7 +60,7 @@ const specs: { label: string; values: string[] }[] = [
       </div>
 
       <div>
-        <a href={`/products#${cat.id}`} class="text-sm font-semibold text-gold-ink hover:underline">{cat.name}</a>
+        <a href={`/products#${cat.id}`} class="inline-block py-2 text-sm font-semibold text-gold-ink hover:underline">{cat.name}</a>
         <h1 class="mt-2 text-4xl font-bold leading-[1.02] md:text-6xl">{p.name}</h1>
         <p class="mt-2 text-lg italic text-ink-2">{p.scientific}</p>
         <p class="mt-5 inline-flex items-center gap-2 rounded-full bg-surface-2 px-3.5 py-1.5 text-sm font-medium">
@@ -105,7 +113,7 @@ const specs: { label: string; values: string[] }[] = [
     <section class="mt-24" aria-labelledby="related">
       <div class="flex items-end justify-between gap-4">
         <h2 id="related" class="text-3xl font-bold md:text-4xl">You may also need</h2>
-        <a href="/products" class="hidden text-sm font-semibold text-gold-ink hover:underline sm:inline">View products</a>
+        <a href="/products" class="hidden py-2 text-sm font-semibold text-gold-ink hover:underline sm:inline-block">View products</a>
       </div>
       <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {related.map((r, i) => <ProductCard product={r} data-reveal style={`--d:${i}`} />)}

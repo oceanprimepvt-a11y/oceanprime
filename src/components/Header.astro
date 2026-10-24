@@ -10,13 +10,13 @@ const path = Astro.url.pathname.replace(/\/?(index)?(\.html)?$/, '');
 const isActive = (href: string) => (href === '/' ? path === '' : path === href || path.startsWith(`${href}/`));
 
 // Menu thumbnails: one photo per destination, so each row reads at a glance.
-const thumbs: Record<string, string> = { '/': 'hero', '/products': 'vannamei', '/process': 'processing', '/contact': 'harbour' };
+const thumbs: Record<string, string> = { '/': 'hero', '/products': 'vannamei', '/process': 'processing', '/about': 'harbour', '/contact': 'cartons' };
 const menuLinks = [{ href: '/', label: 'Home' }, ...nav];
 ---
 <!-- Floating glass pill. Outer padding + pill height = 4rem / 4.5rem, the offset sticky bars rely on. -->
 <header class="sticky top-0 z-40 px-2 pt-2 md:px-4 md:pt-3">
   <div class="site-pill mx-auto flex h-14 max-w-[80rem] items-center justify-between gap-4 rounded-full border border-line/80 bg-bg/75 pl-1.5 pr-1.5 backdrop-blur-xl md:h-[3.75rem] md:pl-2 md:pr-2">
-    <a href="/" class="rounded-[14px] p-0.5" aria-label={`${business.name} home`}>
+    <a href="/" class="flex items-center rounded-full py-1 pl-2 pr-2 md:pl-2.5" aria-label={`${business.name} home`}>
       <Logo />
     </a>
 
@@ -27,7 +27,7 @@ const menuLinks = [{ href: '/', label: 'Home' }, ...nav];
             <a
               href={n.href}
               aria-current={isActive(n.href) ? 'page' : undefined}
-              class="rounded-full px-4 py-2 text-[0.95rem] font-medium text-ink-2 transition-colors hover:text-ink aria-[current=page]:bg-surface-2 aria-[current=page]:text-ink"
+              class="rounded-full px-3 py-2 text-[0.95rem] lg:px-4 font-medium text-ink-2 transition-colors hover:text-ink aria-[current=page]:bg-surface-2 aria-[current=page]:text-ink"
             >{n.label}</a>
           </li>
         ))}
@@ -39,7 +39,7 @@ const menuLinks = [{ href: '/', label: 'Home' }, ...nav];
         <Icon name="moon" size={20} class="dark:hidden" />
         <Icon name="sun" size={20} class="hidden dark:block" />
       </button>
-      <a href="/contact" class="btn btn-gold hidden md:inline-flex">Request a quote</a>
+      <a href="/contact" class="btn btn-gold hidden lg:inline-flex">Request a quote</a>
       <button
         type="button"
         data-menu-open
@@ -72,9 +72,9 @@ const menuLinks = [{ href: '/', label: 'Home' }, ...nav];
         <ul class="border-t border-white/12">
           {menuLinks.map((n, i) => (
             <li class="menu-item border-b border-white/12" style={`--i:${i}`}>
-              <a href={n.href} aria-current={isActive(n.href) ? 'page' : undefined} class="group flex items-center gap-4 py-3.5">
+              <a href={n.href} aria-current={isActive(n.href) ? 'page' : undefined} class="group flex items-center gap-4 py-2.5">
                 <span class="w-7 text-sm font-semibold tabular-nums text-white/45 m-num">{String(i + 1).padStart(2, '0')}</span>
-                <span class="flex-1 font-display text-[2.15rem] font-semibold leading-none tracking-[-0.03em] m-label">
+                <span class="flex-1 font-display text-[2rem] font-semibold leading-none tracking-[-0.03em] m-label">
                   {n.label}
                 </span>
                 <Picture
@@ -83,7 +83,7 @@ const menuLinks = [{ href: '/', label: 'Home' }, ...nav];
                   widths={[96, 192]}
                   sizes="64px"
                   formats={['avif', 'webp']}
-                  class="menu-thumb size-14 rounded-[12px] object-cover ring-1 ring-white/15"
+                  class="menu-thumb size-12 rounded-[12px] object-cover ring-1 ring-white/15"
                 />
               </a>
             </li>
@@ -92,8 +92,8 @@ const menuLinks = [{ href: '/', label: 'Home' }, ...nav];
       </nav>
 
       <div class="container-x mt-auto pt-8">
-        <p class="menu-item text-xs font-semibold uppercase tracking-[0.16em] text-white/60" style="--i:4">Talk to the export desk</p>
-        <ul class="menu-item glass-tile mt-3 divide-y divide-white/10 hover:bg-white/5" style="--i:5">
+        <p class="menu-item text-xs font-semibold uppercase tracking-[0.16em] text-white/60" style="--i:5">Talk to the export desk</p>
+        <ul class="menu-item glass-tile mt-3 divide-y divide-white/10 hover:bg-white/5" style="--i:6">
           {business.phones.map((p) => (
             <li>
               <a href={tel(p)} class="flex min-h-12 items-center gap-3 px-4 py-2.5 transition-colors hover:text-gold">
@@ -112,7 +112,7 @@ const menuLinks = [{ href: '/', label: 'Home' }, ...nav];
           </li>
         </ul>
       </div>
-      <div class="menu-item container-x grid grid-cols-2 gap-3 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-4" style="--i:6">
+      <div class="menu-item container-x grid grid-cols-2 gap-3 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-4" style="--i:7">
         <a href="/contact" class="btn btn-gold px-4">Request a quote</a>
         <a href={waLink()} class="btn btn-ghost-light px-4" target="_blank" rel="noopener"><Icon name="whatsapp" size={20} />WhatsApp us</a>
       </div>

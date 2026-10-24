@@ -1,0 +1,130 @@
+---
+import { Picture } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon, { type IconName } from '../components/Icon.astro';
+import { photo } from '../data/photos';
+import { business, demo, waLink } from '../data/site';
+import { categories } from '../data/products';
+
+const principles: { icon: IconName; title: string; text: string }[] = [
+  { icon: 'clipboard', title: 'Your spec comes first', text: 'Species, cut, grade, freezing, glaze and packing are agreed in writing before production starts, so the container matches the order.' },
+  { icon: 'snowflake', title: 'An unbroken cold chain', text: 'From ice at the harbour to a pre-cooled reefer, the product stays cold at every step between catch and your port.' },
+  { icon: 'whatsapp', title: 'A desk that answers', text: 'Talk to the export desk directly on WhatsApp, phone or email. No call centres, no forms that go nowhere.' },
+];
+---
+<BaseLayout
+  title="About Us"
+  description={`${business.name} is a seafood exporter in ${business.city}, ${business.region}, exporting frozen shrimp, fish, squid and crab worldwide, packed to each buyer's spec.`}
+  crumbs={[{ name: 'About', href: '/about' }]}
+>
+  <!-- Hero: harbour photo under deep water -->
+  <section class="on-dark deep-water relative overflow-hidden">
+    <Picture src={photo('harbour')} alt="" widths={[800, 1400, 1920]} sizes="100vw" formats={['avif', 'webp']} loading="eager" class="absolute inset-0 -z-20 size-full object-cover opacity-35" />
+    <div class="container-x pb-20 pt-12 md:pb-28 md:pt-20">
+      <nav aria-label="Breadcrumb" class="text-sm text-white/70"><a href="/" class="hover:text-white">Home</a><span class="mx-2" aria-hidden="true">/</span><span aria-current="page">About</span></nav>
+      <h1 class="mt-6 max-w-4xl text-5xl font-bold leading-[1] tracking-[-0.035em] md:text-7xl">Seafood from the Vizag coast, packed for the world.</h1>
+      <p class="mt-6 max-w-2xl text-lg leading-relaxed text-white/80">
+        {business.name} is a seafood exporter based in {business.city}, {business.region}. We source, process, freeze and ship shrimp, fish, cephalopods and crab to importers and distributors, each order packed to the buyer's own specification.
+      </p>
+      <div class="mt-9 flex flex-wrap gap-3">
+        <a href="/contact" class="btn btn-gold">Request a quote</a>
+        <a href="/products" class="btn btn-ghost-light">View products<Icon name="arrowRight" size={18} /></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 WHAT WE DO -->
+  <section class="container-x grid gap-10 py-20 md:py-28 lg:grid-cols-[1fr_1.2fr] lg:gap-20">
+    <div data-reveal>
+      <p class="eyebrow"><span>01</span>What we do</p>
+      <h2 class="h-section mt-5">One supplier for the east coast catch.</h2>
+    </div>
+    <div data-reveal style="--d:1">
+      <p class="text-lg leading-relaxed text-ink-2">
+        We work where the seafood comes in. Wild catch is bought as the boats land at the Visakhapatnam fishing harbour, and farmed shrimp comes from aquaculture farms across Andhra Pradesh. It is graded, processed and frozen to your order, then shipped in reefer containers from Visakhapatnam port.
+      </p>
+      <ul class="mt-8 flex flex-wrap gap-2">
+        {categories.map((c) => (
+          <li><a href={`/products#${c.id}`} class="chip transition-colors hover:border-ink-2">{c.name}</a></li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- 02 HOW WE WORK -->
+  <section class="container-x pb-20 md:pb-28">
+    <div data-reveal>
+      <p class="eyebrow"><span>02</span>How we work</p>
+      <h2 class="h-section mt-5 max-w-3xl">Three promises on every order.</h2>
+    </div>
+    <ol class="mt-12 grid gap-px overflow-hidden rounded-card border border-line bg-line md:grid-cols-3">
+      {principles.map((p, i) => (
+        <li class="bg-surface p-6 md:p-8" data-reveal style={`--d:${i}`}>
+          <span class="grid size-11 place-items-center rounded-full bg-navy text-gold"><Icon name={p.icon} size={22} /></span>
+          <h3 class="mt-6 font-display text-2xl font-semibold tracking-tight">{p.title}</h3>
+          <p class="mt-3 leading-relaxed text-ink-2">{p.text}</p>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <!-- 03 WHY VIZAG (dark band) -->
+  <section class="on-dark deep-water relative py-20 md:py-28">
+    <Picture src={photo('processing')} alt="" widths={[800, 1400, 1920]} sizes="100vw" formats={['avif', 'webp']} class="absolute inset-0 -z-20 size-full object-cover opacity-20" />
+    <div class="container-x grid gap-10 lg:grid-cols-2 lg:gap-20">
+      <div data-reveal>
+        <p class="eyebrow"><span>03</span>Why Vizag</p>
+        <h2 class="h-section mt-5">Farms, harbour and port, all within reach.</h2>
+      </div>
+      <dl class="divide-y divide-white/12 border-y border-white/12" data-reveal style="--d:1">
+        <div class="flex gap-5 py-5">
+          <dt class="grid size-11 shrink-0 place-items-center rounded-full bg-gold text-navy"><Icon name="plant" size={22} /><span class="sr-only">Close to the farms</span></dt>
+          <dd><strong class="block text-lg font-semibold text-white">Close to the farms</strong><span class="text-white/75">Andhra Pradesh is India's largest shrimp-farming state, from the Godavari delta to Nellore.</span></dd>
+        </div>
+        <div class="flex gap-5 py-5">
+          <dt class="grid size-11 shrink-0 place-items-center rounded-full bg-gold text-navy"><Icon name="waves" size={22} /><span class="sr-only">Bay of Bengal catch</span></dt>
+          <dd><strong class="block text-lg font-semibold text-white">Bay of Bengal catch</strong><span class="text-white/75">Ribbonfish, squid, pomfret and seer are landed daily at the Vizag fishing harbour.</span></dd>
+        </div>
+        <div class="flex gap-5 py-5">
+          <dt class="grid size-11 shrink-0 place-items-center rounded-full bg-gold text-navy"><Icon name="anchor" size={22} /><span class="sr-only">A deep-water port</span></dt>
+          <dd><strong class="block text-lg font-semibold text-white">A deep-water port</strong><span class="text-white/75">Reefer containers sail from Visakhapatnam to Asia, the Middle East, Europe and the Americas.</span></dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- 04 CREDENTIALS (DEMO data from site.ts) -->
+  <section class="container-x py-20 md:py-28">
+    <div class="grid gap-10 lg:grid-cols-[1fr_1.4fr] lg:gap-20">
+      <div data-reveal>
+        <p class="eyebrow"><span>04</span>Credentials</p>
+        <h2 class="h-section mt-5">Registered and approved for export.</h2>
+        <p class="mt-6 text-lg leading-relaxed text-ink-2">Registration numbers and certificates are shared with buyers on request.</p>
+      </div>
+      <ul class="grid grid-cols-2 gap-3 self-end" data-reveal style="--d:1">
+        {demo.registrations.map((r) => (
+          <li class="rounded-[14px] border border-line bg-surface p-5">
+            <Icon name="sealCheck" size={26} class="text-gold-ink" />
+            <p class="mt-4 font-display text-2xl font-semibold">{r.name}</p>
+            <p class="mt-1 text-sm leading-snug text-ink-2">{r.detail}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- 05 CTA -->
+  <section class="container-x pb-20 md:pb-28">
+    <div class="on-dark deep-water relative grid gap-8 overflow-hidden rounded-card p-8 md:p-14 lg:grid-cols-[1.4fr_1fr] lg:items-end" data-reveal>
+      <div>
+        <p class="eyebrow"><span>05</span>Work with us</p>
+        <h2 class="h-section mt-5">Send us your specification.</h2>
+        <p class="mt-5 max-w-xl text-lg leading-relaxed text-white/75">Tell us the species, form, grade and port. We reply with a quote and the next steps.</p>
+      </div>
+      <div class="flex flex-col gap-3 sm:flex-row lg:flex-col">
+        <a href="/contact" class="btn btn-gold">Request a quote</a>
+        <a href={waLink(`Hello ${business.name}, I would like a quote.`)} target="_blank" rel="noopener" class="btn btn-ghost-light"><Icon name="whatsapp" size={20} />WhatsApp us</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

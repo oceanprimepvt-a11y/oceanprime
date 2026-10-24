@@ -48,5 +48,15 @@ export const waLink = (text?: string) =>
 export const nav = [
   { href: '/products', label: 'Products' },
   { href: '/process', label: 'Process' },
+  { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
+] as const;
+
+// Footer "Company" column: everything a buyer or a search engine expects to find.
+export const companyLinks = [
+  { href: '/about', label: 'About us' },
+  { href: '/process', label: 'Our process' },
+  { href: '/faq', label: 'Buyer FAQ' },
+  { href: '/contact', label: 'Contact' },
+  { href: '/privacy', label: 'Privacy policy' },
 ] as const;

@@ -3,12 +3,12 @@
 Last updated: 2026-10-24
 
 ## State
-- **Site code complete and committed** (local git, first commit eb69cd0; never pushed). Astro **7.4.1** static site + Tailwind v4. Build: 0 errors, 28 pages (home, products, 23 product pages, process, contact, 404). npm audit: 0 vulnerabilities.
+- **Site code complete and committed** (local git, first commit eb69cd0; never pushed). Astro **7.4.1** static site + Tailwind v4. Build: 0 errors, 31 pages (home, products, 23 product pages, process, about, faq, privacy, contact, 404). npm audit: 0 vulnerabilities.
 - Design tokens in `src/styles/global.css` (navy #0b1a2e, single gold accent #d6a63a, pills / 16px cards / 10px fields; Bricolage display, Geist body, Cinzel wordmark only). Light/dark via `data-theme` + localStorage `theme`.
 - Data: `src/data/site.ts` (business facts, `tel`, `waLink`, `nav`), `src/data/products.ts` (23 products, 6 categories, glossary). No invented certifications, markets or stats. Client facts + [NEED] list: `CLIENT.md`.
 - Contact form (`src/pages/contact.astro`): no backend; validates, then opens wa.me or mailto with the message. `?product=<slug>` preselects.
 - Security: static only; `public/_headers` (nosniff, frame DENY, referrer, permissions, HSTS, immutable `/_astro/*`). All `_blank` links have `rel="noopener"`.
-- Logo: `src/components/Logo.astro` = untouched emblem tile (`../_scripts/logo_tiles.py`) + live Cinzel wordmark. Never key the JPEG.
+- Logo: `src/components/Logo.astro` = transparent emblem `src/assets/brand/emblem.png` (from `python ../_scripts/logo_cutout.py .`) + live Cinzel wordmark. Measured dead-centre in the header pill at 320 to 1440. Icons/OG still use the navy tile (`logo_tiles.py`).
 - Photos: 28 ChatGPT images ("DREAM TEAM SERVICES"; prompts `docs/image-prompts.md`), originals in gitignored `assets-raw/`, imported with `python ../_scripts/import_photos.py .` (hero 1920x1080, others 1536x1024). All QC'd on contact sheets.
 - Hero video: `public/video/hero.mp4` (Flow, "dtc kai", Veo 3.1 Fast, start frame = `assets-raw/hero.png`, 20 credits, 1 take). Cropped to remove the Veo mark, muted, 16 s forward+reverse loop, 1280x720 CRF 30, 3.0 MB. Plays only at >= 1024 px, no reduced motion, no save-data; mobile keeps the photo.
 - DEMO data (user: "create with dummy data"): `demo` block in `src/data/site.ts` feeds the home registrations/markets/buyer-quotes sections and the contact trade-terms card; list in `CLIENT.md`. Never put it in JSON-LD.
@@ -22,6 +22,7 @@ Last updated: 2026-10-24
   - The home page is rebuilt as numbered editorial sections 01–08. The spec, cold chain and markets bands, and the footer, are deep-water.
   - The footer has a giant Cinzel gold wordmark.
   - Product cards are `@container`: the short "Details" label shows on narrow cards.
+- **Pages + audit round (2026-10-24, user: "keep all required pages, logo without background, misaligned, check like a real user")**: added `/about`, `/faq` (native `<details>`, DEMO terms, no FAQ JSON-LD), `/privacy` (honest: no server storage, localStorage `theme` + `op-enquiry`). Nav = Products, Process, About, Contact; footer has a Company column (`companyLinks`). Fixed: logo rode 3.5px high (inline lockup on a text baseline; the link is now `flex items-center`); header overflowed 33px at 768 (CTA now `lg:` only); canonical URLs ended in `.html`; tap targets under 24px; meta descriptions over 160 chars (product pages pick the longest version that fits). Audit script: scratchpad `audit.mjs <base>` (sitemap crawl, links, anchors, canonicals, dashes, overflow, images, tap targets, logo geometry at 5 widths x 2 themes).
 - User rule 2026-10-24: do NOT ask anything; images = ChatGPT in "DREAM TEAM SERVICES", video = Flow in "dtc kai" (x1, budget <= 100 credits). Deliver the final website.
 
 ## Next steps
@@ -37,7 +38,7 @@ Last updated: 2026-10-24
 - Run `python` without `-I` for PIL (user site-packages). Don't `rm` relative globs after `cd` (blocked); copy into a fresh folder instead.
 - Port 4392 may be taken by an old server; check which port `astro preview` printed before screenshotting. `shots.mjs` forces reduced motion, so the hero video never shows in it; `vidcheck.mjs` (scratchpad) checks the video.
 - Bash sandbox sometimes denies `head`, `tail` and `ls`; use Read/Grep.
-- `build.format: 'file'` makes `Astro.url.pathname` "/index.html" or "/products.html". `Header.astro` strips `/index` and `.html` before the active-link check (the nav highlight was silently dead before 2026-10-24).
+- `build.format: 'file'` makes `Astro.url.pathname` "/index.html" or "/products.html". `Header.astro` and the canonical in `BaseLayout.astro` strip `/index` and `.html` before the active-link check (the nav highlight was silently dead before 2026-10-24).
 - In Git Bash, prefix node scripts that get "/" page args with `MSYS_NO_PATHCONV=1`. Without it, "/" becomes a Windows path and the shots land in a stray folder.
 - Screenshots: scratchpad `shots.mjs <base> <out> [pages] [widths] [themes]` with `PW_PATH="$(npm root -g)/playwright"` (off-screen, reduced motion, reports overflow and console errors).
 - Test scripts (scratchpad, may be gone): `enq.mjs` drives the enquiry flow; with `noopener` the popup URL reads blank, so stub `window.open` to read the WhatsApp text.

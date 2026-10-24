@@ -1,0 +1,89 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { business, demo, tel, waLink } from '../data/site';
+
+// Trade terms come from the DEMO block in site.ts, so no FAQPage JSON-LD until the client confirms them.
+const term = (name: string) => demo.terms.find((t) => t.term === name)?.value ?? 'Ask us for current terms.';
+
+const groups: { title: string; items: { q: string; a: string }[] }[] = [
+  {
+    title: 'Products',
+    items: [
+      { q: 'What seafood do you export?', a: 'Shrimp (vannamei, black tiger, sea shrimp, scampi), fish such as ribbonfish, pomfret, seer and tuna, squid, cuttlefish and octopus, crab and lobster, and value-added items. The products page lists everything we supply.' },
+      { q: 'Which forms and cuts can you pack?', a: 'Head on, headless, peeled and deveined, butterfly, rings, fillets, steaks, whole cleaned and more, frozen as IQF, semi-IQF or block. Tell us the form your market buys and we pack to it.' },
+      { q: 'Can you pack under our own label?', a: 'Yes. Inner packs, master cartons and labels are agreed per order, including your brand, language and the details your market requires.' },
+      { q: 'Do you send samples?', a: 'Contact the export desk with the species, form and grade you need and your destination, and we will discuss samples for your order.' },
+    ],
+  },
+  {
+    title: 'Orders and shipping',
+    items: [
+      { q: 'What is the minimum order?', a: term('Minimum order') },
+      { q: 'Which Incoterms do you quote?', a: term('Incoterms') },
+      { q: 'How long does an order take?', a: term('Lead time') },
+      { q: 'Which payment terms do you accept?', a: term('Payment') },
+      { q: 'Which documents come with a shipment?', a: 'The commercial invoice, packing list, bill of lading and certificate of origin, plus the health and other certificates your market requires. Tell us your destination and we confirm the list before shipping.' },
+    ],
+  },
+  {
+    title: 'Getting a quote',
+    items: [
+      { q: 'How do I get a price?', a: 'Use the quote form or message us on WhatsApp with the species, form, size grade, quantity and destination port. Prices depend on the season and the market, so every quote is made for your order.' },
+      { q: 'How quickly do you reply?', a: 'The export desk works from Visakhapatnam on Indian Standard Time. Message us on WhatsApp for the fastest answer.' },
+    ],
+  },
+];
+---
+<BaseLayout
+  title="Buyer FAQ"
+  description={`Answers for seafood importers: products, forms, packing, minimum order, Incoterms, payment, documents and how to get a quote from ${business.name}, Visakhapatnam.`}
+  crumbs={[{ name: 'FAQ', href: '/faq' }]}
+>
+  <section class="container-x pb-10 pt-12 md:pt-20">
+    <nav aria-label="Breadcrumb" class="text-sm text-ink-2"><a href="/" class="hover:text-ink">Home</a><span class="mx-2" aria-hidden="true">/</span><span aria-current="page">FAQ</span></nav>
+    <h1 class="mt-4 max-w-3xl text-5xl font-bold leading-[1] tracking-[-0.035em] md:text-7xl">Buyer questions, answered.</h1>
+    <p class="mt-5 max-w-2xl text-lg leading-relaxed text-ink-2">What importers usually ask before a first order. Something missing? Ask the export desk directly.</p>
+  </section>
+
+  <div class="container-x grid gap-12 pb-20 md:pb-28 lg:grid-cols-[1fr_2.2fr] lg:gap-20">
+    <!-- Side card: sticky on desktop, after the questions on phones -->
+    <aside class="order-last lg:order-first">
+      <div class="on-dark deep-water relative overflow-hidden rounded-card p-6 md:p-8 lg:sticky lg:top-28">
+        <h2 class="font-display text-2xl font-semibold">Still have a question?</h2>
+        <p class="mt-3 leading-relaxed text-white/75">Talk to the export desk in {business.city}.</p>
+        <div class="mt-6 grid gap-3">
+          <a href={waLink('Hello, I have a question about exporting seafood.')} target="_blank" rel="noopener" class="btn btn-gold"><Icon name="whatsapp" size={20} />WhatsApp us</a>
+          <a href={tel(business.phones[0])} class="btn btn-ghost-light"><Icon name="phone" size={18} />Call</a>
+        </div>
+      </div>
+    </aside>
+
+    <div class="grid gap-14">
+      {groups.map((g, gi) => (
+        <section aria-labelledby={`g-${gi}`}>
+          <p class="eyebrow"><span>{String(gi + 1).padStart(2, '0')}</span>{g.title}</p>
+          <h2 id={`g-${gi}`} class="sr-only">{g.title}</h2>
+          <div class="mt-6 divide-y divide-line border-y border-line">
+            {g.items.map((it) => (
+              <details class="faq group">
+                <summary class="flex cursor-pointer list-none items-center justify-between gap-6 py-5 text-lg font-semibold">
+                  {it.q}
+                  <span class="faq-icon grid size-9 shrink-0 place-items-center rounded-full border border-line text-ink-2 transition-transform duration-300 group-open:rotate-45 group-open:border-gold group-open:text-gold-ink" aria-hidden="true">
+                    <Icon name="x" size={16} class="rotate-45" />
+                  </span>
+                </summary>
+                <p class="max-w-2xl pb-6 leading-relaxed text-ink-2">{it.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary:focus-visible { outline: 2px solid var(--color-gold); outline-offset: 4px; border-radius: 6px; }
+</style>

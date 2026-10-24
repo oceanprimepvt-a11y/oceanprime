@@ -8,7 +8,7 @@
 
 ## Decisions (2026-10-24)
 - Static Astro site; quote requests go out through WhatsApp (wa.me) or the email app (mailto). No backend, no stored data.
-- Logo: the client's original emblem, untouched, on its own navy tile, with the wordmark set in Cinzel. Never key out or recolour the emblem.
+- Logo: the client's emblem as a transparent cut-out (user asked for no background, 2026-10-24), made by `../_scripts/logo_cutout.py` (ellipse mask keeps the globe solid, soft key + colour unmixing only on the swoosh), plus the wordmark set in Cinzel. Never use a plain colour key on the JPEG (it punches holes in the globe). Icons and OG image still use the navy tile from `logo_tiles.py`.
 - The product list is a guide to what Andhra/Vizag exporters commonly ship (23 species). Swap it for the client's real list when it arrives (`src/data/products.ts`).
 - Photos are AI-generated illustrations (ChatGPT), not photos of the client's plant, boats or product.
 

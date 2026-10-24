@@ -1,11 +1,11 @@
 ---
-// Brand lockup: the client's untouched emblem on its own navy tile, plus a live-text wordmark.
-// The emblem is never cut out of its background (its dark shadows would punch holes in the globe).
+// Brand lockup: the client's emblem (cut out with _scripts/logo_cutout.py: globe kept solid, no keyed holes)
+// plus a live-text wordmark. The text block is optically centred on the emblem (see .lockup-text).
 import { Image } from 'astro:assets';
-import emblem from '../assets/brand/emblem-tile.png';
+import emblem from '../assets/brand/emblem.png';
 
 interface Props {
-  /** 'auto' follows the page theme; 'dark' forces the on-navy colours (hero, footer). */
+  /** 'auto' follows the page theme; 'dark' forces the on-navy colours (menu, footer). */
   tone?: 'auto' | 'dark';
   size?: 'sm' | 'lg';
   tagline?: boolean;
@@ -14,26 +14,31 @@ interface Props {
 const { tone = 'auto', size = 'sm', tagline = false, class: cls = '' } = Astro.props;
 const lg = size === 'lg';
 ---
-<span class:list={['inline-flex items-center gap-2.5', tone === 'dark' && 'on-dark', cls]}>
+<span class:list={['lockup inline-flex items-center', lg ? 'gap-3.5' : 'gap-2', tone === 'dark' && 'on-dark', cls]}>
   <Image
     src={emblem}
     alt=""
-    width={lg ? 72 : 44}
-    height={lg ? 72 : 44}
+    height={lg ? 68 : 40}
     densities={[1, 2]}
     loading="eager"
-    class:list={['shrink-0 rounded-[12px] ring-1 ring-white/10', lg ? 'size-[72px] rounded-[16px]' : 'size-11']}
+    class:list={['w-auto shrink-0', lg ? 'h-[68px]' : 'h-10']}
   />
-  <span class="flex flex-col">
-    <span class:list={['font-[family-name:var(--font-brand)] font-bold leading-none tracking-[0.01em] whitespace-nowrap', lg ? 'text-[2.1rem]' : 'text-[1.32rem]']}>
+  <span class:list={['lockup-text flex flex-col', lg && 'is-lg']}>
+    <span class:list={['font-[family-name:var(--font-brand)] font-bold leading-none tracking-[0.01em] whitespace-nowrap', lg ? 'text-[2.1rem]' : 'text-[1.28rem]']}>
       <span class="wm-gold">Ocean</span><span class="wm-ink"> Prime</span>
     </span>
     <span
-      class:list={['mt-1 flex items-center gap-1.5 font-semibold uppercase tracking-[0.26em] wm-ink opacity-80', lg ? 'text-[0.72rem]' : 'text-[0.5rem]']}
+      class:list={['flex items-center gap-1.5 font-semibold uppercase leading-none wm-ink opacity-80', lg ? 'mt-2 text-[0.72rem] tracking-[0.26em]' : 'mt-[5px] text-[0.5rem] tracking-[0.24em]']}
       aria-hidden="true"
     >
-      <span class="h-px flex-1 bg-gold/70"></span>Sea Food Exports<span class="h-px flex-1 bg-gold/70"></span>
+      <span class="h-px flex-1 bg-gold/70"></span><span class="tag-word">Sea Food Exports</span><span class="h-px flex-1 bg-gold/70"></span>
     </span>
-    {tagline && <span class:list={['mt-1.5 font-medium tracking-[0.02em] wm-gold', lg ? 'text-sm' : 'text-[0.62rem]']}>Freshness Delivered Worldwide</span>}
+    {tagline && <span class:list={['mt-2 font-medium leading-none tracking-[0.02em] wm-gold', lg ? 'text-sm' : 'text-[0.62rem]']}>Freshness Delivered Worldwide</span>}
   </span>
 </span>
+
+<style>
+  /* Letter-spacing adds space after the last letter; pull it back so "Sea Food Exports" sits dead centre. */
+  .tag-word { margin-right: -0.24em; }
+  .is-lg .tag-word { margin-right: -0.26em; }
+</style>

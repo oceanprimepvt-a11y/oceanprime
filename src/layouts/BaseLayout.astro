@@ -18,7 +18,8 @@ interface Props {
 
 const { title, description, image = '/og-default.jpg', crumbs, jsonLd = [], noindex = false } = Astro.props;
 const site = Astro.site!;
-const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', site).href;
+// Static builds report "/products.html" or "/index.html"; the public URL has neither.
+const canonical = new URL(Astro.url.pathname.replace(/\/?(index)?(\.html)?$/, '') || '/', site).href;
 const ogImage = new URL(image, site).href;
 const fullTitle = title === business.name ? `${business.name} | Seafood Exporter, Visakhapatnam, India` : `${title} | ${business.name}`;
 

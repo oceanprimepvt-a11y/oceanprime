@@ -1,0 +1,56 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { business } from '../data/site';
+
+const updated = '24 October 2026';
+---
+<BaseLayout
+  title="Privacy Policy"
+  description={`How ${business.name} handles the details you share when you contact us or request a quote.`}
+  crumbs={[{ name: 'Privacy', href: '/privacy' }]}
+>
+  <article class="container-x pb-20 pt-12 md:pb-28 md:pt-20">
+    <nav aria-label="Breadcrumb" class="text-sm text-ink-2"><a href="/" class="hover:text-ink">Home</a><span class="mx-2" aria-hidden="true">/</span><span aria-current="page">Privacy</span></nav>
+    <h1 class="mt-4 text-5xl font-bold leading-[1] tracking-[-0.035em] md:text-7xl">Privacy policy.</h1>
+    <p class="mt-5 text-ink-2">Last updated {updated}</p>
+
+    <div class="prose-op mt-12 max-w-[68ch]">
+      <h2>The short version</h2>
+      <p>This website does not collect or store your personal details on a server. When you send an enquiry, it opens in WhatsApp or your email app, and you choose whether to send it.</p>
+
+      <h2>What you share with us</h2>
+      <p>The quote form and the enquiry list build a message from what you type: your name, company, email, phone, country, the products and quantities you want, and your message. Nothing is sent until you press send in WhatsApp or your email app. We then receive it like any other message, and use it only to reply, quote and fulfil your order.</p>
+
+      <h2>Stored in your browser</h2>
+      <p>The site saves two small items in your own browser, never on our servers:</p>
+      <ul>
+        <li><strong>theme</strong>: whether you chose the light or dark look.</li>
+        <li><strong>op-enquiry</strong>: the products on your enquiry list, so it is still there when you come back.</li>
+      </ul>
+      <p>You can clear both at any time in your browser settings. The site uses no advertising or tracking cookies.</p>
+
+      <h2>Other services</h2>
+      <p>WhatsApp links open WhatsApp, run by Meta. Email links open your own email app. Fonts are served with the site itself. Those services handle data under their own policies.</p>
+
+      <h2>How long we keep messages</h2>
+      <p>We keep enquiries and order correspondence as long as needed to deal with your enquiry, to fulfil orders and to meet export, tax and accounting record requirements in India.</p>
+
+      <h2>Your choices</h2>
+      <p>You can ask us to see, correct or delete the messages and details you have sent us. Email <a href={`mailto:${business.email}`}>{business.email}</a> and we will reply.</p>
+
+      <h2>Contact</h2>
+      <p>{business.legalName}, {business.city}, {business.region}, {business.country}. Email <a href={`mailto:${business.email}`}>{business.email}</a>.</p>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .prose-op :global(h2) { margin-top: 2.5rem; font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; }
+  .prose-op :global(h2:first-child) { margin-top: 0; }
+  .prose-op :global(p), .prose-op :global(ul) { margin-top: 0.9rem; font-size: 1.0625rem; line-height: 1.75; color: var(--color-ink-2); }
+  .prose-op :global(ul) { padding-left: 1.25rem; list-style: disc; }
+  .prose-op :global(li) { margin-top: 0.4rem; }
+  .prose-op :global(li::marker) { color: var(--color-gold); }
+  .prose-op :global(strong) { color: var(--color-ink); }
+  .prose-op :global(a) { color: var(--color-gold-ink); text-decoration: underline; text-underline-offset: 3px; }
+</style>
