@@ -1,0 +1,191 @@
+---
+// Home section 06: catch-to-container scroll story.
+// A pinned stage driven by CSS scroll-driven animations (no JS): photos cross-fade, the step text swaps
+// and a temperature line falls from 0 °C to -18 °C as the buyer scrolls.
+// Browsers without animation-timeline, and reduced motion, get the static four cards instead.
+// Temperatures are cold-chain conventions (on ice near 0 °C, frozen to -18 °C or colder), not plant readings.
+import { Picture } from 'astro:assets';
+import Icon from './Icon.astro';
+import { photo } from '../data/photos';
+
+const steps = [
+  { icon: 'boat', title: 'Sourced fresh', text: 'Landed at the Visakhapatnam fishing harbour or harvested from Andhra farms, and iced at once.', img: 'harbour', temp: '0', note: 'On ice from the moment it lands.' },
+  { icon: 'factory', title: 'Processed to spec', text: 'Graded, cleaned, peeled or cut exactly as your order states.', img: 'processing', temp: '0', note: 'Kept on ice while it is graded and cut.' },
+  { icon: 'snowflake', title: 'Frozen hard', text: 'IQF, semi-IQF or block frozen, then glazed to protect quality.', img: 'cartons', temp: '−18', note: 'Frozen to a core of −18 °C or colder.' },
+  { icon: 'globe', title: 'Shipped cold', text: 'Packed in master cartons and loaded into reefer containers at Vizag port.', img: 'cold-chain', temp: '−18', note: 'Reefer held at −18 °C or colder to your port.' },
+] as const;
+
+// Chart: x = the four stages, y = temperature (0 °C at y 40, -18 °C at y 130).
+const xs = [30, 140, 260, 370];
+const ys = [40, 40, 130, 130];
+const line = 'M30 40 L140 40 C192 40 208 130 260 130 L370 130';
+const labels = ['Catch', 'Process', 'Freeze', 'Ship'];
+---
+<section aria-labelledby="c2c-title" class="c2c on-dark deep-water relative">
+  <Picture src={photo('cold-chain')} alt="" widths={[800, 1400, 1920]} sizes="100vw" formats={['avif', 'webp']} class="absolute inset-0 -z-20 size-full object-cover opacity-20" />
+  <div class="container-x pt-20 md:pt-32">
+    <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between" data-reveal>
+      <div class="max-w-3xl">
+        <p class="eyebrow"><span>06</span>Cold chain</p>
+        <h2 id="c2c-title" class="h-section mt-5">From catch to container, without breaking the cold chain.</h2>
+      </div>
+      <a href="/process" class="btn btn-ghost-light self-start md:self-auto">See the process<Icon name="arrowRight" size={18} /></a>
+    </div>
+  </div>
+
+  <!-- Static cards: reduced motion and browsers without scroll-driven animations. -->
+  <div class="c2c-static container-x pb-20 md:pb-32">
+    <ol class="mt-14 grid gap-3 md:grid-cols-4 md:gap-4">
+      {steps.map((s, i) => (
+        <li class="glass-tile relative flex flex-col p-5 backdrop-blur-sm md:p-6" data-reveal style={`--d:${i}`}>
+          <div class="flex items-center justify-between">
+            <span class="grid size-11 place-items-center rounded-full bg-gold text-navy"><Icon name={s.icon} size={20} /></span>
+            <span class="font-display text-4xl font-semibold tabular-nums text-white/15" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+          </div>
+          <p class="mt-6 text-sm font-semibold text-gold">Step {i + 1}</p>
+          <h3 class="mt-1 text-xl font-semibold">{s.title}</h3>
+          <p class="mb-4 mt-2 leading-relaxed text-white/75">{s.text}</p>
+          <p class="mt-auto flex items-center gap-2 border-t border-white/10 pt-4 text-sm text-white/75"><Icon name="snowflake" size={14} class="text-gold" />{s.note}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+
+  <!-- Scroll story: the track is tall, the stage pins to the viewport while the track scrolls past. -->
+  <div class="c2c-story">
+    <div class="c2c-track">
+      <div class="c2c-stage">
+        <div class="c2c-photos" aria-hidden="true">
+          {steps.map((s) => (
+            <Picture src={photo(s.img)} alt="" widths={[800, 1400, 1920]} sizes="100vw" formats={['avif', 'webp']} class="c2c-photo" />
+          ))}
+        </div>
+
+        <div class="container-x relative flex h-full flex-col justify-end gap-5 pb-36 pt-20 md:pb-12 md:pt-24 lg:grid lg:grid-cols-[minmax(0,1fr)_26rem] lg:items-end lg:gap-16 lg:pb-16">
+          <div>
+            <div class="c2c-rail" aria-hidden="true">
+              <ol class="flex justify-between text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-white/70 md:text-[0.7rem] md:tracking-[0.16em]">
+                {labels.map((l, i) => <li><span class="tabular-nums text-gold">{String(i + 1).padStart(2, '0')}</span> {l}</li>)}
+              </ol>
+              <div class="mt-3 h-0.5 overflow-hidden rounded-full bg-white/15"><div class="c2c-fill h-full origin-left bg-gold"></div></div>
+            </div>
+            <ol class="c2c-steps mt-6 grid md:mt-10">
+              {steps.map((s, i) => (
+                <li class="c2c-step">
+                  <span class="hidden size-11 place-items-center rounded-full bg-gold text-navy md:grid"><Icon name={s.icon} size={20} /></span>
+                  <p class="text-sm md:mt-5 font-semibold text-gold">Step {i + 1} of 4</p>
+                  <h3 class="mt-1 font-display text-3xl font-semibold leading-tight tracking-[-0.02em] md:text-5xl">{s.title}</h3>
+                  <p class="mt-3 max-w-lg text-base leading-relaxed text-white/80 md:text-lg">{s.text}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <figure class="c2c-card rounded-card border border-white/15 bg-navy/70 p-4 backdrop-blur-md md:p-6">
+            <div class="flex items-end justify-between gap-4">
+              <figcaption class="text-xs font-semibold uppercase tracking-[0.16em] text-white/70">Product temperature</figcaption>
+              <div class="c2c-reads grid text-right" aria-hidden="true">
+                {steps.map((s) => (
+                  <p class="c2c-read font-display text-4xl font-semibold tabular-nums leading-none md:text-5xl">{s.temp}<span class="ml-1 text-xl text-gold md:text-2xl">°C</span></p>
+                ))}
+              </div>
+            </div>
+            <svg viewBox="0 0 400 172" class="mt-3 w-full" role="img" aria-label="Temperature stays near 0 °C through catch and processing, then falls to −18 °C for freezing and shipping.">
+              <rect x="0" y="130" width="400" height="22" class="fill-[rgb(120_190_230/0.12)]" />
+              <line x1="0" x2="400" y1="40" y2="40" class="stroke-white/20" stroke-dasharray="3 5" />
+              <line x1="0" x2="400" y1="130" y2="130" class="stroke-white/20" stroke-dasharray="3 5" />
+              <text x="398" y="32" text-anchor="end" class="fill-white/70 text-[13px]">0 °C</text>
+              <text x="394" y="147" text-anchor="end" class="fill-white/70 text-[13px]">−18 °C and colder</text>
+              <path d={line} class="stroke-white/15" fill="none" stroke-width="3" stroke-linecap="round" />
+              <path d={line} class="c2c-line stroke-gold" fill="none" stroke-width="3" stroke-linecap="round" pathLength="1" />
+              {xs.map((x, i) => (
+                <g class="c2c-mark">
+                  <circle cx={x} cy={ys[i]} r="9" class="fill-gold/25" />
+                  <circle cx={x} cy={ys[i]} r="4.5" class="fill-gold" />
+                </g>
+              ))}
+              {xs.map((x, i) => <text x={x} y="170" text-anchor="middle" class="fill-white/70 text-[13px] font-semibold">{labels[i]}</text>)}
+            </svg>
+            <div class="c2c-notes mt-3 grid border-t border-white/10 pt-3 text-sm text-white/75">
+              {steps.map((s) => <p class="c2c-note flex items-center gap-2"><Icon name="snowflake" size={14} class="shrink-0 text-gold" />{s.note}</p>)}
+            </div>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* clip, not hidden: a hidden overflow would make the section a scroll box and break the sticky stage. */
+  .c2c { overflow: clip; }
+  .c2c-story { display: none; }
+
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .c2c-static { display: none; }
+      .c2c-story { display: block; margin-top: 3.5rem; }
+      .c2c-track { height: 360svh; view-timeline: --c2c block; }
+      .c2c-stage { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+
+      .c2c-photos, .c2c-photos :global(picture) { position: absolute; inset: 0; }
+      .c2c-photos::after {
+        content: ''; position: absolute; inset: 0;
+        background:
+          linear-gradient(to top, var(--color-navy) 8%, rgb(11 26 46 / .75) 45%, rgb(11 26 46 / .35) 75%, rgb(11 26 46 / .6)),
+          linear-gradient(to right, rgb(11 26 46 / .55), transparent 70%);
+      }
+      .c2c-photos :global(.c2c-photo) { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+      .c2c-steps, .c2c-reads, .c2c-notes { grid-template-areas: 'one'; }
+      .c2c-step, .c2c-read, .c2c-note { grid-area: one; }
+
+      /* Every animated piece runs on the pinned stretch of the track: 0% = stage pins, 100% = it lets go. */
+      .c2c-photos :global(picture),
+      .c2c-step, .c2c-read, .c2c-note, .c2c-fill, .c2c-line, .c2c-mark {
+        animation-timeline: --c2c; animation-range: contain 0% contain 100%;
+        animation-fill-mode: both; animation-timing-function: linear;
+      }
+
+      .c2c-photos :global(picture:nth-child(2)) { animation-name: c2c-p2; }
+      .c2c-photos :global(picture:nth-child(3)) { animation-name: c2c-p3; }
+      .c2c-photos :global(picture:nth-child(4)) { animation-name: c2c-p4; }
+      .c2c-photos :global(picture:nth-child(1)) { animation-name: c2c-p1; }
+
+      .c2c-step:nth-child(1), .c2c-read:nth-child(1), .c2c-note:nth-child(1) { animation-name: c2c-s1; }
+      .c2c-step:nth-child(2), .c2c-read:nth-child(2), .c2c-note:nth-child(2) { animation-name: c2c-s2; }
+      .c2c-step:nth-child(3), .c2c-read:nth-child(3), .c2c-note:nth-child(3) { animation-name: c2c-s3; }
+      .c2c-step:nth-child(4), .c2c-read:nth-child(4), .c2c-note:nth-child(4) { animation-name: c2c-s4; }
+
+      .c2c-fill { animation-name: c2c-fill; }
+      .c2c-line { stroke-dasharray: 1; animation-name: c2c-line; }
+      .c2c-mark { transform-box: fill-box; transform-origin: center; }
+      .c2c-mark:nth-of-type(1) { animation-name: c2c-m1; }
+      .c2c-mark:nth-of-type(2) { animation-name: c2c-m2; }
+      .c2c-mark:nth-of-type(3) { animation-name: c2c-m3; }
+      .c2c-mark:nth-of-type(4) { animation-name: c2c-m4; }
+
+      /* Four windows of 25%; each change cross-fades over about 6% of the scroll. */
+      @keyframes c2c-p1 { 0% { transform: scale(1.08); } 27% { transform: scale(1); } 100% { transform: scale(1); } }
+      @keyframes c2c-p2 { 0%, 22% { opacity: 0; transform: scale(1.08); } 28% { opacity: 1; } 52%, 100% { opacity: 1; transform: scale(1); } }
+      @keyframes c2c-p3 { 0%, 47% { opacity: 0; transform: scale(1.08); } 53% { opacity: 1; } 77%, 100% { opacity: 1; transform: scale(1); } }
+      @keyframes c2c-p4 { 0%, 72% { opacity: 0; transform: scale(1.08); } 78% { opacity: 1; } 100% { opacity: 1; transform: scale(1); } }
+
+      @keyframes c2c-s1 { 0%, 21% { opacity: 1; transform: none; } 27%, 100% { opacity: 0; transform: translateY(-14px); } }
+      @keyframes c2c-s2 { 0%, 23% { opacity: 0; transform: translateY(14px); } 29%, 46% { opacity: 1; transform: none; } 52%, 100% { opacity: 0; transform: translateY(-14px); } }
+      @keyframes c2c-s3 { 0%, 48% { opacity: 0; transform: translateY(14px); } 54%, 71% { opacity: 1; transform: none; } 77%, 100% { opacity: 0; transform: translateY(-14px); } }
+      @keyframes c2c-s4 { 0%, 73% { opacity: 0; transform: translateY(14px); } 79%, 100% { opacity: 1; transform: none; } }
+
+      /* Short phones: drop the note line so the stage clears the call bar. */
+      @media (max-width: 1023px) and (max-height: 720px) { .c2c-notes { display: none; } }
+
+      @keyframes c2c-fill { from { transform: scaleX(.02); } to { transform: scaleX(1); } }
+      /* Path length shares: process is reached at 30% of the line, freeze at 70%. */
+      @keyframes c2c-line { 0%, 10% { stroke-dashoffset: 1; } 35% { stroke-dashoffset: .7; } 60% { stroke-dashoffset: .3; } 85%, 100% { stroke-dashoffset: 0; } }
+      @keyframes c2c-m1 { 0%, 9% { opacity: .3; transform: scale(.6); } 12%, 100% { opacity: 1; transform: none; } }
+      @keyframes c2c-m2 { 0%, 34% { opacity: .3; transform: scale(.6); } 37%, 100% { opacity: 1; transform: none; } }
+      @keyframes c2c-m3 { 0%, 59% { opacity: .3; transform: scale(.6); } 62%, 100% { opacity: 1; transform: none; } }
+      @keyframes c2c-m4 { 0%, 84% { opacity: .3; transform: scale(.6); } 87%, 100% { opacity: 1; transform: none; } }
+    }
+  }
+</style>

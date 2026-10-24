@@ -1,9 +1,10 @@
 # Ocean Prime: handoff
 
-Last updated: 2026-10-25 (masterpiece step 3 done)
+Last updated: 2026-10-25 (masterpiece step 4 done)
 
 ## State
 
+- 2026-10-25 masterpiece step 4 DONE: catch-to-container scroll story (`ColdChainStory.astro`, home section 06). Pinned stage, pure CSS scroll-driven animations: photos cross-fade, temperature line falls 0 °C to -18 °C. Static cards under reduced motion / Firefox. Decisions in `docs/MASTERPIECE-PLAN.md`. Build 0 errors, 32 pages; probe pass at 390/375/1440 light/dark, motion on/off.
 - 2026-10-25 masterpiece step 3 DONE: "Where we ship" route map (`RouteMap.astro`) in home section 05, below a now full-width credentials card. Dotted world map (baked SVG, no runtime library), routes from Vizag to `demo.markets` draw on scroll. Decisions in `docs/MASTERPIECE-PLAN.md`. Build 0 errors, 32 pages; 41-check probe pass at 390/1440 light/dark, motion on/off.
 - 2026-10-25 masterpiece step 2 DONE: size-grade charts (`GradeChart.astro`, helpers `gradeSetsFor`/`gradeInfo` in `spec.ts`) on the vannamei and black tiger pages. Pick a grade, add it to the enquiry list or carry it into `/quote`. Decisions in `docs/MASTERPIECE-PLAN.md`. Build 0 errors, 32 pages; 26-check E2E pass; 390/1440 light/dark checked.
 - 2026-10-25 masterpiece step 1 DONE: spec builder. Rules in `src/data/spec.ts` (pure, no imports; tested with a node script). UI in `src/components/SpecBuilder.astro` (`mode="page"` on new `/quote`, `mode="embed"` replaces home section 03). Every "Request a quote" button now goes to `/quote` (product pages `/quote?species=<slug>`); footer "Spec builder" link. Draft in localStorage `op-spec`; page mode mirrors the order fields in the URL (never name or notes). "Add to enquiry list" fires `op:enquiry-upsert` (listener in `Enquiry.astro`). Print = `#spec-print` + `html[data-print='spec']`. Build 0 errors, 32 pages; 33-check Playwright E2E all pass; screenshots 390/1440 light/dark checked.
@@ -26,6 +27,8 @@ Last updated: 2026-10-25 (masterpiece step 3 done)
 3. Deploy only when the user asks (static host; `public/_headers` is Netlify/Cloudflare Pages format).
 
 ## Gotchas
+- Sticky/pinned sections inside `.deep-water`: override with `overflow: clip` (its `overflow: hidden` breaks `position: sticky`).
+- Port 4392 may be a running `astro dev` (URLs `/_image?href=/@fs...`, slow first image loads), not preview; preview was on 4393 on 2026-10-25.
 - Astro pinned to 7.4.1: 7.4.2 needs Node >= 22.23.4 (this PC has 22.23.1).
 - While the dev server runs, edit src files with the Edit tool, not `sed -i` (its temp files cause ENOENT errors and a stale Vite overlay).
 - `@tailwindcss/vite` is typed against a newer Vite; `astro.config.mjs` casts it to `any` so `astro check` passes.

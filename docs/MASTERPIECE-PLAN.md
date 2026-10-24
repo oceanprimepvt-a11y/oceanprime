@@ -14,7 +14,7 @@ What is still missing is a reason for a buyer to bookmark it. A masterpiece here
    Options come from `products.ts` per species (only forms that species really ships). No prices.
 2. [x] **Size-grade charts on shrimp/prawn product pages.** DONE 2026-10-25, decisions below. Standard industry count grades (U/10 … 91/110 pieces per lb, and per kg for HOSO). These are industry conventions, not company claims. Interactive: tap a grade → "Add to enquiry with this grade".
 3. [x] **"Where we ship" route map.** DONE 2026-10-25, decisions below. Animated SVG map: Vizag port → markets in `demo.markets`, routes draw on scroll. No transit days or volumes (would be invented). Keep it DEMO-labelled like the markets list.
-4. **Catch-to-container scroll story.** Home section 06 → pinned scroll sequence (CSS scroll-driven animations, no GSAP): 4 steps with a temperature line falling to -18 °C, photo cross-fades. Reduced motion = current static cards.
+4. [x] **Catch-to-container scroll story.** DONE 2026-10-25, decisions below. Home section 06 → pinned scroll sequence (CSS scroll-driven animations, no GSAP): 4 steps with a temperature line falling to -18 °C, photo cross-fades. Reduced motion = current static cards.
 5. **Seasonal availability calendar.** 12-month strip per category. Only the real fact is hard-coded: the east coast fishing ban (15 Apr to 14 Jun). Everything else stays `[NEED: client season data]`, shown as "Ask for this season" until the client confirms.
 6. **Product page upgrade.** Image zoom/gallery, a "spec at a glance" table, "Download spec sheet" (print CSS, no PDF lib), related species rail, sticky "Add to enquiry" bar on mobile.
 7. **Polish + proof pass.** Lighthouse (performance/accessibility/SEO 100 target), CWV, `web-design-guidelines` review, full `audit.mjs`, screenshots 390/1440 light/dark, keyboard walk-through of every new tool. Then the `security-audit` skill (quick profile) before any deploy.
@@ -46,3 +46,12 @@ Real content only (DEMO data stays in `site.ts` `demo`, never in JSON-LD); no pr
 - Routes are drawn arcs bowed north, not real shipping lanes; no transit days, volumes or distances. Markets stay DEMO data from `site.ts`.
 - Motion: routes draw in one by one when the map is 35% in view, pins and labels fade in on arrival, a white glint runs along each route, Vizag pulses. Reduced motion or no JS: everything shown fully drawn and still. Hovering a market (list or map) brings its route forward. Map labels hidden under 640 px (the numbered list carries the names).
 - Tested: scratchpad `map.mjs` (41 checks: 6 routes, image loaded, fully drawn, no overflow, no console errors, hover) at 390/1440 light/dark, motion on and off.
+
+## Step 4 decisions (catch-to-container story, 2026-10-25)
+- File: `src/components/ColdChainStory.astro` (home section 06; the old `steps` array moved out of `index.astro`). No JS at all: CSS scroll-driven animations on a named `view-timeline: --c2c` on a 360svh track; the stage is `position: sticky` 100svh.
+- Section uses `overflow: clip` over `.deep-water`'s `overflow: hidden` (hidden makes it a scroll box and kills the sticky stage). Remember this for any future pinned section.
+- Four 25% windows: photo (harbour, processing, cartons, cold-chain) cross-fades with a slight zoom, step text and the big reading swap, gold rail fills, and the temperature line draws Catch 0 °C, Process 0 °C, Freeze -18 °C, Ship -18 °C, lighting each stage dot.
+- Temperatures are cold-chain conventions (on ice near 0 °C; frozen and shipped at -18 °C or colder, the international frozen-seafood standard), worded as targets, not plant readings. Swap in the client's real blast-freezer/reefer settings if they give them.
+- Fallback: reduced motion or no `animation-timeline` support (Firefox today) shows the four static cards, each with its temperature note. Only one version is ever displayed, so screen readers hear the steps once.
+- Phones: icon hidden, bottom padding clears the call bar and back-to-top; under 720 px tall the note line hides.
+- Tested: scratchpad `c2c.mjs` (pinned at every step, only the right step visible, photos loaded, line drawn, no overflow, no console errors) at 390x780, 375x667, 1440x900, light/dark, motion on/off. All pass; `astro check` 0 errors.

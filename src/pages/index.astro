@@ -6,6 +6,7 @@ import ProductCard from '../components/ProductCard.astro';
 import HeroMedia from '../components/HeroMedia.astro';
 import SpecBuilder from '../components/SpecBuilder.astro';
 import RouteMap from '../components/RouteMap.astro';
+import ColdChainStory from '../components/ColdChainStory.astro';
 import { photo } from '../data/photos';
 import { categories, products, productsBy } from '../data/products';
 import { business, demo, tel, waLink } from '../data/site';
@@ -23,12 +24,6 @@ const bento = [
   { id: 'value-added', cls: 'lg:col-span-2' },
 ] as const;
 
-const steps = [
-  { icon: 'boat', title: 'Sourced fresh', text: 'Landed at the Visakhapatnam fishing harbour or harvested from Andhra farms, and iced at once.' },
-  { icon: 'factory', title: 'Processed to spec', text: 'Graded, cleaned, peeled or cut exactly as your order states.' },
-  { icon: 'snowflake', title: 'Frozen hard', text: 'IQF, semi-IQF or block frozen, then glazed to protect quality.' },
-  { icon: 'globe', title: 'Shipped cold', text: 'Packed in master cartons and loaded into reefer containers at Vizag port.' },
-] as const;
 ---
 <BaseLayout
   title={business.name}
@@ -222,32 +217,8 @@ const steps = [
     </div>
   </section>
 
-  <!-- 06 CATCH TO CONTAINER (dark band) -->
-  <section class="on-dark deep-water relative py-20 md:py-32">
-    <Picture src={photo('cold-chain')} alt="" widths={[800, 1400, 1920]} sizes="100vw" formats={['avif', 'webp']} class="absolute inset-0 -z-20 size-full object-cover opacity-20" />
-    <div class="container-x">
-      <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between" data-reveal>
-        <div class="max-w-3xl">
-          <p class="eyebrow"><span>06</span>Cold chain</p>
-          <h2 class="h-section mt-5">From catch to container, without breaking the cold chain.</h2>
-        </div>
-        <a href="/process" class="btn btn-ghost-light self-start md:self-auto">See the process<Icon name="arrowRight" size={18} /></a>
-      </div>
-      <ol class="mt-14 grid gap-3 md:grid-cols-4 md:gap-4">
-        {steps.map((s, i) => (
-          <li class="glass-tile relative flex flex-col p-5 backdrop-blur-sm md:p-6" data-reveal style={`--d:${i}`}>
-            <div class="flex items-center justify-between">
-              <span class="grid size-11 place-items-center rounded-full bg-gold text-navy"><Icon name={s.icon} size={20} /></span>
-              <span class="font-display text-4xl font-semibold tabular-nums text-white/15" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
-            </div>
-            <p class="mt-6 text-sm font-semibold text-gold">Step {i + 1}</p>
-            <h3 class="mt-1 text-xl font-semibold">{s.title}</h3>
-            <p class="mt-2 leading-relaxed text-white/75">{s.text}</p>
-          </li>
-        ))}
-      </ol>
-    </div>
-  </section>
+  <!-- 06 CATCH TO CONTAINER (pinned scroll story; static cards under reduced motion) -->
+  <ColdChainStory />
 
   <!-- 07 BUYER QUOTES (DEMO data from site.ts) -->
   <section aria-labelledby="buyers" class="container-x pt-20 md:pt-32">
