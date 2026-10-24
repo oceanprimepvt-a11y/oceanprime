@@ -28,6 +28,7 @@ Last updated: 2026-10-25
 - User rule 2026-10-24: do NOT ask anything; images = ChatGPT in "DREAM TEAM SERVICES", video = Flow in "dtc kai" (x1, budget <= 100 credits). Deliver the final website.
 
 ## Next steps
+0. **Masterpiece plan in progress:** `docs/MASTERPIECE-PLAN.md`, 7 steps, one per chat. Next = the first unchecked step there.
 1. Client review of the site. Before going live: domain → `SITE_URL`, then the client's [NEED] items in `CLIENT.md` (real product list, certifications, address, WhatsApp number).
 2. When real photos arrive, drop them into `assets-raw/<same name>.jpg` and re-run the import script.
 3. Deploy only when the user asks (static host; `public/_headers` is Netlify/Cloudflare Pages format).
