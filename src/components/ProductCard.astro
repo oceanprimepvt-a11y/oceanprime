@@ -36,9 +36,9 @@ const { product: p, class: cls = '', headingLevel: H = 'h3', ...rest } = Astro.p
         <span class="hidden @[21rem]:inline">View details</span><span class="@[21rem]:hidden">Details</span><Icon name="arrowRight" size={16} class="transition-transform duration-300 group-hover:translate-x-1" />
       </span>
       <!-- Sits above the card's stretched link so it adds to the enquiry list instead of navigating. -->
-      <button type="button" data-enq-add data-slug={p.slug} data-name={p.name} aria-pressed="false" aria-label={`Add ${p.name} to enquiry list`}
+      <button type="button" data-enq-add data-slug={p.slug} data-name={p.name} aria-pressed="false"
         class="enq-add relative z-10 inline-flex min-h-10 items-center whitespace-nowrap gap-1.5 rounded-full border border-line bg-bg px-3.5 text-sm font-semibold transition-colors hover:border-ink-2 aria-pressed:border-gold aria-pressed:bg-gold aria-pressed:text-navy">
-        <span class="enq-plus" aria-hidden="true">+</span><Icon name="check" size={16} class="enq-tick" /><span data-label>Add to enquiry</span>
+        <span class="enq-plus" aria-hidden="true">+</span><Icon name="check" size={16} class="enq-tick" /><span data-label>Add to enquiry</span><span class="sr-only">: {p.name}</span>
       </button>
     </div>
   </div>

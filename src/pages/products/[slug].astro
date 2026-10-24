@@ -282,8 +282,10 @@ const description = [
   if (bar && cta) {
     let past = false;
     let overGrades = false;
+    let atFooter = false;
     const update = () => {
-      const show = past && !(overGrades && document.querySelector('.grade-panel[data-picked]'));
+      // Hidden over a picked grade (the panel has its own add button) and at the footer (it would cover the last links).
+      const show = past && !atFooter && !(overGrades && document.querySelector('.grade-panel[data-picked]'));
       bar.toggleAttribute('data-show', show);
       bar.inert = !show;
     };
@@ -293,5 +295,7 @@ const description = [
       new IntersectionObserver(([e]) => { overGrades = e.isIntersecting; update(); }).observe(grades);
       grades.addEventListener('change', () => requestAnimationFrame(update));
     }
+    const footer = document.querySelector('footer');
+    if (footer) new IntersectionObserver(([e]) => { atFooter = e.isIntersecting; update(); }).observe(footer);
   }
 </script>

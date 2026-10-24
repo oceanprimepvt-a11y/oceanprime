@@ -17,6 +17,7 @@ const poster = hasVideo ? await getImage({ src: hero, width: 1920, format: 'webp
   widths={[640, 960, 1280, 1920]}
   sizes="100vw"
   formats={['avif', 'webp']}
+  quality={50}
   loading="eager"
   fetchpriority="high"
   class="hero-img absolute inset-0 -z-20 size-full object-cover object-[72%_50%] md:object-center"

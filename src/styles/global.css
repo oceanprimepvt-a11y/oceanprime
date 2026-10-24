@@ -57,6 +57,11 @@
     -webkit-text-size-adjust: 100%;
     scroll-padding-top: 5rem;
   }
+  /* Phones: keep a keyboard-focused control clear of the fixed call bar (and the product add bar). */
+  @media (width < 48rem) {
+    html { scroll-padding-bottom: calc(5.25rem + env(safe-area-inset-bottom)); }
+    html:has(.pbar[data-show]) { scroll-padding-bottom: calc(10rem + env(safe-area-inset-bottom)); }
+  }
   body {
     background: var(--c-bg);
     color: var(--c-ink);

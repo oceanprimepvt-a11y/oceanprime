@@ -50,7 +50,7 @@ const questions = [
       <ol id="spec-rail" class="no-scrollbar -mx-4 mt-3 flex gap-1.5 overflow-x-auto px-4 pb-4 md:-mx-6 md:px-6" aria-label="Spec steps">
         {STEPS.map((s, i) => (
           <li class="shrink-0">
-            <button type="button" data-goto={i} class="spec-pill"><span class="spec-pill-n" aria-hidden="true">{i + 1}</span>{s}</button>
+            <button type="button" data-goto={i} class="spec-pill"><span class="spec-pill-n">{i + 1}</span>{s}<span class="sr-only" data-pill-state></span></button>
           </li>
         ))}
       </ol>
@@ -219,7 +219,7 @@ const questions = [
   .spec [hidden] { display: none !important; }
 
   .spec-pill {
-    display: inline-flex; align-items: center; gap: .45rem; min-height: 2.25rem; padding: 0 .85rem 0 .35rem;
+    position: relative; display: inline-flex; align-items: center; gap: .45rem; min-height: 2.25rem; padding: 0 .85rem 0 .35rem;
     border-radius: 999px; border: 1px solid var(--c-line); font-size: .85rem; font-weight: 600; color: var(--c-ink-2);
     white-space: nowrap; transition: border-color .2s, background-color .2s, color .2s;
   }
@@ -407,7 +407,7 @@ const questions = [
         p.toggleAttribute('data-done', done[st] && i !== step);
         p.toggleAttribute('data-skip', !ok[i]);
         if (i === step) p.setAttribute('aria-current', 'step'); else p.removeAttribute('aria-current');
-        p.setAttribute('aria-label', `Step ${i + 1}, ${st}${!ok[i] ? ', not needed' : done[st] ? ', done' : ''}`);
+        p.querySelector('[data-pill-state]')!.textContent = !ok[i] ? ', not needed' : done[st] ? ', done' : '';
       });
       q('#spec-step-no').textContent = `Step ${step + 1} of ${STEPS.length}`;
 
