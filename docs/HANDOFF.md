@@ -1,9 +1,10 @@
 # Ocean Prime: handoff
 
-Last updated: 2026-10-25 (masterpiece step 1 done)
+Last updated: 2026-10-25 (masterpiece step 2 done)
 
 ## State
 
+- 2026-10-25 masterpiece step 2 DONE: size-grade charts (`GradeChart.astro`, helpers `gradeSetsFor`/`gradeInfo` in `spec.ts`) on the vannamei and black tiger pages. Pick a grade, add it to the enquiry list or carry it into `/quote`. Decisions in `docs/MASTERPIECE-PLAN.md`. Build 0 errors, 32 pages; 26-check E2E pass; 390/1440 light/dark checked.
 - 2026-10-25 masterpiece step 1 DONE: spec builder. Rules in `src/data/spec.ts` (pure, no imports; tested with a node script). UI in `src/components/SpecBuilder.astro` (`mode="page"` on new `/quote`, `mode="embed"` replaces home section 03). Every "Request a quote" button now goes to `/quote` (product pages `/quote?species=<slug>`); footer "Spec builder" link. Draft in localStorage `op-spec`; page mode mirrors the order fields in the URL (never name or notes). "Add to enquiry list" fires `op:enquiry-upsert` (listener in `Enquiry.astro`). Print = `#spec-print` + `html[data-print='spec']`. Build 0 errors, 32 pages; 33-check Playwright E2E all pass; screenshots 390/1440 light/dark checked.
 - 2026-10-25 motion pass: native smooth scroll, cross-page View Transitions (header holds still), back-to-top button with gold scroll-progress ring (`BackToTop.astro`, steps above the enquiry button), header firms up on scroll (`data-scrolled`), mobile menu fades in and out, FAQ answers slide open. All gated by prefers-reduced-motion. "Home" added to the desktop nav and the footer. Gotcha: never use `scrollIntoView` for the products chip strip; it cancelled page scrolls (now scrolls the strip only).
 - **Site code complete and committed** (local git, first commit eb69cd0; never pushed). Astro **7.4.1** static site + Tailwind v4. Build: 0 errors, 32 pages (home, quote, products, 23 product pages, process, about, faq, privacy, contact, 404). npm audit: 0 vulnerabilities.
@@ -40,7 +41,7 @@ Last updated: 2026-10-25 (masterpiece step 1 done)
 - `@tailwindcss/vite` is typed against a newer Vite; `astro.config.mjs` casts it to `any` so `astro check` passes.
 - `HeroMedia.astro` finds the video via `process.cwd()`; `import.meta.url` points into the build bundle and silently hid the video.
 - Run `python` without `-I` for PIL (user site-packages). Don't `rm` relative globs after `cd` (blocked); copy into a fresh folder instead.
-- Port 4392 may be taken by an old server; check which port `astro preview` printed before screenshotting. `shots.mjs` forces reduced motion, so the hero video never shows in it; `vidcheck.mjs` (scratchpad) checks the video.
+- Port 4392/4393 may be taken by an old `astro preview` (it refuses to start a second one and prints the running URL; that one serves the fresh `dist` after a rebuild); check which port `astro preview` printed before screenshotting. `shots.mjs` forces reduced motion, so the hero video never shows in it; `vidcheck.mjs` (scratchpad) checks the video.
 - Bash sandbox sometimes denies `head`, `tail` and `ls`; use Read/Grep.
 - `build.format: 'file'` makes `Astro.url.pathname` "/index.html" or "/products.html". `Header.astro` and the canonical in `BaseLayout.astro` strip `/index` and `.html` before the active-link check (the nav highlight was silently dead before 2026-10-24).
 - In Git Bash, prefix node scripts that get "/" page args with `MSYS_NO_PATHCONV=1`. Without it, "/" becomes a Windows path and the shots land in a stray folder.

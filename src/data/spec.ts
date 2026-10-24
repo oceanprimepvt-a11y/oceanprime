@@ -17,6 +17,29 @@ const gradeRules: Record<string, (form: string) => GradeSet | null> = {
   'black-tiger-shrimp': (f) => (f === 'HLSO' ? { unit: 'per lb', grades: span(LB_GRADES, 'U/8', '41/50') } : null),
 };
 export const gradesFor = (slug: string, form: string): GradeSet | null => gradeRules[slug]?.(form) ?? null;
+export const gradeSetsFor = (slug: string, forms: string[]) =>
+  forms.flatMap((form) => { const set = gradesFor(slug, form); return set ? [{ form, ...set }] : []; });
+
+// What a count grade means in grams a piece, and the same grade in the other unit.
+// Plain arithmetic on the count (1 lb = 453.6 g), not a claim about any shipment.
+const G_PER = { 'per lb': 453.6, 'per kg': 1000 };
+const LB_PER_KG = 1000 / 453.6;
+const grams = (g: number) => (g < 10 ? String(Math.round(g * 10) / 10) : String(Math.round(g)));
+export interface GradeInfo { grade: string; unit: GradeSet['unit']; weight: string; mid: number; other: string }
+export const gradeInfo = (grade: string, unit: GradeSet['unit']): GradeInfo => {
+  const [a, b] = grade.split('/');
+  const under = a === 'U';
+  const most = Number(b), fewest = under ? 0 : Number(a);
+  const per = G_PER[unit];
+  const otherUnit = unit === 'per lb' ? 'per kg' : 'per lb';
+  const conv = (n: number) => Math.round(unit === 'per lb' ? n * LB_PER_KG : n / LB_PER_KG);
+  return {
+    grade, unit,
+    weight: under ? `over ${grams(per / most)} g` : `${grams(per / most)} to ${grams(per / fewest)} g`,
+    mid: under ? per / most : (per / most + per / fewest) / 2,
+    other: under ? `under ${conv(most)} ${otherUnit}` : `${conv(fewest)}/${conv(most)} ${otherUnit}`,
+  };
+};
 
 // Glaze is an ice coat on individually frozen pieces; blocks, live and dry goods have none.
 export const GLAZES = ['No glaze', '5%', '10%', '15%', '20%', '25%', '30%'];

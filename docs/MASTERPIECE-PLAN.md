@@ -12,7 +12,7 @@ What is still missing is a reason for a buyer to bookmark it. A masterpiece here
    species → form (HOSO/HLSO/PD/PDTO…) → size grade → freezing (IQF/semi-IQF/block) → glaze % → pack (inner + master carton) → quantity → port.
    Live "spec card" preview builds as you choose. Output: WhatsApp / email message + "Copy spec" + print-ready spec sheet (print CSS).
    Options come from `products.ts` per species (only forms that species really ships). No prices.
-2. **Size-grade charts on shrimp/prawn product pages.** Standard industry count grades (U/10 … 91/110 pieces per lb, and per kg for HOSO). These are industry conventions, not company claims. Interactive: tap a grade → "Add to enquiry with this grade".
+2. [x] **Size-grade charts on shrimp/prawn product pages.** DONE 2026-10-25, decisions below. Standard industry count grades (U/10 … 91/110 pieces per lb, and per kg for HOSO). These are industry conventions, not company claims. Interactive: tap a grade → "Add to enquiry with this grade".
 3. **"Where we ship" route map.** Animated SVG map: Vizag port → markets in `demo.markets`, routes draw on scroll. No transit days or volumes (would be invented). Keep it DEMO-labelled like the markets list.
 4. **Catch-to-container scroll story.** Home section 06 → pinned scroll sequence (CSS scroll-driven animations, no GSAP): 4 steps with a temperature line falling to -18 °C, photo cross-fades. Reduced motion = current static cards.
 5. **Seasonal availability calendar.** 12-month strip per category. Only the real fact is hard-coded: the east coast fishing ban (15 Apr to 14 Jun). Everything else stays `[NEED: client season data]`, shown as "Ask for this season" until the client confirms.
@@ -31,3 +31,11 @@ Real content only (DEMO data stays in `site.ts` `demo`, never in JSON-LD); no pr
 - A tap on a single-choice tile auto-advances after 280 ms; keyboard arrows never do. Focus moves to the step question on navigation.
 - Outputs: WhatsApp, email (name required), copy spec, print sheet, add to enquiry list, copy share link (page mode). Ref `OP-yymmdd-XXX` (first 3 letters of the slug).
 - No prices, no lead times, nothing sent anywhere until the buyer presses send.
+
+## Step 2 decisions (size-grade charts, 2026-10-25)
+- Files: helpers `gradeSetsFor` / `gradeInfo` in `src/data/spec.ts` (tested in scratchpad `spec.test.mjs`), UI `src/components/GradeChart.astro`, placed on the product page above "You may also need"; the Grading row links to `#grades`.
+- Charts only where spec.ts grades the species (vannamei HLSO per lb + HOSO per kg with a form switch; black tiger HLSO). Scampi and wild sea shrimp have no stated range, so no chart (add a rule in `gradeRules` when the client confirms grades).
+- Each row: grade, gold bar scaled to average piece weight, "one piece weighs" range in grams, same grade in the other unit. Pure arithmetic from the count (1 lb = 453.6 g), labelled as industry convention.
+- Pick a grade → "Add to enquiry with this grade" fires `op:enquiry-upsert` (line "HLSO 21/25 per lb", replaces an earlier line for that species) and "Build the full spec" links `/quote?species&form&grade`.
+- Phones/tablets: once a grade is picked the panel sticks above the call bar (z 35, over the floating buttons). Desktop: panel in the sticky left column. DOM order intro → chart → panel, so Tab goes through the grades before the buttons.
+- Tested: 26-check Playwright run (scratchpad `grades.mjs`), 390/1440 light/dark, no overflow, no console errors.

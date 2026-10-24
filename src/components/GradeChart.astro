@@ -1,0 +1,194 @@
+---
+// Size-grade chart for shrimp pages: one row per count grade with the size of one piece and the
+// same grade in the other unit. Tap a grade, then add it to the enquiry list or carry it into /quote.
+// Only species and forms that spec.ts grades get a chart (see gradeSetsFor). Works as a plain chart without JS.
+import Icon from './Icon.astro';
+import { gradeSetsFor, gradeInfo } from '../data/spec';
+import type { Product } from '../data/products';
+
+interface Props { product: Product }
+const { product: p } = Astro.props;
+
+// Pound grades first: HLSO per lb is the grade most buyers quote.
+const sets = gradeSetsFor(p.slug, p.forms)
+  .sort((a, b) => (a.unit === b.unit ? 0 : a.unit === 'per lb' ? -1 : 1))
+  .map((set) => {
+    const rows = set.grades.map((g) => gradeInfo(g, set.unit));
+    const top = Math.max(...rows.map((r) => r.mid));
+    return { ...set, rows: rows.map((r) => ({ ...r, pct: Math.max(6, Math.round((r.mid / top) * 100)) })) };
+  });
+const data = JSON.stringify({ slug: p.slug, name: p.name }).replace(/</g, '\\u003c');
+---
+{sets.length > 0 && (
+  <section id="grades" class="grades mt-20 scroll-mt-24 md:mt-28" aria-labelledby="grades-h" data-grades={data}>
+    <div class="grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:grid-rows-[auto_1fr] lg:gap-x-16 lg:gap-y-7">
+      <div class="lg:col-start-1 lg:row-start-1">
+        <p class="eyebrow">Size grade chart</p>
+        <h2 id="grades-h" class="mt-5 text-4xl font-bold leading-[1.02] tracking-[-0.03em] md:text-5xl">Pick your count.</h2>
+        <p class="mt-5 max-w-prose leading-relaxed text-ink-2">
+          Shrimp are sold by count: how many pieces make one pound or one kilo. A lower count means bigger shrimp.{' '}
+          <span class="whitespace-nowrap">U/10</span> means under 10 pieces.
+        </p>
+
+        {sets.length > 1 && (
+          <div class="mt-7" role="radiogroup" aria-label="Form">
+            <p class="text-sm font-semibold" aria-hidden="true">Form</p>
+            <div class="mt-2 inline-flex rounded-full border border-line bg-surface p-1">
+              {sets.map((s, i) => (
+                <label class="grade-tab">
+                  <input type="radio" name="grade-form" value={s.form} checked={i === 0} class="sr-only" />
+                  {s.form}<span class="font-normal text-ink-2">{s.unit}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div class="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
+        {sets.map((s, i) => (
+          <fieldset data-set={s.form} data-unit={s.unit} hidden={i > 0}>
+            <legend class="sr-only">{s.form} {p.name} count grades, pieces {s.unit}</legend>
+            <div class="grade-grid grade-head" aria-hidden="true">
+              <span>Grade</span><span>One piece weighs</span><span class="max-sm:hidden">Same as</span>
+            </div>
+            <div class="grid gap-1.5">
+              {s.rows.map((r) => (
+                <label class="grade-row grade-grid" data-weight={r.weight} data-other={r.other}>
+                  <input type="radio" name={`grade-${s.form}`} value={r.grade} class="sr-only" />
+                  <span class="text-xl font-bold tabular-nums md:text-2xl">{r.grade}<span class="sr-only"> {s.unit}, one piece {r.weight}, same as {r.other}</span></span>
+                  <span class="min-w-0" aria-hidden="true">
+                    <span class="grade-bar"><span style={`width:${r.pct}%`}></span></span>
+                    <span class="mt-1.5 block text-sm tabular-nums">{r.weight}<span class="text-ink-2 sm:hidden"> · {r.other}</span></span>
+                  </span>
+                  <span class="text-sm tabular-nums text-ink-2 max-sm:hidden" aria-hidden="true">{r.other}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        ))}
+        <p class="mt-5 text-sm leading-relaxed text-ink-2">
+          Count grades are industry conventions. Weights are averages worked out from the count (<span class="whitespace-nowrap">1 lb is 453.6 g</span>);
+          {' '}{p.name.toLowerCase()} is graded and packed to the grade agreed for each order.
+        </p>
+      </div>
+
+      <!-- On phones the panel sticks above the call bar once a grade is picked, so the button stays in reach. -->
+      <div data-pick-panel class="grade-panel rounded-card border border-line bg-surface p-4 md:p-6 lg:sticky lg:top-28 lg:col-start-1 lg:row-start-2 lg:self-start">
+        <div id="grade-pick" aria-live="polite">
+          <p data-pick-label class="text-sm font-semibold text-ink-2">Your grade</p>
+          <p data-pick-title class="mt-1 text-xl font-bold tabular-nums md:text-2xl">None yet</p>
+          <p data-pick-sub class="mt-0.5 text-sm text-ink-2">Tap a grade in the chart to choose it.</p>
+        </div>
+        <div class="mt-4 flex gap-2.5 sm:flex-wrap sm:gap-3 md:mt-5">
+          <button type="button" data-pick-add disabled class="btn btn-gold max-sm:flex-1 max-sm:px-4 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none">
+            <span class="text-lg leading-none" aria-hidden="true">+</span><span class="sm:hidden">Add to enquiry</span><span class="max-sm:hidden">Add to enquiry with this grade</span>
+          </button>
+          <a data-pick-quote href={`/quote?species=${p.slug}`} class="btn btn-line max-sm:px-4"><span class="sm:hidden">Full spec</span><span class="max-sm:hidden">Build the full spec</span><Icon name="arrowRight" size={18} /></a>
+        </div>
+        <p data-pick-status class="mt-3 hidden text-sm" role="status"></p>
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  .grade-tab {
+    display: inline-flex; align-items: baseline; gap: .4rem; min-height: 2.5rem; padding: .55rem 1rem;
+    border-radius: 999px; font-size: .9rem; font-weight: 600; cursor: pointer; transition: background-color .2s, color .2s;
+  }
+  .grade-tab:has(:checked) { background: var(--color-gold); color: var(--color-navy); }
+  .grade-tab:has(:checked) span { color: inherit; opacity: .75; }
+  .grade-tab:has(:focus-visible), .grade-row:has(:focus-visible) { outline: 2px solid var(--color-gold); outline-offset: 2px; }
+
+  .grade-grid { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); gap: 1rem; align-items: center; }
+  @media (min-width: 640px) { .grade-grid { grid-template-columns: 7rem minmax(0, 1fr) 8.5rem; } }
+  .grade-head {
+    padding: 0 1rem .6rem; font-size: .72rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--c-ink-2);
+  }
+  .grade-row {
+    padding: .8rem 1rem; border: 1px solid var(--color-line); border-radius: 12px; background: var(--color-surface);
+    cursor: pointer; transition: border-color .2s, background-color .2s, transform .2s var(--ease-out-expo, ease);
+  }
+  .grade-row:hover { border-color: rgb(214 166 58 / .55); }
+  .grade-row:has(:checked) { border-color: var(--color-gold); background: rgb(214 166 58 / .12); }
+  .grade-row:active { transform: scale(.99); }
+
+  .grade-bar { display: block; height: .5rem; border-radius: 999px; background: var(--color-surface-2); overflow: hidden; }
+  .grade-bar > span { display: block; height: 100%; border-radius: inherit; background: var(--color-gold); opacity: .55; transition: opacity .2s; }
+  .grade-row:has(:checked) .grade-bar > span, .grade-row:hover .grade-bar > span { opacity: 1; }
+
+  /* Phones and tablets: once a grade is picked the panel sticks to the bottom, above the call bar (md:hidden)
+     and over the floating buttons, with the label dropped to keep it short. */
+  @media (max-width: 1023.98px) {
+    .grade-panel[data-picked] {
+      position: sticky; z-index: 35; bottom: calc(4.5rem + 1px + env(safe-area-inset-bottom) + .5rem);
+      box-shadow: 0 18px 40px -16px rgb(11 26 46 / .45);
+    }
+    .grade-panel[data-picked] [data-pick-label] { display: none; }
+  }
+  @media (min-width: 768px) and (max-width: 1023.98px) { .grade-panel[data-picked] { bottom: 1rem; } }
+
+  /* Bars grow in when a chart is shown. */
+  @media (prefers-reduced-motion: no-preference) {
+    fieldset:not([hidden]) .grade-bar > span { animation: grade-grow .7s var(--ease-out-expo, ease) both; }
+    @keyframes grade-grow { from { transform: scaleX(0); } }
+    .grade-bar > span { transform-origin: left; }
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-grades]');
+  if (root) {
+    const { slug, name } = JSON.parse(root.dataset.grades!) as { slug: string; name: string };
+    const q = <T extends HTMLElement>(sel: string) => root.querySelector<T>(sel)!;
+    const title = q('[data-pick-title]'), sub = q('[data-pick-sub]'), status = q('[data-pick-status]');
+    const add = q<HTMLButtonElement>('[data-pick-add]'), quote = q<HTMLAnchorElement>('[data-pick-quote]');
+    const panel = q('[data-pick-panel]');
+    const sets = [...root.querySelectorAll<HTMLFieldSetElement>('fieldset[data-set]')];
+    const active = () => sets.find((f) => !f.hidden)!;
+
+    const pick = () => {
+      const set = active();
+      const form = set.dataset.set!, unit = set.dataset.unit!;
+      const input = set.querySelector<HTMLInputElement>('input:checked');
+      const params = new URLSearchParams({ species: slug, form });
+      status.classList.add('hidden');
+      if (!input) {
+        title.textContent = 'None yet';
+        sub.textContent = 'Tap a grade in the chart to choose it.';
+        add.disabled = true;
+      } else {
+        const { weight, other } = input.closest('label')!.dataset;
+        title.textContent = `${form} ${input.value} ${unit}`;
+        sub.textContent = `One piece ${weight}, same as ${other}.`;
+        add.disabled = false;
+        params.set('grade', `${input.value} ${unit}`);
+      }
+      quote.href = `/quote?${params}`;
+      panel.toggleAttribute('data-picked', !!input);
+    };
+
+    root.addEventListener('change', (e) => {
+      const el = e.target as HTMLInputElement;
+      if (el.name === 'grade-form') sets.forEach((f) => (f.hidden = f.dataset.set !== el.value));
+      pick();
+    });
+
+    add.addEventListener('click', () => {
+      const line = title.textContent!;
+      document.dispatchEvent(new CustomEvent('op:enquiry-upsert', { detail: { slug, name, qty: line } }));
+      status.replaceChildren(`Added to your enquiry list: ${name}, ${line}. `);
+      const open = document.createElement('button');
+      open.type = 'button';
+      open.className = 'font-semibold text-gold-ink underline underline-offset-2';
+      open.textContent = 'Open the list';
+      open.addEventListener('click', () => document.getElementById('enq-fab')?.click());
+      status.append(open);
+      status.classList.remove('hidden');
+    });
+
+    pick();
+  }
+</script>

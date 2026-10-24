@@ -3,6 +3,8 @@ import { Picture } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProductCard from '../../components/ProductCard.astro';
 import Icon from '../../components/Icon.astro';
+import GradeChart from '../../components/GradeChart.astro';
+import { gradeSetsFor } from '../../data/spec';
 import { photo } from '../../data/photos';
 import { products, productsBy, categoryOf, glossary, type Product } from '../../data/products';
 import { waLink } from '../../data/site';
@@ -17,6 +19,7 @@ const related = [...productsBy(p.category), ...products.filter((x) => x.featured
   .filter((x, i, all) => x.slug !== p.slug && all.findIndex((y) => y.slug === x.slug) === i)
   .slice(0, 3);
 const img = photo(p.image);
+const hasChart = gradeSetsFor(p.slug, p.forms).length > 0;
 
 const specs: { label: string; values: string[] }[] = [
   { label: 'Forms', values: p.forms },
@@ -87,7 +90,10 @@ const description = [
           {p.grading && (
             <div class="grid gap-1 py-5 sm:grid-cols-[8rem_1fr]">
               <dt class="font-semibold">Grading</dt>
-              <dd class="text-ink-2">{p.grading}</dd>
+              <dd class="text-ink-2">
+                {p.grading}
+                {hasChart && <a href="#grades" class="mt-1 block w-fit py-1 font-semibold text-gold-ink hover:underline">See the size grade chart</a>}
+              </dd>
             </div>
           )}
           <div class="grid gap-1 py-5 sm:grid-cols-[8rem_1fr]">
@@ -109,6 +115,8 @@ const description = [
         </div>
       </div>
     </div>
+
+    <GradeChart product={p} />
 
     <section class="mt-24" aria-labelledby="related">
       <div class="flex items-end justify-between gap-4">
