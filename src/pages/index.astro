@@ -32,16 +32,16 @@ const steps = [
   title={business.name}
   description="Ocean Prime is a seafood exporter in Visakhapatnam, India: vannamei and black tiger shrimp, squid, cuttlefish, ribbonfish, pomfret, seer fish, crab and more, frozen to your specification."
 >
-  <!-- HERO -->
-  <section class="on-dark relative isolate flex min-h-[calc(100svh-8.5rem)] items-end overflow-hidden bg-navy text-white md:min-h-[calc(100dvh-4.5rem)] md:items-center">
+  <!-- HERO: runs under the floating header (negative margin = header height). -->
+  <section class="on-dark relative isolate -mt-16 flex min-h-[calc(100svh-4.5rem)] items-end overflow-hidden bg-navy text-white md:-mt-[4.5rem] md:min-h-[100dvh] md:items-center">
     <HeroMedia />
-    <div class="absolute inset-0 -z-10 bg-gradient-to-t from-navy via-navy/75 to-navy/10 md:bg-gradient-to-r md:from-navy md:via-navy/70 md:to-transparent"></div>
-    <div class="container-x py-12 md:py-24">
-      <div class="hero-rise max-w-2xl">
-        <p class="inline-flex items-center gap-2 text-sm font-medium text-white/80">
+    <div class="absolute inset-0 -z-10 bg-gradient-to-t from-navy via-navy/70 to-navy/20 md:bg-gradient-to-r md:from-navy md:via-navy/65 md:to-transparent"></div>
+    <div class="container-x pb-10 pt-28 md:pb-32 md:pt-36">
+      <div class="hero-rise max-w-3xl">
+        <p class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-navy/40 py-1.5 pl-2.5 pr-3.5 text-sm font-medium text-white/85 backdrop-blur-sm">
           <Icon name="mapPin" size={16} class="text-gold" />Seafood exporter, Visakhapatnam, India
         </p>
-        <h1 class="mt-4 text-[2.6rem] font-bold leading-[1.02] tracking-[-0.035em] sm:text-6xl lg:text-7xl">
+        <h1 class="mt-5 text-[2.75rem] font-bold leading-[0.98] tracking-[-0.04em] sm:text-6xl lg:text-7xl xl:text-[5.4rem]">
           Seafood from the Bay of Bengal, <span class="text-gold">frozen for the world.</span>
         </h1>
         <p class="mt-5 max-w-lg text-lg leading-relaxed text-white/80">
@@ -51,6 +51,13 @@ const steps = [
           <a href="/contact" class="btn btn-gold">Request a quote<Icon name="arrowRight" size={18} /></a>
           <a href="/products" class="btn btn-ghost-light">View products</a>
         </div>
+      </div>
+    </div>
+    <!-- Port line + scroll cue -->
+    <div class="pointer-events-none absolute inset-x-0 bottom-0 hidden md:block">
+      <div class="container-x flex items-end justify-between border-t border-white/10 py-5 text-xs font-semibold uppercase tracking-[0.18em] text-white/60">
+        <p class="tabular-nums">Visakhapatnam port <span class="text-white/35">/</span> 17.69° N, 83.28° E</p>
+        <p class="flex items-center gap-2">Scroll<Icon name="arrowDown" size={14} class="scroll-cue text-gold" /></p>
       </div>
     </div>
   </section>
@@ -77,17 +84,18 @@ const steps = [
     </div>
   </section>
 
-  <!-- CATEGORY BENTO -->
-  <section class="container-x py-20 md:py-28">
-    <div class="flex flex-col gap-5 md:flex-row md:items-end md:justify-between" data-reveal>
-      <div class="max-w-2xl">
-        <h2 class="text-4xl font-bold leading-[1.05] md:text-5xl">Everything the east coast lands, in one supplier.</h2>
-        <p class="mt-4 max-w-xl text-lg leading-relaxed text-ink-2">Six product groups, from farmed shrimp to surimi. Choose the species, the form and the size grade you need.</p>
+  <!-- 01 CATEGORY BENTO -->
+  <section class="container-x py-20 md:py-32">
+    <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between" data-reveal>
+      <div class="max-w-3xl">
+        <p class="eyebrow"><span>01</span>Product range</p>
+        <h2 class="h-section mt-5">Everything the east coast lands, in one supplier.</h2>
+        <p class="mt-5 max-w-xl text-lg leading-relaxed text-ink-2">Six product groups, from farmed shrimp to surimi. Choose the species, the form and the size grade you need.</p>
       </div>
       <a href="/products" class="btn btn-line self-start md:self-auto">View products<Icon name="arrowRight" size={18} /></a>
     </div>
 
-    <div class="mt-10 grid auto-rows-[11.5rem] grid-cols-2 gap-3 md:auto-rows-[14rem] md:gap-4 lg:grid-cols-6">
+    <div class="mt-12 grid auto-rows-[11.5rem] grid-cols-2 gap-3 md:auto-rows-[15rem] md:gap-4 lg:grid-cols-6">
       {bento.map((b, i) => {
         const c = categories.find((x) => x.id === b.id)!;
         const n = productsBy(c.id).length;
@@ -102,12 +110,14 @@ const steps = [
               class="absolute inset-0 -z-10 size-full object-cover transition-transform duration-700 ease-[var(--ease-out-expo)] group-hover:scale-[1.05]"
             />
             <div class="absolute inset-0 -z-10 bg-gradient-to-t from-navy/95 via-navy/35 to-transparent"></div>
+            <span class="absolute right-3 top-3 grid size-9 place-items-center rounded-full border border-white/20 bg-navy/40 text-white backdrop-blur-sm transition-colors duration-300 group-hover:border-gold group-hover:bg-gold group-hover:text-navy md:right-4 md:top-4" aria-hidden="true">
+              <Icon name="arrowUpRight" size={16} />
+            </span>
             <div class="flex h-full flex-col justify-end p-4 md:p-6">
-              <h3 class:list={['font-display font-semibold leading-tight', i === 0 ? 'text-2xl md:text-4xl' : 'text-lg md:text-2xl']}>{c.name}</h3>
+              <p class="text-xs font-semibold tabular-nums tracking-[0.14em] text-white/60">{String(i + 1).padStart(2, '0')}</p>
+              <h3 class:list={['mt-1 font-display font-semibold leading-tight', i === 0 ? 'text-2xl md:text-4xl' : 'text-lg md:text-2xl']}>{c.name}</h3>
               {i < 2 && <p class="mt-2 hidden max-w-sm text-sm leading-relaxed text-white/80 sm:block">{c.blurb}</p>}
-              <span class="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-gold">
-                {n} {n === 1 ? 'product' : 'products'}<Icon name="arrowUpRight" size={16} class="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-              </span>
+              <span class="mt-2 text-sm font-medium text-gold">{n} {n === 1 ? 'product' : 'products'}</span>
             </div>
           </a>
         );
@@ -115,51 +125,84 @@ const steps = [
     </div>
   </section>
 
-  <!-- SIGNATURE SPECIES RAIL -->
-  <section class="border-y border-line bg-surface py-20 md:py-28">
-    <div class="container-x" data-reveal>
-      <h2 class="text-4xl font-bold leading-[1.05] md:text-5xl">India's most exported species.</h2>
-      <p class="mt-4 max-w-xl text-lg leading-relaxed text-ink-2">Frozen shrimp leads India's seafood exports, followed by fish and squid. These are the species buyers ask us for most.</p>
+  <!-- 02 SIGNATURE SPECIES RAIL -->
+  <section class="border-y border-line bg-surface py-20 md:py-32">
+    <div class="container-x flex flex-col gap-6 md:flex-row md:items-end md:justify-between" data-reveal>
+      <div class="max-w-3xl">
+        <p class="eyebrow"><span>02</span>Signature species</p>
+        <h2 class="h-section mt-5">India's most exported species.</h2>
+        <p class="mt-5 max-w-xl text-lg leading-relaxed text-ink-2">Frozen shrimp leads India's seafood exports, followed by fish and squid. These are the species buyers ask us for most.</p>
+      </div>
+      <p class="text-sm font-medium text-ink-2 lg:hidden" aria-hidden="true">Swipe to see more <Icon name="arrowRight" size={14} class="inline text-gold-ink" /></p>
     </div>
-    <div class="no-scrollbar mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-4 px-4 pb-2 md:scroll-px-8 md:px-8 lg:mx-auto lg:grid lg:max-w-[80rem] lg:grid-cols-3 lg:overflow-visible lg:px-8">
+    <div class="no-scrollbar mt-12 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-4 px-4 pb-2 md:scroll-px-8 md:px-8 lg:mx-auto lg:grid lg:max-w-[80rem] lg:grid-cols-3 lg:overflow-visible lg:px-8">
       {featured.map((p, i) => (
         <ProductCard product={p} class="w-[82%] shrink-0 snap-start sm:w-[46%] lg:w-auto" data-reveal style={`--d:${i % 3}`} />
       ))}
     </div>
   </section>
 
-  <!-- WHY VIZAG -->
-  <section class="container-x grid items-center gap-10 py-20 md:py-28 lg:grid-cols-2 lg:gap-16">
-    <div class="relative overflow-hidden rounded-card" data-reveal>
-      <Picture src={photo('harbour')} alt="Fishing trawlers moored at Visakhapatnam fishing harbour at dawn" widths={[480, 800, 1200]} sizes="(min-width: 1024px) 600px, 100vw" formats={['avif', 'webp']} class="aspect-[4/3] w-full object-cover" />
+  <!-- 03 PACKED TO YOUR SPEC (dark band) -->
+  <section class="on-dark deep-water relative py-20 md:py-32">
+    <Picture src={photo('cartons')} alt="" widths={[800, 1400, 1920]} sizes="100vw" formats={['avif', 'webp']} class="absolute inset-0 -z-20 size-full object-cover opacity-25" />
+    <div class="container-x">
+      <div class="grid gap-6 lg:grid-cols-[1.2fr_1fr] lg:items-end" data-reveal>
+        <div>
+          <p class="eyebrow"><span>03</span>Your specification</p>
+          <h2 class="h-section mt-5">Packed exactly the way your market buys it.</h2>
+        </div>
+        <p class="text-lg leading-relaxed text-white/75">Tell us the cut, the freezing method, the glaze and the carton. Every detail is agreed with you before production starts.</p>
+      </div>
+      <dl class="mt-14 grid grid-cols-2 gap-px overflow-hidden rounded-card border border-white/10 bg-white/10 lg:grid-cols-5">
+        {Object.entries(glossary).map(([term, meaning], i) => (
+          <div class="bg-navy/85 p-4 backdrop-blur-sm md:p-6" data-reveal style={`--d:${i % 5}`}>
+            <dt class="font-display text-2xl font-semibold tracking-tight text-gold">{term}</dt>
+            <dd class="mt-1.5 text-sm leading-relaxed text-white/75">{meaning}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  <!-- 04 WHY VIZAG -->
+  <section class="container-x grid items-center gap-10 py-20 md:py-32 lg:grid-cols-2 lg:gap-20">
+    <div class="relative" data-reveal>
+      <div class="overflow-hidden rounded-card">
+        <Picture src={photo('harbour')} alt="Fishing trawlers moored at Visakhapatnam fishing harbour at dawn" widths={[480, 800, 1200]} sizes="(min-width: 1024px) 600px, 100vw" formats={['avif', 'webp']} class="aspect-[4/5] w-full object-cover sm:aspect-[4/3] lg:aspect-[4/5]" />
+      </div>
+      <p class="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full bg-navy/80 px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-white backdrop-blur-sm">
+        <Icon name="anchor" size={14} class="text-gold" />Visakhapatnam fishing harbour
+      </p>
     </div>
     <div data-reveal style="--d:1">
-      <h2 class="text-4xl font-bold leading-[1.05] md:text-5xl">Rooted on the Vizag coast.</h2>
-      <p class="mt-5 text-lg leading-relaxed text-ink-2">
+      <p class="eyebrow"><span>04</span>The coast</p>
+      <h2 class="h-section mt-5">Rooted on the Vizag coast.</h2>
+      <p class="mt-6 text-lg leading-relaxed text-ink-2">
         Visakhapatnam is one of the busiest seafood hubs on India's east coast. We work where the catch comes in, which keeps the time from water to freezer short.
       </p>
-      <dl class="mt-8 grid gap-6">
-        <div class="flex gap-4">
-          <dt class="grid size-11 shrink-0 place-items-center rounded-full border border-line text-gold-ink"><Icon name="plant" size={22} /><span class="sr-only">Close to the farms</span></dt>
-          <dd><strong class="block font-semibold">Close to the farms</strong><span class="text-ink-2">Andhra Pradesh is India's largest shrimp-farming state, from the Godavari delta to Nellore.</span></dd>
+      <dl class="mt-10 divide-y divide-line border-y border-line">
+        <div class="flex gap-5 py-5">
+          <dt class="grid size-11 shrink-0 place-items-center rounded-full bg-navy text-gold"><Icon name="plant" size={22} /><span class="sr-only">Close to the farms</span></dt>
+          <dd><strong class="block text-lg font-semibold">Close to the farms</strong><span class="text-ink-2">Andhra Pradesh is India's largest shrimp-farming state, from the Godavari delta to Nellore.</span></dd>
         </div>
-        <div class="flex gap-4">
-          <dt class="grid size-11 shrink-0 place-items-center rounded-full border border-line text-gold-ink"><Icon name="waves" size={22} /><span class="sr-only">Bay of Bengal catch</span></dt>
-          <dd><strong class="block font-semibold">Bay of Bengal catch</strong><span class="text-ink-2">Ribbonfish, squid, pomfret and seer landed daily at the Vizag fishing harbour.</span></dd>
+        <div class="flex gap-5 py-5">
+          <dt class="grid size-11 shrink-0 place-items-center rounded-full bg-navy text-gold"><Icon name="waves" size={22} /><span class="sr-only">Bay of Bengal catch</span></dt>
+          <dd><strong class="block text-lg font-semibold">Bay of Bengal catch</strong><span class="text-ink-2">Ribbonfish, squid, pomfret and seer landed daily at the Vizag fishing harbour.</span></dd>
         </div>
-        <div class="flex gap-4">
-          <dt class="grid size-11 shrink-0 place-items-center rounded-full border border-line text-gold-ink"><Icon name="anchor" size={22} /><span class="sr-only">A deep-water port</span></dt>
-          <dd><strong class="block font-semibold">A deep-water port</strong><span class="text-ink-2">Reefer containers sail from Visakhapatnam port to Asia, the Middle East, Europe and the Americas.</span></dd>
+        <div class="flex gap-5 py-5">
+          <dt class="grid size-11 shrink-0 place-items-center rounded-full bg-navy text-gold"><Icon name="anchor" size={22} /><span class="sr-only">A deep-water port</span></dt>
+          <dd><strong class="block text-lg font-semibold">A deep-water port</strong><span class="text-ink-2">Reefer containers sail from Visakhapatnam port to Asia, the Middle East, Europe and the Americas.</span></dd>
         </div>
       </dl>
     </div>
   </section>
 
-  <!-- REGISTRATIONS + MARKETS (DEMO data from site.ts) -->
-  <section aria-labelledby="trust" class="container-x pb-20 md:pb-28">
+  <!-- 05 REGISTRATIONS + MARKETS (DEMO data from site.ts) -->
+  <section aria-labelledby="trust" class="container-x pb-20 md:pb-32">
     <div class="grid gap-px overflow-hidden rounded-card border border-line bg-line lg:grid-cols-[1.4fr_1fr]" data-reveal>
       <div class="bg-surface p-6 md:p-10">
-        <h2 id="trust" class="text-3xl font-bold leading-[1.1] md:text-4xl">Registered and approved for export.</h2>
+        <p class="eyebrow"><span>05</span>Credentials</p>
+        <h2 id="trust" class="mt-5 text-3xl font-bold leading-[1.05] tracking-[-0.03em] md:text-[2.75rem]">Registered and approved for export.</h2>
         <ul class="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
           {demo.registrations.map((r) => (
             <li class="rounded-[14px] border border-line bg-bg p-4">
@@ -171,67 +214,54 @@ const steps = [
         </ul>
         <p class="mt-5 text-sm text-ink-2">Registration numbers and certificates are shared with buyers on request.</p>
       </div>
-      <div class="on-dark bg-navy p-6 text-white md:p-10">
+      <div class="on-dark deep-water relative p-6 md:p-10">
         <h2 class="flex items-center gap-2 font-display text-2xl font-semibold"><Icon name="globe" size={24} class="text-gold" />Where we ship</h2>
         <ul class="mt-6 flex flex-wrap gap-2">
-          {demo.markets.map((m) => <li class="rounded-full border border-white/15 px-4 py-2 text-[0.95rem] font-medium">{m}</li>)}
+          {demo.markets.map((m) => <li class="rounded-full border border-white/15 bg-white/5 px-4 py-2 text-[0.95rem] font-medium">{m}</li>)}
         </ul>
         <p class="mt-6 leading-relaxed text-white/75">Shipping somewhere else? Tell us your port and we will quote CFR or CIF.</p>
       </div>
     </div>
   </section>
 
-  <!-- CATCH TO CONTAINER -->
-  <section class="border-y border-line bg-surface py-20 md:py-28">
+  <!-- 06 CATCH TO CONTAINER (dark band) -->
+  <section class="on-dark deep-water relative py-20 md:py-32">
+    <Picture src={photo('cold-chain')} alt="" widths={[800, 1400, 1920]} sizes="100vw" formats={['avif', 'webp']} class="absolute inset-0 -z-20 size-full object-cover opacity-20" />
     <div class="container-x">
-      <div class="flex flex-col gap-5 md:flex-row md:items-end md:justify-between" data-reveal>
-        <h2 class="max-w-xl text-4xl font-bold leading-[1.05] md:text-5xl">From catch to container, without breaking the cold chain.</h2>
-        <a href="/process" class="btn btn-line self-start md:self-auto">See the process<Icon name="arrowRight" size={18} /></a>
+      <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between" data-reveal>
+        <div class="max-w-3xl">
+          <p class="eyebrow"><span>06</span>Cold chain</p>
+          <h2 class="h-section mt-5">From catch to container, without breaking the cold chain.</h2>
+        </div>
+        <a href="/process" class="btn btn-ghost-light self-start md:self-auto">See the process<Icon name="arrowRight" size={18} /></a>
       </div>
-      <ol class="relative mt-12 grid gap-8 md:grid-cols-4 md:gap-6">
-        <span class="absolute left-[1.375rem] top-2 bottom-2 w-px bg-line md:left-0 md:right-0 md:top-[1.375rem] md:bottom-auto md:h-px md:w-auto" aria-hidden="true"></span>
+      <ol class="mt-14 grid gap-3 md:grid-cols-4 md:gap-4">
         {steps.map((s, i) => (
-          <li class="relative flex gap-5 md:flex-col md:gap-0" data-reveal style={`--d:${i}`}>
-            <span class="relative grid size-11 shrink-0 place-items-center rounded-full border border-gold/30 bg-navy text-gold ring-4 ring-surface"><Icon name={s.icon} size={20} /></span>
-            <div class="md:mt-6">
-              <p class="text-sm font-semibold text-gold-ink">Step {i + 1}</p>
-              <h3 class="mt-1 text-xl font-semibold">{s.title}</h3>
-              <p class="mt-2 leading-relaxed text-ink-2">{s.text}</p>
+          <li class="glass-tile relative flex flex-col p-5 backdrop-blur-sm md:p-6" data-reveal style={`--d:${i}`}>
+            <div class="flex items-center justify-between">
+              <span class="grid size-11 place-items-center rounded-full bg-gold text-navy"><Icon name={s.icon} size={20} /></span>
+              <span class="font-display text-4xl font-semibold tabular-nums text-white/15" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
             </div>
+            <p class="mt-6 text-sm font-semibold text-gold">Step {i + 1}</p>
+            <h3 class="mt-1 text-xl font-semibold">{s.title}</h3>
+            <p class="mt-2 leading-relaxed text-white/75">{s.text}</p>
           </li>
         ))}
       </ol>
     </div>
   </section>
 
-  <!-- PACKED TO YOUR SPEC -->
-  <section class="on-dark relative isolate overflow-hidden bg-navy py-20 text-white md:py-28">
-    <Picture src={photo('cartons')} alt="" widths={[800, 1400, 1920]} sizes="100vw" formats={['avif', 'webp']} class="absolute inset-0 -z-10 size-full object-cover opacity-30" />
-    <div class="absolute inset-0 -z-10 bg-gradient-to-b from-navy via-navy/85 to-navy"></div>
-    <div class="container-x">
-      <div class="max-w-2xl" data-reveal>
-        <h2 class="text-4xl font-bold leading-[1.05] md:text-5xl">Packed to your specification.</h2>
-        <p class="mt-4 text-lg leading-relaxed text-white/75">Tell us the cut, the freezing method, the glaze and the carton. Every detail is agreed with you before production starts.</p>
-      </div>
-      <dl class="mt-12 grid grid-cols-2 gap-px overflow-hidden rounded-card border border-white/10 bg-white/10 lg:grid-cols-5">
-        {Object.entries(glossary).map(([term, meaning], i) => (
-          <div class="bg-navy/90 p-4 md:p-5" data-reveal style={`--d:${i % 5}`}>
-            <dt class="font-display text-xl font-semibold text-gold">{term}</dt>
-            <dd class="mt-1 text-sm leading-relaxed text-white/75">{meaning}</dd>
-          </div>
-        ))}
-      </dl>
+  <!-- 07 BUYER QUOTES (DEMO data from site.ts) -->
+  <section aria-labelledby="buyers" class="container-x pt-20 md:pt-32">
+    <div data-reveal>
+      <p class="eyebrow"><span>07</span>Buyers</p>
+      <h2 id="buyers" class="h-section mt-5 max-w-2xl">What buyers say.</h2>
     </div>
-  </section>
-
-  <!-- BUYER QUOTES (DEMO data from site.ts) -->
-  <section aria-labelledby="buyers" class="container-x pt-20 md:pt-28">
-    <h2 id="buyers" class="max-w-xl text-4xl font-bold leading-[1.05] md:text-5xl" data-reveal>What buyers say.</h2>
-    <ul class="mt-10 grid gap-4 md:grid-cols-3">
+    <ul class="mt-12 grid gap-4 md:grid-cols-3">
       {demo.testimonials.map((t, i) => (
-        <li class="flex flex-col rounded-card border border-line bg-surface p-6 md:p-7" data-reveal style={`--d:${i}`}>
-          <Icon name="quotes" size={28} class="text-gold" />
-          <blockquote class="mt-4 flex-1 text-lg leading-relaxed">{t.quote}</blockquote>
+        <li class="flex flex-col rounded-card border border-line bg-surface p-6 md:p-8" data-reveal style={`--d:${i}`}>
+          <Icon name="quotes" size={30} class="text-gold" />
+          <blockquote class="mt-5 flex-1 font-display text-xl leading-snug tracking-[-0.01em]">{t.quote}</blockquote>
           <p class="mt-6 border-t border-line pt-4 text-sm"><span class="font-semibold">{t.who}</span><span class="text-ink-2">, {t.where}</span></p>
         </li>
       ))}
@@ -239,11 +269,12 @@ const steps = [
   </section>
 
   <!-- FINAL CTA -->
-  <section class="container-x py-20 md:py-28">
+  <section class="container-x py-20 md:py-32">
     <div class="grid gap-10 rounded-[24px] border border-line bg-surface p-6 sm:p-10 lg:grid-cols-[1.2fr_1fr] lg:items-center lg:p-14" data-reveal>
       <div>
-        <h2 class="text-4xl font-bold leading-[1.05] md:text-5xl">Tell us what you need.</h2>
-        <p class="mt-4 max-w-lg text-lg leading-relaxed text-ink-2">Send the species, form, size grade and quantity. We reply with availability and a price for your port.</p>
+        <p class="eyebrow"><span>08</span>Start an order</p>
+        <h2 class="h-section mt-5">Tell us what you need.</h2>
+        <p class="mt-5 max-w-lg text-lg leading-relaxed text-ink-2">Send the species, form, size grade and quantity. We reply with availability and a price for your port.</p>
         <div class="mt-8 flex flex-wrap gap-3">
           <a href="/contact" class="btn btn-gold">Request a quote<Icon name="arrowRight" size={18} /></a>
           <a href={waLink('Hello Ocean Prime, I would like a quote.')} target="_blank" rel="noopener" class="btn btn-line"><Icon name="whatsapp" size={20} class="text-[#1f9d55]" />WhatsApp us</a>
@@ -253,7 +284,7 @@ const steps = [
         {business.phones.map((p) => (
           <li>
             <a href={tel(p)} class="flex items-center justify-between gap-4 rounded-[14px] border border-line px-5 py-4 transition-colors hover:border-gold/60">
-              <span class="flex items-center gap-3 font-medium"><Icon name="phone" size={20} class="text-gold-ink" />{p}</span>
+              <span class="flex items-center gap-3 font-medium tabular-nums"><Icon name="phone" size={20} class="text-gold-ink" />{p}</span>
               <span class="text-sm font-semibold text-gold-ink">Call</span>
             </a>
           </li>

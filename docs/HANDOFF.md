@@ -13,6 +13,15 @@ Last updated: 2026-10-24
 - Hero video: `public/video/hero.mp4` (Flow, "dtc kai", Veo 3.1 Fast, start frame = `assets-raw/hero.png`, 20 credits, 1 take). Cropped to remove the Veo mark, muted, 16 s forward+reverse loop, 1280x720 CRF 30, 3.0 MB. Plays only at >= 1024 px, no reduced motion, no save-data; mobile keeps the photo.
 - DEMO data (user: "create with dummy data"): `demo` block in `src/data/site.ts` feeds the home registrations/markets/buyer-quotes sections and the contact trade-terms card; list in `CLIENT.md`. Never put it in JSON-LD.
 - Enquiry list (`src/components/Enquiry.astro`, in BaseLayout): B2B answer to the reference site's cart (fish-king.netlify.app). "Add to enquiry" on product cards and product pages (`data-enq-add`), floating counter, `<dialog>` sheet (bottom on phones, right drawer md+), qty per item, sends via wa.me or mailto. localStorage `op-enquiry`, try/catch. Tested in Playwright (add, toggle, validation, message text, Esc) at 390/1440 light/dark.
+- **Premium design pass (2026-10-24, user: "very very normal, not a masterpiece")**:
+  - Floating glass pill header. Height contract: outer padding + pill = 4rem on mobile, 4.5rem from md. The products sticky bar `top-16 md:top-[4.5rem]` and `scroll-padding-top: 5rem` depend on it.
+  - Full-screen "deep water" mobile menu: numbered links with photo thumbs, a gold current page, a live Vizag IST clock, the export desk contact panel and 2 CTAs.
+  - New `global.css` components:
+    - `.deep-water`: navy with drifting light pools and grain. It never sets `position`, so add `relative` yourself. Background images inside it use `-z-20`.
+    - `.glass-tile`, `.eyebrow` ("01 —— Label") and `.h-section`.
+  - The home page is rebuilt as numbered editorial sections 01–08. The spec, cold chain and markets bands, and the footer, are deep-water.
+  - The footer has a giant Cinzel gold wordmark.
+  - Product cards are `@container`: the short "Details" label shows on narrow cards.
 - User rule 2026-10-24: do NOT ask anything; images = ChatGPT in "DREAM TEAM SERVICES", video = Flow in "dtc kai" (x1, budget <= 100 credits). Deliver the final website.
 
 ## Next steps
@@ -28,5 +37,7 @@ Last updated: 2026-10-24
 - Run `python` without `-I` for PIL (user site-packages). Don't `rm` relative globs after `cd` (blocked); copy into a fresh folder instead.
 - Port 4392 may be taken by an old server; check which port `astro preview` printed before screenshotting. `shots.mjs` forces reduced motion, so the hero video never shows in it; `vidcheck.mjs` (scratchpad) checks the video.
 - Bash sandbox sometimes denies `head`, `tail` and `ls`; use Read/Grep.
+- `build.format: 'file'` makes `Astro.url.pathname` "/index.html" or "/products.html". `Header.astro` strips `/index` and `.html` before the active-link check (the nav highlight was silently dead before 2026-10-24).
+- In Git Bash, prefix node scripts that get "/" page args with `MSYS_NO_PATHCONV=1`. Without it, "/" becomes a Windows path and the shots land in a stray folder.
 - Screenshots: scratchpad `shots.mjs <base> <out> [pages] [widths] [themes]` with `PW_PATH="$(npm root -g)/playwright"` (off-screen, reduced motion, reports overflow and console errors).
 - Test scripts (scratchpad, may be gone): `enq.mjs` drives the enquiry flow; with `noopener` the popup URL reads blank, so stub `window.open` to read the WhatsApp text.

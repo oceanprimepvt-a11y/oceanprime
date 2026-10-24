@@ -122,6 +122,45 @@
   .field::placeholder { color: var(--c-ink-2); opacity: .8; }
   .field:focus { outline: none; border-color: var(--color-gold); box-shadow: 0 0 0 3px rgb(214 166 58 / .25); }
   .field[aria-invalid='true'] { border-color: #c2412d; }
+  /* Deep water: navy with slow pools of light and a fine grain. Used for dark bands, the menu and the footer.
+     The element must be positioned itself (dialogs already are), so this class never touches position. */
+  .deep-water { isolation: isolate; overflow: hidden; background-color: var(--color-navy); color: #fff; }
+  .deep-water::before, .deep-water::after { content: ''; position: absolute; pointer-events: none; z-index: -1; }
+  .deep-water::before {
+    inset: -25%;
+    background:
+      radial-gradient(38% 32% at 18% 22%, rgb(214 166 58 / .16), transparent 70%),
+      radial-gradient(42% 38% at 82% 78%, rgb(46 120 160 / .26), transparent 70%),
+      radial-gradient(50% 40% at 55% 5%, rgb(24 58 104 / .7), transparent 70%);
+  }
+  .deep-water::after {
+    inset: 0; opacity: .09; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .glass-tile {
+    border-radius: 14px; border: 1px solid rgb(255 255 255 / .12); background: rgb(255 255 255 / .05);
+    transition: background-color .2s, border-color .2s;
+  }
+  .glass-tile:hover { background: rgb(255 255 255 / .09); border-color: rgb(214 166 58 / .5); }
+
+  /* Section eyebrow: "01 —— Product range". */
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: .75rem;
+    font-size: .78rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--c-gold-ink);
+  }
+  .eyebrow > span:first-child { font-variant-numeric: tabular-nums; }
+  .eyebrow > span:first-child::after {
+    content: ''; display: inline-block; width: 1.75rem; height: 1px; margin-left: .75rem;
+    vertical-align: middle; background: currentColor; opacity: .55;
+  }
+  .on-dark .eyebrow { color: var(--color-gold); }
+
+  /* Editorial section headline. */
+  .h-section { font-size: 2.4rem; font-weight: 700; line-height: 1.02; letter-spacing: -0.035em; }
+  @media (min-width: 768px) { .h-section { font-size: 3.6rem; } }
+  @media (min-width: 1280px) { .h-section { font-size: 4rem; } }
+
   /* Enquiry toggle: "+" when off, a tick when the product is on the list. */
   .enq-add .enq-tick, .enq-add[aria-pressed='true'] .enq-plus { display: none; }
   .enq-add[aria-pressed='true'] .enq-tick { display: inline-block; }
@@ -140,6 +179,12 @@
   .hero-rise > *:nth-child(3) { animation-delay: .16s; }
   .hero-rise > *:nth-child(4) { animation-delay: .24s; }
   @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+  .deep-water::before { animation: drift 26s ease-in-out infinite alternate; }
+  @keyframes drift { to { transform: translate3d(5%, -4%, 0) scale(1.1); } }
+
+  .scroll-cue { animation: cue 2.4s var(--ease-out-expo) infinite; }
+  @keyframes cue { 0% { transform: translateY(-4px); opacity: 0; } 40% { opacity: 1; } 100% { transform: translateY(6px); opacity: 0; } }
 
   .marquee-track { animation: marquee 48s linear infinite; }
   .marquee:hover .marquee-track { animation-play-state: paused; }
