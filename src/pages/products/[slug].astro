@@ -108,7 +108,7 @@ const description = [
         <div class="mt-12 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
           <h2 class="text-2xl font-bold">Spec at a glance</h2>
           <button type="button" data-print-product class="inline-flex items-center gap-2 py-2 text-sm font-semibold text-gold-ink hover:underline">
-            <Icon name="download" size={18} />Download spec sheet
+            <Icon name="download" size={18} />Print or save as PDF
           </button>
         </div>
         <dl class="mt-4 divide-y divide-line border-y border-line">
@@ -254,7 +254,12 @@ const description = [
     document.documentElement.dataset.print = 'product';
     const date = sheet.querySelector('[data-sheet-date]');
     if (date) date.textContent = ` · ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}`;
-    document.querySelector('[data-print-product]')?.addEventListener('click', () => print());
+    // The sheet photo is lazy (hidden on screen); load it before printing so the sheet never prints blank.
+    document.querySelector('[data-print-product]')?.addEventListener('click', async () => {
+      const img = document.querySelector<HTMLImageElement>('.ps-img');
+      if (img) { img.loading = 'eager'; await img.decode().catch(() => {}); }
+      print();
+    });
   }
 
   // Related species rail: the buttons scroll one card and disable at either end.

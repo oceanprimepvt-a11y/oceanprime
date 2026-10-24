@@ -86,7 +86,7 @@ const data = JSON.stringify({ slug: p.slug, name: p.name }).replace(/</g, '\\u00
           </button>
           <a data-pick-quote href={`/quote?species=${p.slug}`} class="btn btn-line max-sm:px-4"><span class="sm:hidden">Full spec</span><span class="max-sm:hidden">Build the full spec</span><Icon name="arrowRight" size={18} /></a>
         </div>
-        <p data-pick-status class="mt-3 hidden text-sm" role="status"></p>
+        <p data-pick-status class="mt-3 text-sm empty:mt-0" role="status"></p>
       </div>
     </div>
   </section>
@@ -154,7 +154,7 @@ const data = JSON.stringify({ slug: p.slug, name: p.name }).replace(/</g, '\\u00
       const form = set.dataset.set!, unit = set.dataset.unit!;
       const input = set.querySelector<HTMLInputElement>('input:checked');
       const params = new URLSearchParams({ species: slug, form });
-      status.classList.add('hidden');
+      status.replaceChildren(); // stays rendered so screen readers hear the next message
       if (!input) {
         title.textContent = 'None yet';
         sub.textContent = 'Tap a grade in the chart to choose it.';
@@ -186,7 +186,6 @@ const data = JSON.stringify({ slug: p.slug, name: p.name }).replace(/</g, '\\u00
       open.textContent = 'Open the list';
       open.addEventListener('click', () => document.getElementById('enq-fab')?.click());
       status.append(open);
-      status.classList.remove('hidden');
     });
 
     pick();

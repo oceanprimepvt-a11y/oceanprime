@@ -46,7 +46,7 @@ const many = pics.length > 1;
   <dialog class="pz" data-zoom aria-label={`${alt}, larger photo`}>
     <div class="pz-stage" data-zoom-stage>
       {large.map((l, i) => (
-        <img src={l.src} width={l.attributes.width} height={l.attributes.height} alt={alt} data-zoom-img={i} hidden decoding="async" draggable="false" />
+        <img src={l.src} width={l.attributes.width} height={l.attributes.height} alt={alt} data-zoom-img={i} hidden loading="lazy" decoding="async" draggable="false" />
       ))}
     </div>
     <p class="pz-tip">Tap the photo to zoom in. Drag to look around.</p>

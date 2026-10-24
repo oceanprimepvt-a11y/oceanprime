@@ -159,12 +159,12 @@ const questions = [
               <dl id="spec-recap" class="divide-y divide-line rounded-card border border-line lg:hidden"></dl>
               <div class="grid gap-4 sm:grid-cols-2">
                 <div class="grid gap-2">
-                  <label for="spec-name" class="text-sm font-semibold">Your name <span class="text-gold-ink">*</span></label>
-                  <input id="spec-name" name="name" class="field" autocomplete="name" maxlength="80" aria-describedby="spec-error" />
+                  <label for="spec-name" class="text-sm font-semibold">Your name <span class="text-gold-ink" aria-hidden="true">*</span></label>
+                  <input id="spec-name" name="name" class="field" autocomplete="name" maxlength="80" aria-required="true" enterkeyhint="next" aria-describedby="spec-error" />
                 </div>
                 <div class="grid gap-2">
                   <label for="spec-company" class="text-sm font-semibold">Company</label>
-                  <input id="spec-company" name="company" class="field" autocomplete="organization" maxlength="80" />
+                  <input id="spec-company" name="company" class="field" autocomplete="organization" maxlength="80" enterkeyhint="done" />
                 </div>
               </div>
               <div class="grid gap-2">
@@ -433,8 +433,9 @@ const questions = [
         <div class="spec-row"${prev[k] !== undefined && prev[k] !== v && v ? ' data-fresh' : ''}><dt>${k}</dt><dd${v ? '' : ' data-empty'}>${esc(v || 'Not chosen yet')}</dd></div>`).join('');
       prev = Object.fromEntries(list);
       q('#spec-recap').innerHTML = list.map(([k, v]) => `
-        <div class="flex items-start justify-between gap-3 px-4 py-3"><div class="min-w-0"><dt class="text-xs font-semibold uppercase tracking-[0.12em] text-ink-2">${k}</dt><dd class="mt-0.5 font-medium${v ? '' : ' text-ink-2'}">${esc(v || TBA)}</dd></div>
-        <button type="button" data-goto="${stepOf[k]}" class="spec-link -mr-2 shrink-0 text-sm" aria-label="Change ${k.toLowerCase()}">Change</button></div>`).join('');
+        <div class="px-4 py-3"><dt class="text-xs font-semibold uppercase tracking-[0.12em] text-ink-2">${k}</dt>
+        <dd class="mt-0.5 flex items-start justify-between gap-3"><span class="min-w-0 font-medium${v ? '' : ' text-ink-2'}">${esc(v || TBA)}</span>
+        <button type="button" data-goto="${stepOf[k]}" class="spec-link -mr-2 -mt-1 shrink-0 text-sm" aria-label="Change ${k.toLowerCase()}">Change</button></dd></div>`).join('');
       q<HTMLElement>('#spec-review').hidden = step === SEND || !s.slug;
       q<HTMLElement>('#spec-reset').hidden = !s.slug;
       q('#spec-live').textContent = [sp?.name, s.form, s.grade, s.freezing].filter(Boolean).join(' · ');
@@ -452,11 +453,11 @@ const questions = [
       renderState();
       const pill = pills[i];
       const rail = q<HTMLElement>('#spec-rail');
-      rail.scrollTo({ left: pill.offsetLeft - rail.clientWidth / 2 + pill.clientWidth / 2, behavior: 'smooth' }); // the strip only, never the page
+      const smooth = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+      rail.scrollTo({ left: pill.offsetLeft - rail.clientWidth / 2 + pill.clientWidth / 2, behavior: smooth ? 'smooth' : 'auto' }); // the strip only, never the page
       if (!focus) return;
       const top = form.getBoundingClientRect().top;
       if (top < 80 || top > innerHeight * 0.6) {
-        const smooth = !matchMedia('(prefers-reduced-motion: reduce)').matches;
         scrollTo({ top: scrollY + root.getBoundingClientRect().top - 88, behavior: smooth ? 'smooth' : 'auto' });
       }
       panels[i].querySelector<HTMLElement>('legend')!.focus({ preventScroll: true });
@@ -501,10 +502,10 @@ const questions = [
       renderState();
     });
 
-    // Enter in a text field moves on instead of submitting.
+    // Enter in a text field moves on instead of submitting; on the last step it never sends (the buyer picks WhatsApp or email).
     form.addEventListener('keydown', (e) => {
       const el = e.target as HTMLElement;
-      if (e.key === 'Enter' && el.tagName === 'INPUT' && step !== SEND) { e.preventDefault(); next.click(); }
+      if (e.key === 'Enter' && el.tagName === 'INPUT') { e.preventDefault(); if (step !== SEND) next.click(); }
     });
 
     root.addEventListener('click', (e) => {
