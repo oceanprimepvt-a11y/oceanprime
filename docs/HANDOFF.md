@@ -40,3 +40,9 @@ Last updated: 2026-10-25 (masterpiece step 4 done)
 - In Git Bash, prefix node scripts that get "/" page args with `MSYS_NO_PATHCONV=1`. Without it, "/" becomes a Windows path and the shots land in a stray folder.
 - Screenshots: scratchpad `shots.mjs <base> <out> [pages] [widths] [themes]` with `PW_PATH="$(npm root -g)/playwright"` (off-screen, reduced motion, reports overflow and console errors).
 - Test scripts (scratchpad, may be gone): `enq.mjs` drives the enquiry flow; with `noopener` the popup URL reads blank, so stub `window.open` to read the WhatsApp text.
+
+## Live preview (2026-10-25)
+- Live: https://oceanprime.surge.sh (Surge, logged in as govardhan5009@gmail.com). GitHub: oceanprimepvt-a11y/oceanprime (main).
+- Redeploy: `SITE_URL=https://oceanprime.surge.sh npm run build && surge dist oceanprime.surge.sh` (Git Bash). Surge ignores `public/_headers`.
+- Not GitHub Pages: a project page lives under /oceanprime/ and every root link would break. Once the client's domain is set, move to Vercel/Cloudflare with SITE_URL.
+- Still to do: re-run mobile.mjs + kbd.mjs after commit 0db189e (9 review fixes), then mark step 7 [x] in MASTERPIECE-PLAN.md.
